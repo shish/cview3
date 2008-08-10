@@ -133,12 +133,22 @@ function initDisplay() {
 	initPreload();
 }
 function initPreload() {
+	bookSelector = document.getElementById("book");
 	pageSelector = document.getElementById("page");
+	chapSelector = document.getElementById("chap");
 	pages = pageSelector.options.length;
+	chaps = chapSelector.options.length;
 	if(pageSelector.selectedIndex+1 < pages) {
 		nextPage = pageSelector.options[pageSelector.selectedIndex+1].value;
 		img = Image();
 		img.src = root + "/" + selectedValue(bookSelector) + "/" + selectedValue(chapSelector) + "/" + nextPage;
+	}
+	else if(chapSelector.selectedIndex+1 < chaps) {
+		nextChap = chapSelector.options[chapSelector.selectedIndex+1].value;
+		nextChapPages = getPages(selectedValue(bookSelector), nextChap);
+		nextPage = nextChapPages[0];
+		img = Image();
+		img.src = root + "/" + selectedValue(bookSelector) + "/" + nextChap + "/" + nextPage;
 	}
 }
 
