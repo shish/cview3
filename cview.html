@@ -1,0 +1,17 @@
+<html>
+    <head>
+        <title>CView3: Javascript Comic Viewer</title>
+		<link rel='stylesheet' href='cview.css' type='text/css'>
+		<script type="text/javascript" src="cview.js"></script>
+    </head>
+    <body onload="initBookSelector();">
+		<center>
+			<form id="selector">
+				<select id="book" onchange="initChapSelector();"></select>
+				<select id="chap" onchange="initPageSelector();"></select>
+				<select id="page" onchange="initDisplay();"></select>
+			</form>
+			<p><a href="#" onclick="moveToNextPage(); return false;"><img id="display" src="spinner.gif"></a></td>
+		</center>
+    </body>
+</html>
