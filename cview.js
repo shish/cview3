@@ -166,4 +166,10 @@ function moveToNextPage() {
 		initPageSelector();
 	}
 }
+
+function setScaled(scaled) {
+	display = document.getElementById("display");
+	if(scaled) display.style.width="100%";
+	else display.style.width="";
+}
 // }}}
