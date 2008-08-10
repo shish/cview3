@@ -127,8 +127,8 @@ function initDisplay() {
 	bookSelector = document.getElementById("book");
 	chapSelector = document.getElementById("chap");
 	pageSelector = document.getElementById("page");
-	display = document.getElementById("display");
-	display.src = root + "/" + selectedValue(bookSelector) + "/" + selectedValue(chapSelector) + "/" + selectedValue(pageSelector);
+	xdisplay = document.getElementById("display");
+	xdisplay.src = root + "/" + selectedValue(bookSelector) + "/" + selectedValue(chapSelector) + "/" + selectedValue(pageSelector);
 	window.scroll(0, 0);
 	initPreload();
 }
@@ -140,14 +140,14 @@ function initPreload() {
 	chaps = chapSelector.options.length;
 	if(pageSelector.selectedIndex+1 < pages) {
 		nextPage = pageSelector.options[pageSelector.selectedIndex+1].value;
-		img = Image();
+		img = Image(0, 0);
 		img.src = root + "/" + selectedValue(bookSelector) + "/" + selectedValue(chapSelector) + "/" + nextPage;
 	}
 	else if(chapSelector.selectedIndex+1 < chaps) {
 		nextChap = chapSelector.options[chapSelector.selectedIndex+1].value;
 		nextChapPages = getPages(selectedValue(bookSelector), nextChap);
 		nextPage = nextChapPages[0];
-		img = Image();
+		img = Image(0, 0);
 		img.src = root + "/" + selectedValue(bookSelector) + "/" + nextChap + "/" + nextPage;
 	}
 }
