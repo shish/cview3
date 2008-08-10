@@ -96,12 +96,38 @@ else if(interface == "apache") {
 }
 // }}}
 // {{{ interactive stuff
+loadBook = "";
+loadBookIndex = 0;
+loadChap = 0;
+loadPage = 0;
+loadedHash = "";
+
+function init() {
+	hash = document.location.hash;
+	if(hash.length > 0) {
+		parts = hash.split("--");
+		if(parts.length == 3) {
+			loadBook = parts[0].substring(1);
+			loadChap = parts[1];
+			loadPage = parts[2];
+		}
+	}
+	initBookSelector();
+	setInterval("checkHash();", 500);
+}
+function checkHash() {
+	if(document.location.hash != loadedHash) {
+		init();
+	}
+}
 function initBookSelector() {
 	bookSelector = document.getElementById("book");
 	books = getBooks();
 	bookSelector.options.length = 0;
 	for(i=0; books[i]; i++) {bookSelector.options[i] = new Option(books[i], books[i]);}
-	bookSelector.selectedIndex = 0;
+	for(i=0; i<bookSelector.options.length; i++) {if(bookSelector.options[i].value == loadBook) loadBookIndex=i;};
+	bookSelector.selectedIndex = loadBookIndex;
+	loadBook = "";
 	initChapSelector();
 }
 function initChapSelector() {
@@ -110,7 +136,8 @@ function initChapSelector() {
 	chaps = getChapters(selectedValue(bookSelector));
 	chapSelector.options.length = 0;
 	for(i=0; chaps[i]; i++) {chapSelector.options[i] = new Option(chaps[i], chaps[i]);}
-	chapSelector.selectedIndex = 0;
+	chapSelector.selectedIndex = loadChap;
+	loadChap = 0;
 	initPageSelector();
 }
 function initPageSelector() {
@@ -120,7 +147,8 @@ function initPageSelector() {
 	pages = getPages(selectedValue(bookSelector), selectedValue(chapSelector));
 	pageSelector.options.length = 0;
 	for(i=0; pages[i]; i++) {pageSelector.options[i] = new Option(i+1, pages[i]);}
-	pageSelector.selectedIndex = 0;
+	pageSelector.selectedIndex = loadPage;
+	loadPage = 0;
 	initDisplay();
 }
 function initDisplay() {
@@ -150,6 +178,8 @@ function initPreload() {
 		img = Image(0, 0);
 		img.src = root + "/" + selectedValue(bookSelector) + "/" + nextChap + "/" + nextPage;
 	}
+	document.location.hash = selectedValue(bookSelector) + "--" + chapSelector.selectedIndex + "--" + pageSelector.selectedIndex;
+	loadedHash = document.location.hash;
 }
 
 function moveToNextPage() {
