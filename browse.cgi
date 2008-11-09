@@ -129,7 +129,7 @@ def get_comics():
         tag = "%"+form['tag'].value+"%"
     conn = get_database()
     cursor = conn.cursor()
-    cursor.execute("SELECT * FROM comics WHERE tags LIKE %s", tag)
+    cursor.execute("SELECT * FROM comics WHERE tags LIKE %s ORDER BY title", tag)
     comics = cursor.fetchall()
     conn.close()
     return comics
