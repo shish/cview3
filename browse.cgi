@@ -113,8 +113,9 @@ def get_database():
 				title varchar(64) not null,
                 short_title varchar(16) not null,
 				tags varchar(255) not null,
+                description text not null default "",
 				pages integer not null,
-				rating decimal not null
+				rating decimal not null default 0.0
 			)
         """)
         conn.commit()
