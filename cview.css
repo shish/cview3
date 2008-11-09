@@ -7,3 +7,11 @@
 IMG {
 	border: 0px;
 }
+BODY {
+    background-image: url(bg.png);
+    font-family: "Arial", sans-serif;
+    font-size: 14px;
+    margin-left: 0px;
+    margin-top: 0px;
+    margin-right: 0px;
+}
