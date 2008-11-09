@@ -59,7 +59,7 @@ else if(interface == "apache") {
 		books_html = sjax(root+"/");
 		books_lines = books_html.split("\n");
 		for(i=0; i<books_lines.length; i++) {
-			var re = new RegExp('<A HREF="([^/"]+)/">');
+			var re = new RegExp(/<A HREF="([^/"]+)/">/i);
 			var m = re.exec(books_lines[i]);
 			if(m != null) {
 				books.push(m[1]);
@@ -72,7 +72,7 @@ else if(interface == "apache") {
 		chaps_html = sjax(root+"/"+book+"/");
 		chaps_lines = chaps_html.split("\n");
 		for(i=0; i<chaps_lines.length; i++) {
-			var re = new RegExp('<A HREF="([^/"]+)/">');
+			var re = new RegExp(/<A HREF="([^/"]+)/">/i);
 			var m = re.exec(chaps_lines[i]);
 			if(m != null) {
 				chaps.push(m[1]);
