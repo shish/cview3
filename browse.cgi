@@ -1,11 +1,5 @@
 #!/usr/bin/python2.4
 
-# TODO
-# tag editing
-# block dupe short_title's
-# dupe comic detection?
-# comic removal
-
 import cgi
 import cgitb; cgitb.enable()
 import os, sys
@@ -186,6 +180,9 @@ def get_header():
 	</head>
 	<body>
 <h1>CView Browser</h1>
+<h3>Info</h3>
+To-do: tag editing, block dupe short titles, try and detect duplicate comics,
+admin controls, rating, comments, make things look nice
     """
 def get_footer():
     return """</body></html>"""
