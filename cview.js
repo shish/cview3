@@ -204,7 +204,6 @@ function setScaled(scaled) {
 }
 function setScale(scale) {
 	display = document.getElementById("display");
-	if(scaled) display.style.width=scale;
-	else display.style.width=scale;
+	display.style.width=scale;
 }
 // }}}
