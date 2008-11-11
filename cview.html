@@ -11,7 +11,11 @@
 				<select id="book" onchange="initChapSelector();"></select>
 				<select id="chap" onchange="initPageSelector();"></select>
 				<select id="page" onchange="initDisplay();"></select>
-				<input type="checkbox" id="scale" onchange="setScaled(this.checked);"> <label for="scale">Scale Image</label>
+				<select id="scale" onchange="setScale(this.value);">
+					<option value="">Original</option>
+					<option value="100%">Page Width</option>
+					<option value="50%">Half Page</option>
+				</select>
 			</form>
 			<p><a href="#" onclick="moveToNextPage(); return false;"><img id="display" src="spinner.gif"></a></td>
 		</center>
