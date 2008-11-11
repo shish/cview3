@@ -202,4 +202,9 @@ function setScaled(scaled) {
 	if(scaled) display.style.width="100%";
 	else display.style.width="";
 }
+function setScale(scale) {
+	display = document.getElementById("display");
+	if(scaled) display.style.width=scale;
+	else display.style.width=scale;
+}
 // }}}
