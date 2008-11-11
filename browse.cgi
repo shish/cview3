@@ -144,8 +144,8 @@ def add_to_db(title, sort_title, tags, pages):
 # html
 def list_comics(results):
     print "<h3>Comic List</h3>"
-    print "<table>"
-    print "<tr><td>Name</td><td>Tags</td><td>Pages</td></tr>"
+    print "<table border='1'>"
+    print "<thead><tr><th>Name</th><th>Pages</th><th>Tags</th></tr></thead>"
     for (title, short_title, tags, pages, rating) in results:
         link = "cview.html#%s--0--0" % cgi.escape(short_title)
         tags_h = " ".join([
@@ -154,7 +154,7 @@ def list_comics(results):
             ])
 
         print "<tr><td><a href='%s'>%s</a></td><td>%s</td>"\
-              "<td>%s</td></tr>\n" % (link, cgi.escape(title), tags_h, pages);
+              "<td>%s</td></tr>\n" % (link, cgi.escape(title), pages, tags_h);
     print "</table>"
 def get_uploader():
 	return """
@@ -178,15 +178,17 @@ def get_header():
 <html>
 	<head>
 		<title>CView Browser</title>
+		<link rel='stylesheet' href='cview.css' type='text/css'>
 	</head>
 	<body>
+<div class="padded">
 <h1>CView Browser</h1>
 <h3>Info</h3>
 To-do: tag editing, block dupe short titles, try and detect duplicate comics,
 admin controls, rating, comments, make things look nice
     """
 def get_footer():
-    return """</body></html>"""
+    return """</div></body></html>"""
 
 if __name__ == "__main__":
     if handle_add():
