@@ -182,7 +182,7 @@ def get_header():
 	</head>
 	<body>
 <div class="padded">
-<h1>CView Browser</h1>
+<img src="rule34_comics_top.png">
 <h3>Info</h3>
 To-do: tag editing, block dupe short titles, try and detect duplicate comics,
 admin controls, rating, comments, make things look nice
