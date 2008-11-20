@@ -174,7 +174,6 @@ def add_to_db(title, sort_title, tags, pages):
 
 # html
 def list_comics(results):
-    print "<h3>Comic List</h3>"
     print "<table border='1'>"
     print "<thead><tr><th>Name</th><th>Pages</th><th>Tags</th></tr></thead>"
     for (title, short_title, tags, pages, rating) in results:
@@ -187,25 +186,8 @@ def list_comics(results):
         print "<tr><td><a href='%s'>%s</a></td><td>%s</td>"\
               "<td>%s</td></tr>\n" % (link, cgi.escape(title), pages, tags_h);
     print "</table>"
-def get_uploader():
-	return """
-<h3>Upload</h3>
-Uploads should be in .zip format, with folders inside, in the structure
-comic_short_title/chapter/page.ext, eg bobs_day_at_school/01/page01.jpg;
-allowed filetypes are .jpg, .png, .gif and .txt; any files outside this
-structure will be ignored (readme files and such should go in chapter zero)
-
-<P><form enctype="multipart/form-data" method="POST" action="browse.cgi">
-	<table>
-		<tr><td>Archive</td><td><input type="file" name="archive"></td></tr>
-		<tr><td>Full Title</td><td><input type="text" name="title"></td></tr>
-		<tr><td>Tags</td><td><input type="text" name="tags"></td></tr>
-		<tr><td colspan="2"><input type="submit" style="width: 100%"></td></tr>
-	</table>
-</form>
-    """
 def get_header():
-    return """<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+    return '''<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
 <html>
 	<head>
 		<title>CView Browser</title>
@@ -213,11 +195,30 @@ def get_header():
 	</head>
 	<body>
 <div class="padded">
-<img src="rule34_comics_top.png">
+
+<table width="100%">
+<tr>
+    <td><center><img src="rule34_comics_top.png"></center></td>
+    <td width="350">
+    <form enctype="multipart/form-data" method="POST" action="browse.cgi">
+	<table align='center'>
+		<tr><td>Archive</td><td><input type="file" name="archive"></td></tr>
+		<tr><td>Full Title</td><td><input type="text" name="title"></td></tr>
+		<tr><td>Tags</td><td><input type="text" name="tags"></td></tr>
+		<tr><td colspan="2"><input type="submit" style="width: 100%"></td></tr>
+	</table>
+</form>
+    </td>
+</tr>
+</table>
 <h3>Info</h3>
-To-do: tag editing, block dupe short titles, try and detect duplicate comics,
-admin controls, rating, comments, make things look nice
-    """
+<p>To-do: tag editing, block dupe short titles, try and detect duplicate comics,
+admin controls, rating, comments, make things look nice</p>
+<p>Uploads should be in .zip format, with folders inside, in the structure
+comic_short_title/chapter/page.ext, eg bobs_day_at_school/01/page01.jpg;
+allowed filetypes are .jpg, .png, .gif and .txt; any files outside this
+structure will be ignored (readme files and such should go in chapter zero)</p>
+    '''
 def get_footer():
     return """</div></body></html>"""
 
@@ -233,6 +234,5 @@ if __name__ == "__main__":
         print
         print get_header()
         list_comics(get_comics())
-        print get_uploader()
         print get_footer()
 
