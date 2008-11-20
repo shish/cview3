@@ -7,8 +7,14 @@ import sqlite
 import tempfile
 import zipfile
 
+anon_upload = True
+anon_edit = True
+
 # http upload
 def handle_upload():
+    if not anon_upload:
+        return False
+
     form = cgi.FieldStorage()
     if form.has_key("archive") and form["archive"].file:
         archive = upload_to_file(form["archive"].file)
@@ -60,6 +66,9 @@ def handle_add():
 
 # tag editing
 def handle_edit():
+    if not anon_edit:
+        return False
+
     form = cgi.FieldStorage()
     if "new_tags" in form:
         newtags = form["new_tags"].value
