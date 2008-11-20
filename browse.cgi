@@ -58,6 +58,25 @@ def handle_add():
         return True
     return False
 
+# tag editing
+def handle_edit():
+    form = cgi.FieldStorage()
+    if "new_tags" in form:
+        newtags = form["new_tags"].value
+        short_title = form["short_title"].value
+
+        conn = get_database()
+        cursor = conn.cursor()
+        cursor.execute("UPDATE comics SET tags=%s WHERE short_title=%s",
+                       newtags, short_title)
+        conn.commit()
+        conn.close()
+
+        print "Location: browse.cgi"
+        print
+        return True
+    return False
+
 # common upload
 class BadComicException(Exception):
     pass
@@ -194,6 +213,8 @@ if __name__ == "__main__":
     if handle_add():
         pass
     elif handle_upload():
+        pass
+    elif handle_edit():
         pass
     else:
         print "Content-type: text/html"
