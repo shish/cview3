@@ -58,6 +58,25 @@ def handle_add():
         return True
     return False
 
+# tag editing
+def handle_edit():
+    form = cgi.FieldStorage()
+    if "new_tags" in form:
+        newtags = form["new_tags"].value
+        short_title = form["short_title"].value
+
+        conn = get_database()
+        cursor = conn.cursor()
+        cursor.execute("UPDATE comics SET tags=%s WHERE short_title=%s",
+                       newtags, short_title)
+        conn.commit()
+        conn.close()
+
+        print "Location: browse.cgi"
+        print
+        return True
+    return False
+
 # common upload
 class BadComicException(Exception):
     pass
@@ -144,17 +163,33 @@ def add_to_db(title, sort_title, tags, pages):
 # html
 def list_comics(results):
     print "<h3>Comic List</h3>"
+    print """
+        <form action='browse.cgi' method="GET">
+            <input type="text" name="tag">
+            <input type="submit" value="Search">
+        </form>
+    """
     print "<table>"
-    print "<tr><td>Name</td><td>Tags</td><td>Pages</td></tr>"
+    print "<tr><td>Name</td><td>Tags</td><td>Pages</td><td>Control</td></tr>"
     for (title, short_title, tags, pages, rating) in results:
+        tags_t = cgi.escape(tags)
         link = "cview.html#%s--0--0" % cgi.escape(short_title)
         tags_h = " ".join([
             "<a href='browse.cgi?tag=%s'>%s</a> " %
             (n, n) for n in cgi.escape(tags).split(" ")
             ])
 
-        print "<tr><td><a href='%s'>%s</a></td><td>%s</td>"\
-              "<td>%s</td></tr>\n" % (link, cgi.escape(title), tags_h, pages);
+        print """
+<form action='browse.cgi' method='GET'>
+    <input type='hidden' name='short_title' value='%s'>
+    <tr>
+        <td><a href='%s'>%s</a></td>
+        <td><input type='text' name='new_tags' value='%s'></td>
+        <td>%s</td>
+        <td><input type='submit' value='Set'>
+    </tr>
+</form>
+        """ % (cgi.escape(short_title), link, cgi.escape(title), tags_t, pages);
     print "</table>"
 def get_uploader():
 	return """
@@ -192,6 +227,8 @@ if __name__ == "__main__":
     if handle_add():
         pass
     elif handle_upload():
+        pass
+    elif handle_edit():
         pass
     else:
         print "Content-type: text/html"
