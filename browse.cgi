@@ -162,15 +162,15 @@ def add_to_db(title, sort_title, tags, pages):
 
 # html
 def list_comics(results):
-    print "<h3>Comic List</h3>"
     print """
+        <h3>Comic List</h3>
         <form action='browse.cgi' method="GET">
             <input type="text" name="tag">
             <input type="submit" value="Search">
         </form>
+        <table border='1'>
+        <thead><tr><th>Name</th><th>Pages</th><th>Tags</th><th>Control</th></tr></thead>
     """
-    print "<table>"
-    print "<tr><td>Name</td><td>Tags</td><td>Pages</td><td>Control</td></tr>"
     for (title, short_title, tags, pages, rating) in results:
         tags_t = cgi.escape(tags)
         link = "cview.html#%s--0--0" % cgi.escape(short_title)
@@ -184,12 +184,12 @@ def list_comics(results):
     <input type='hidden' name='short_title' value='%s'>
     <tr>
         <td><a href='%s'>%s</a></td>
-        <td><input type='text' name='new_tags' value='%s'></td>
         <td>%s</td>
+        <td><input type='text' name='new_tags' value='%s'></td>
         <td><input type='submit' value='Set'>
     </tr>
 </form>
-        """ % (cgi.escape(short_title), link, cgi.escape(title), tags_t, pages);
+        """ % (cgi.escape(short_title), link, cgi.escape(title), pages, tags_t)
     print "</table>"
 def get_uploader():
 	return """
