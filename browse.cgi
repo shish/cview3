@@ -211,7 +211,6 @@ def get_header():
     </td>
 </tr>
 </table>
-<h3>Info</h3>
 <p>To-do: tag editing, block dupe short titles, try and detect duplicate comics,
 admin controls, rating, comments, make things look nice</p>
 <p>Uploads should be in .zip format, with folders inside, in the structure
