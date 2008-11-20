@@ -29,7 +29,7 @@ def handle_upload():
         except BadComicException, e:
             print "Content-type: text/html"
             print
-            print "Upload failed: "+str(e)
+            print "Upload failed: "+cgi.escape(str(e))
 
         #os.remove(archive)
         return True
@@ -155,6 +155,9 @@ def get_comics():
 def add_to_db(title, sort_title, tags, pages):
     conn = get_database()
     cursor = conn.cursor()
+    cursor.execute("SELECT * FROM comics WHERE short_title=%s", short_title)
+    if len(cursor.fetchall()) > 0:
+        raise BadComicException("There's already a comic with that short name (%s)")
     cursor.execute("INSERT INTO comics VALUES (%s, %s, %s, %d, 0.0)",
                    title, sort_title, tags, pages)
     conn.commit()
