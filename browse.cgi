@@ -211,7 +211,7 @@ def get_header():
     </td>
 </tr>
 </table>
-<p>To-do: tag editing, block dupe short titles, try and detect duplicate comics,
+<p>To-do: tag editing, try and detect duplicate comics,
 admin controls, rating, comments, make things look nice</p>
 <p>Uploads should be in .zip format, with folders inside, in the structure
 comic_short_title/chapter/page.ext, eg bobs_day_at_school/01/page01.jpg;
