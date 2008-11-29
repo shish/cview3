@@ -216,7 +216,8 @@ admin controls, rating, comments, make things look nice</p>
 <p>Uploads should be in .zip format, with folders inside, in the structure
 comic_short_title/chapter/page.ext, eg bobs_day_at_school/01/page01.jpg;
 allowed filetypes are .jpg, .png, .gif and .txt; any files outside this
-structure will be ignored (readme files and such should go in chapter zero)</p>
+structure will be ignored (readme files and such should go in chapter zero).
+Including the language in the tags would be lovely :3</p>
     '''
 def get_footer():
     return """</div></body></html>"""
