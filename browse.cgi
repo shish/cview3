@@ -161,14 +161,14 @@ def get_comics():
     comics = cursor.fetchall()
     conn.close()
     return comics
-def add_to_db(title, sort_title, tags, pages):
+def add_to_db(title, short_title, tags, pages):
     conn = get_database()
     cursor = conn.cursor()
     cursor.execute("SELECT * FROM comics WHERE short_title=%s", short_title)
     if len(cursor.fetchall()) > 0:
         raise BadComicException("There's already a comic with that short name (%s)")
     cursor.execute("INSERT INTO comics VALUES (%s, %s, %s, %d, 0.0)",
-                   title, sort_title, tags, pages)
+                   title, short_title, tags, pages)
     conn.commit()
     conn.close()
 
