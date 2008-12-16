@@ -93,6 +93,19 @@ else if(interface == "apache") {
 		}
 		return pages.sortInPlace();
 	}
+	function getAnnotations(book, chap) {
+		annotations = Array();
+		annotations_html = sjax(root+"/"+book+"/"+chap+"/");
+		annotations_lines = annotations_html.split("\n");
+		for(i=0; i<annotations_lines.length; i++) {
+			var re = new RegExp("<A HREF=\"([^/\"]+(txt))\">", "i");
+			var m = re.exec(annotations_lines[i]);
+			if(m != null) {
+				annotations.push(m[1]);
+			}
+		}
+		return annotations.sortInPlace();
+	}
 }
 // }}}
 // {{{ interactive stuff
