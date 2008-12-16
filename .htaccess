@@ -1,0 +1,9 @@
+<IfModule mod_rewrite.c>      
+RewriteEngine on
+RewriteBase /
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_URI} !^/books/
+RewriteCond %{REQUEST_URI} !^(/.*)+code.cgi/
+RewriteRule ^(.*)$ code.cgi/$1 [PT]
+#RewriteRule ^(.*)$ browse.cgi [R]
+</IfModule>

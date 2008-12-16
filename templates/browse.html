@@ -1,0 +1,44 @@
+$def with(results)
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+	<head>
+		<title>CView Browser</title>
+		<link rel='stylesheet' href='cview.css' type='text/css'>
+	</head>
+	<body>
+		<div class="padded">
+
+<table width="100%">
+<tr>
+    <td><center><img src="rule34_comics_top.png"></center></td>
+    <td width="350">
+    <form enctype="multipart/form-data" method="POST" action="upload">
+		<table align='center'>
+			<tr><td>Archive</td><td><input type="file" name="archive"></td></tr>
+			<tr><td>Title</td><td><input type="text" name="title"></td></tr>
+			<tr><td>Tags</td><td><input type="text" name="tags"></td></tr>
+			<tr><td colspan="2"><input type="submit" style="width: 100%"></td></tr>
+		</table>
+	</form>
+    </td>
+</tr>
+</table>
+
+<p>To-do: tag editing, admin controls, rating, comments, make things look nice</p>
+<p>Uploads should be in .zip format, chapters in their own folders within the zip
+if appropriate. Including the language in the tags would be lovely :3</p>
+
+<table border="1">
+    <thead><tr><th>Name</th><th>Pages</th><th>Tags</th></tr></thead>
+	<tbody>
+$for (title, tags, description, pages, rating) in results:
+	$ disk_title = title.replace(" ", "_").replace("!", "").replace("'", "")
+	<tr><td><a href="/view#$disk_title--0--0">$title</a></td><td>$pages</td><td>$tags</td></tr>
+$# end indent
+	</tbody>
+</table>
+
+
+		</div>
+	</body>
+</html>

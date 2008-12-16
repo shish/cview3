@@ -1,0 +1,24 @@
+$def with()
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN">
+<html>
+	<head>
+		<title>Rule34c</title>
+		<link rel="stylesheet" href="cview.css" type="text/css">
+		<script type="text/javascript" src="cview.js"></script>
+    </head>
+    <body onload="init();">
+		<center>
+			<form id="selector">
+				<select id="book" onchange="initChapSelector();"></select>
+				<select id="chap" onchange="initPageSelector();"></select>
+				<select id="page" onchange="initDisplay();"></select>
+				<select id="scale" onchange="setScale(this.options[this.selectedIndex].value);">
+					<option value="">Original Width</option>
+					<option value="100%">Page Width</option>
+					<option value="50%">Half Page</option>
+				</select>
+			</form>
+			<p><a href="#" onclick="moveToNextPage(); return false;"><img id="display" src="spinner.gif"></a></td>
+		</center>
+    </body>
+</html>
