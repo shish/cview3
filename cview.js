@@ -101,7 +101,7 @@ else if(interface == "apache") {
 			var re = new RegExp("<A HREF=\"([^/\"]+(txt))\">", "i");
 			var m = re.exec(annotations_lines[i]);
 			if(m != null) {
-				annotations.push(m[1]);
+				annotations[m[1]] = m[1];
 			}
 		}
 		return annotations.sortInPlace();
@@ -114,6 +114,8 @@ loadBookIndex = 0;
 loadChap = 0;
 loadPage = 0;
 loadedHash = "";
+loadedAnnotations = Array();
+loadedNotes = Array();
 
 function init() {
 	hash = document.location.hash;
@@ -162,6 +164,7 @@ function initPageSelector() {
 	for(i=0; pages[i]; i++) {pageSelector.options[i] = new Option(i+1, pages[i]);}
 	pageSelector.selectedIndex = loadPage;
 	loadPage = 0;
+	loadedAnnotations = getAnnotations(selectedValue(bookSelector), selectedValue(chapSelector));
 	initDisplay();
 }
 function initDisplay() {
@@ -171,7 +174,63 @@ function initDisplay() {
 	xdisplay = document.getElementById("display");
 	xdisplay.src = root + "/" + selectedValue(bookSelector) + "/" + selectedValue(chapSelector) + "/" + selectedValue(pageSelector);
 	window.scroll(0, 0);
+	initAnnotations();
 	initPreload();
+}
+function initAnnotations() {
+	bookSelector = document.getElementById("book");
+	chapSelector = document.getElementById("chap");
+	pageSelector = document.getElementById("page");
+	comments = document.getElementById("comments");
+	target_annotation = selectedValue(pageSelector).replace(/(jpg|png|gif)$/, "txt");
+	clearNotes();
+	if(loadedAnnotations[target_annotation]) {
+		comments.innerHTML = "Loading comments...";
+		annotation_data = sjax(root + "/" + selectedValue(bookSelector) + "/" + selectedValue(chapSelector) + "/" + target_annotation)
+		lines = annotation_data.split("\n");
+		comments.innerHTML = "";
+		for(i=0; lines[i]; i++) {
+			parts = lines[i].split(":", 2);
+			if(parts[0] == "comment") {
+				parts = lines[i].split(":", 4);
+				ip = parts[1];
+				name = parts[2];
+				comment = parts[3];
+				comments.innerHTML += "<p>"+name+": "+comment;
+			}
+			else if(parts[0] == "note") {
+				parts = lines[i].split(":", 8);
+				ip = parts[1];
+				name = parts[2];
+				x = parts[3];
+				y = parts[4];
+				w = parts[5];
+				h = parts[6];
+				comment = parts[7];
+				comments.innerHTML += "<p>"+name+": "+comment;
+			}
+			else {
+				comments.innerHTML += lines[i];
+			}
+		}
+		drawNotes();
+	}
+	else {
+		comments.innerHTML = "No Comments";
+	}
+}
+function clearNotes() {
+	for(i=0; loadedNotes[i]; i++) {
+		loadedNotes[i].removeElement();
+	}
+	loadedNotes = Array();
+}
+function drawNotes() {
+	for(i=0; loadedNotes[i]; i++) {
+		div = document.createElement("DIV");
+		div.innerHTML = loadedNotes[i];
+		loadedNotes[i] = div;
+	}
 }
 function initPreload() {
 	bookSelector = document.getElementById("book");
