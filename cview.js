@@ -262,12 +262,15 @@ function initAnnotations() {
 				parts = lines[i].split(":", 8);
 				ip = parts[1];
 				name = parts[2];
-				x = parts[3];
-				y = parts[4];
-				w = parts[5];
-				h = parts[6];
 				comment = parts[7];
-				comments.innerHTML += "<p>"+escape(name)+": "+escape(comment);
+
+				div = document.createElement("div");
+				div.left   = parts[3];
+				div.top    = parts[4];
+				div.width  = parts[5];
+				div.height = parts[6];
+				div.appendChild(document.createTextNode(comment));
+				loadedNotes.push(div);
 			}
 			else {
 				comments.innerHTML += lines[i];
@@ -306,16 +309,16 @@ function refreshAnnotations() {
 }
 
 function clearNotes() {
-	for(i=0; loadedNotes[i]; i++) {
-		visibleNotes[i].removeElement();
+	return false;
+	comments = document.getElementById("comments");
+	for(i=0; comments.children[i]; i++) {
+		comments.removeChild();
 	}
-	visibleNotes = Array();
 }
 function drawNotes() {
+	comments = document.getElementById("comments");
 	for(i=0; loadedNotes[i]; i++) {
-		div = document.createElement("DIV");
-		div.innerHTML = loadedNotes[i];
-		visibleNotes[i] = div;
+		comments.appendChild(loadedNotes[i]);
 	}
 }
 // }}}
