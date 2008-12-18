@@ -12,8 +12,8 @@
 //  where to post comments, null to disable
 //
 interface = "apache";
-root = "./books";
-comment_add_url = null;
+root = "/books";
+comment_add_url = "/comment";
 
 // {{{ fix javascript deficiencies
 function getHTTPObject() { 
@@ -45,6 +45,10 @@ function sjax(url) {
 
 	if(http_request.status == 200) {
 		return http_request.responseText;
+	}
+	else if(http_request.status == 404) {
+		// this is sometimes expected, so don't alert
+		return null;
 	}
 	else {
 		alert("Error fetching stuff :(");
@@ -103,6 +107,7 @@ else if(interface == "apache") {
 		}
 		return pages.sortInPlace();
 	}
+	/*
 	function getAnnotations(book, chap) {
 		annotations = Array();
 		annotations_html = sjax(root+"/"+book+"/"+chap+"/");
@@ -116,6 +121,7 @@ else if(interface == "apache") {
 		}
 		return annotations.sortInPlace();
 	}
+	*/
 }
 // }}}
 // {{{ interactive stuff
@@ -125,9 +131,7 @@ loadBookIndex = 0;
 loadChap = 0;
 loadPage = 0;
 loadedHash = "";
-knownAnnotations = Array();
-loadedNotes = Array();
-visibleNotes = Array();
+//knownAnnotations = Array();
 
 // {{{ main waterfall
 function init() {
@@ -177,7 +181,7 @@ function initPageSelector() {
 	for(i=0; pages[i]; i++) {pageSelector.options[i] = new Option(i+1, pages[i]);}
 	pageSelector.selectedIndex = loadPage;
 	loadPage = 0;
-	knownAnnotations = getAnnotations(selectedValue(bookSelector), selectedValue(chapSelector));
+	//knownAnnotations = getAnnotations(selectedValue(bookSelector), selectedValue(chapSelector));
 	initDisplay();
 }
 function initDisplay() {
@@ -187,6 +191,7 @@ function initDisplay() {
 	xdisplay = document.getElementById("display");
 	xdisplay.src = root + "/" + selectedValue(bookSelector) + "/" +
 	               selectedValue(chapSelector) + "/" + selectedValue(pageSelector);
+	//window.scroll(0, xdisplay.offsetTop);
 	window.scroll(0, 0);
 	initAnnotations();
 	initPreload();
@@ -237,18 +242,20 @@ function initAnnotations() {
 	bookSelector = document.getElementById("book");
 	chapSelector = document.getElementById("chap");
 	pageSelector = document.getElementById("page");
-	target_annotation = selectedValue(pageSelector).replace(/(jpg|png|gif)$/, "txt");
+	target_annotation = selectedValue(pageSelector).replace(/(jpg|png|gif)$/, "txt");;
 
-	clearNotes();
-	loadedNotes = Array();
-	comments = document.getElementById("comments");
+	commentDiv = document.getElementById("comments");
 
-	if(knownAnnotations[target_annotation]) {
-		comments.innerHTML = "Loading comments...";
-		annotation_data = sjax(root + "/" + selectedValue(bookSelector) + "/" +
-		                        selectedValue(chapSelector) + "/" + target_annotation)
+	while(commentDiv.childNodes[0]) {
+		commentDiv.removeChild(commentDiv.childNodes[0]);
+	}
+
+	commentDiv.innerHTML = "Loading Comments...";
+	annotation_data = sjax(root + "/" + selectedValue(bookSelector) + "/" +
+							selectedValue(chapSelector) + "/" + target_annotation)
+	if(annotation_data) {
 		lines = annotation_data.split("\n");
-		comments.innerHTML = "";
+		commentDiv.innerHTML = "";
 		for(i=0; lines[i]; i++) {
 			parts = lines[i].split(":", 2);
 			if(parts[0] == "comment") {
@@ -256,37 +263,47 @@ function initAnnotations() {
 				ip = parts[1];
 				name = parts[2];
 				comment = parts[3];
-				comments.innerHTML += "<p>"+escape(name)+": "+escape(comment);
+
+				p = document.createElement("p");
+				p.innerHTML = escape(name)+": "+comment;
+				commentDiv.appendChild(p);
 			}
 			else if(parts[0] == "note") {
 				parts = lines[i].split(":", 8);
 				ip = parts[1];
 				name = parts[2];
-				comment = parts[7];
+				comment = parts[6];
+
+				xdisplay = document.getElementById("display");
 
 				div = document.createElement("div");
-				div.left   = parts[3];
-				div.top    = parts[4];
-				div.width  = parts[5];
-				div.height = parts[6];
+				div.style.position = "absolute";
+				div.style.left    = xdisplay.offsetLeft + parseInt(parts[3]);
+				div.style.top     = xdisplay.offsetTop + parseInt(parts[4]);
+				div.style.width   = parts[5];
+				div.setAttribute("class", "note");
 				div.appendChild(document.createTextNode(comment));
-				loadedNotes.push(div);
+
+				commentDiv.appendChild(div);
+			}
+			else if(parts[0] == "x") {
+				// ignore
 			}
 			else {
-				comments.innerHTML += lines[i];
+				commentDiv.innerHTML += lines[i];
 			}
 		}
-		drawNotes();
 	}
 	else {
-		comments.innerHTML = "No Comments";
+		commentDiv.innerHTML = "No Comments";
 	}
 	if(comment_add_url) {
-		comments.innerHTML += ""+
-		"<p><textarea id='comment_text'></textarea>"+
-		"<br><input type='button' onclick='submitComment();' value='Comments are WIP'>";
+		div = document.createElement("div");
+		div.innerHTML = "<center><textarea id='comment_text'></textarea>"+
+		"<br><input type='button' onclick='submitComment();' value='Comments are WIP'></center>";
+		commentDiv.appendChild(div);
 	}
-//	comments.innerHTML += ""+
+//	commentDiv.innerHTML += ""+
 //	"<p><a href='javascript: refreshAnnotations();'>Refresh Comments</a>";
 }
 
@@ -301,36 +318,25 @@ function submitComment() {
 	refreshAnnotations();
 }
 function addComment(target, comment) {
+//	http_request = getHTTPObject();
+//	http_request.open('POST', comment_add_url, false);
+//	http_request.send("target="+encodeURI(target)+"&comment="+encodeURI(comment));
 	sjax(comment_add_url+"?target="+encodeURI(target)+"&comment="+encodeURI(comment));
 }
 function refreshAnnotations() {
-	knownAnnotations = getAnnotations(selectedValue(bookSelector), selectedValue(chapSelector));
-	initAnnotatons();
-}
-
-function clearNotes() {
-	return false;
-	comments = document.getElementById("comments");
-	for(i=0; comments.children[i]; i++) {
-		comments.removeChild();
-	}
-}
-function drawNotes() {
-	comments = document.getElementById("comments");
-	for(i=0; loadedNotes[i]; i++) {
-		comments.appendChild(loadedNotes[i]);
-	}
+	// knownAnnotations = getAnnotations(selectedValue(bookSelector), selectedValue(chapSelector));
+	initAnnotations();
 }
 // }}}
 // {{{ scaling
 function setScaled(scaled) {
-	display = document.getElementById("display");
-	if(scaled) display.style.width="100%";
-	else display.style.width="";
+	xdisplay = document.getElementById("display");
+	if(scaled) xdisplay.style.width="100%";
+	else xdisplay.style.width="";
 }
 function setScale(scale) {
-	display = document.getElementById("display");
-	display.style.width=scale;
+	xdisplay = document.getElementById("display");
+	xdisplay.style.width=scale;
 }
 // }}}
 // }}}

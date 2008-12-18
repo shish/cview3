@@ -4,6 +4,21 @@
 #page {
 	width: 64px;
 }
+#selector {
+	padding: 8px;
+	background: #ACE4A3;
+	border-bottom: 1px solid #7EB977;
+}
+#comments {
+	width: 512px;
+	margin: auto;
+	padding: 8px;
+	background: #ACE4A3;
+	border: 1px solid #7EB977;
+}
+#comments P {
+	margin-top: 0px;
+}
 IMG {
 	border: 0px;
 }
@@ -17,4 +32,10 @@ BODY {
 }
 .padded {
 	margin: 16px;
+}
+.note {
+	background: #FFA;
+	border: 1px solid black;
+	font-size: 0.8em;
+	padding: 2px;
 }

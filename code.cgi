@@ -1,10 +1,13 @@
 #!/usr/bin/python2.4
 
+import cgi
 import web
 import os
 import sqlite
 import zipfile
 import tempfile
+import os
+import re
 
 urls = (
     '/?', 'browse',
@@ -13,6 +16,7 @@ urls = (
     '/view', 'view',
     '/upload', 'upload',
     '/tag_set', 'tag_set',
+    '/comment', 'comment',
 )
 render = web.template.render("templates/")
 app = web.application(urls, locals())
@@ -159,6 +163,32 @@ class upload:
 class tag_set:
     def GET(self, url):
         return url
+
+class comment:
+    def POST(self):
+        x = web.input(target=None, comment=None)
+        target = x["target"];
+        comment = x["comment"];
+        return self.add(target, comment)
+
+    def GET(self):
+        x = web.input(target=None, comment=None)
+        target = x["target"];
+        comment = x["comment"];
+        return self.add(target, comment)
+
+    def add(self, target, comment):
+        if os.path.exists("books/"+target):
+            txt_target = re.sub("(jpg|png|gif)$", "txt", target)
+            if txt_target.endswith("txt"):
+                fp = open("books/"+txt_target, "a")
+                fp.write("comment:"+web.ctx.ip+":Anonymous:"+cgi.escape(comment).replace("\n", "<br>")+"\n");
+                fp.close();
+                return "ok"
+            else:
+                return "invalid image"
+        else:
+            return "image not found"
 
 if __name__ == "__main__":
     app.run()
