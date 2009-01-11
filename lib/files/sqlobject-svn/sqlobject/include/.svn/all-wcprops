@@ -1,0 +1,17 @@
+K 25
+svn:wc:ra_dav:version-url
+V 48
+/!svn/ver/3512/SQLObject/trunk/sqlobject/include
+END
+__init__.py
+K 25
+svn:wc:ra_dav:version-url
+V 60
+/!svn/ver/1184/SQLObject/trunk/sqlobject/include/__init__.py
+END
+hashcol.py
+K 25
+svn:wc:ra_dav:version-url
+V 59
+/!svn/ver/3512/SQLObject/trunk/sqlobject/include/hashcol.py
+END

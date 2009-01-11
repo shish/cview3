@@ -1,0 +1,307 @@
+8
+
+dir
+3768
+http://svn.colorstudy.com/SQLObject/trunk/sqlobject
+http://svn.colorstudy.com
+
+
+
+2008-12-25T16:54:25.687992Z
+3757
+phd
+has-props
+
+svn:special svn:externals svn:needs-lock
+
+
+
+
+
+
+
+
+
+
+
+95a46c32-92d2-0310-94a5-8d71aeb3d4b3
+
+converters.py
+file
+
+
+
+
+2009-01-10T20:33:10.000000Z
+a6986a1d39e9146e72ce31eef12b3a0c
+2008-07-11T15:29:51.038829Z
+3503
+phd
+
+views.py
+file
+
+
+
+
+2009-01-10T20:33:10.000000Z
+47710d0fac4a09229e1db262a7c32f94
+2007-06-08T16:08:39.657858Z
+2716
+ianb
+
+__init__.py
+file
+
+
+
+
+2009-01-10T20:33:10.000000Z
+6a1939dda1108afe1443ac58acc50664
+2008-01-11T16:52:49.343516Z
+3223
+phd
+
+sybase
+dir
+
+firebird
+dir
+
+inheritance
+dir
+
+events.py
+file
+
+
+
+
+2009-01-10T20:33:10.000000Z
+53245f81518414d295c7353f68e99440
+2008-05-20T13:52:57.125737Z
+3443
+phd
+
+sqlbuilder.py
+file
+
+
+
+
+2009-01-10T20:33:10.000000Z
+6f6a62b3b8e94b1103afb7b55518a9f0
+2008-04-29T14:30:40.508486Z
+3403
+phd
+
+index.py
+file
+
+
+
+
+2009-01-10T20:33:10.000000Z
+7b7e6f396128cdcfcab822bb276d21ab
+2007-10-15T14:02:11.366080Z
+3074
+phd
+
+tests
+dir
+
+postgres
+dir
+
+styles.py
+file
+
+
+
+
+2009-01-10T20:33:10.000000Z
+d253e55559d21a014447305ef612e0d2
+2007-09-21T14:08:43.288857Z
+2976
+phd
+
+main.py
+file
+
+
+
+
+2009-01-10T20:33:10.000000Z
+7c408b99622b116aba94b91dc5883dc0
+2008-10-02T18:41:27.301703Z
+3611
+novalis
+
+sresults.py
+file
+
+
+
+
+2009-01-10T20:33:10.000000Z
+77b96c54b24e9b3a7c304b423bb5b341
+2008-05-19T15:00:23.361386Z
+3435
+phd
+
+versioning
+dir
+
+include
+dir
+
+classregistry.py
+file
+
+
+
+
+2009-01-10T20:33:10.000000Z
+9a8f46bac59cd19f302902456934ab39
+2005-08-24T19:47:11.364955Z
+942
+phd
+
+cache.py
+file
+
+
+
+
+2009-01-10T20:33:10.000000Z
+517a3e5ef42a467aa7a08a753346b41a
+2007-09-21T14:08:43.288857Z
+2976
+phd
+
+maxdb
+dir
+
+dbconnection.py
+file
+
+
+
+
+2009-01-10T20:33:10.000000Z
+b121a153bb0279699c6feaa6f65546cc
+2008-11-02T21:53:49.383680Z
+3639
+dan
+
+wsgi_middleware.py
+file
+
+
+
+
+2009-01-10T20:33:10.000000Z
+48aecee0c5a829714873b9819fd13f5b
+2007-07-26T19:14:37.805799Z
+2825
+phd
+
+constraints.py
+file
+
+
+
+
+2009-01-10T20:33:10.000000Z
+2ecbb3d8973fac768ecf7fdcaef38393
+2007-09-21T14:08:43.288857Z
+2976
+phd
+
+mssql
+dir
+
+sqlite
+dir
+
+col.py
+file
+
+
+
+
+2009-01-10T20:33:10.000000Z
+8e9766c2df8aaa48ae188b1d3264b992
+2008-12-08T13:36:24.900517Z
+3707
+dan
+
+boundattributes.py
+file
+
+
+
+
+2009-01-10T20:33:10.000000Z
+195cff3a4bab631dd5f424a01d9c90cf
+2005-11-26T21:13:23.628023Z
+1321
+ianb
+
+mysql
+dir
+
+dberrors.py
+file
+
+
+
+
+2009-01-10T20:33:10.000000Z
+706209d2bdd814dcc2f5cbb05a4eaf90
+2006-10-04T16:57:44.190019Z
+1981
+phd
+
+joins.py
+file
+
+
+
+
+2009-01-10T20:33:10.000000Z
+d91ed282c773fca69bb51d5f31179b41
+2007-10-16T14:46:30.920348Z
+3081
+phd
+
+manager
+dir
+
+declarative.py
+file
+
+
+
+
+2009-01-10T20:33:10.000000Z
+607ad7577ee6303386ca1f5bba8aca14
+2008-04-14T14:38:46.915149Z
+3382
+phd
+
+conftest.py
+file
+
+
+
+
+2009-01-10T20:33:10.000000Z
+9f953d9895988e2e6997a48e1b7fe763
+2007-04-09T15:16:40.015086Z
+2495
+phd
+
+util
+dir
+

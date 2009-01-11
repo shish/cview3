@@ -1,0 +1,17 @@
+K 25
+svn:wc:ra_dav:version-url
+V 46
+/!svn/ver/3456/SQLObject/trunk/sqlobject/mssql
+END
+__init__.py
+K 25
+svn:wc:ra_dav:version-url
+V 58
+/!svn/ver/1075/SQLObject/trunk/sqlobject/mssql/__init__.py
+END
+mssqlconnection.py
+K 25
+svn:wc:ra_dav:version-url
+V 65
+/!svn/ver/3456/SQLObject/trunk/sqlobject/mssql/mssqlconnection.py
+END

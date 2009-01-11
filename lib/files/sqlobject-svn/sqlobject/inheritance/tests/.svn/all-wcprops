@@ -1,0 +1,59 @@
+K 25
+svn:wc:ra_dav:version-url
+V 58
+/!svn/ver/2885/SQLObject/trunk/sqlobject/inheritance/tests
+END
+test_aggregates.py
+K 25
+svn:wc:ra_dav:version-url
+V 77
+/!svn/ver/2233/SQLObject/trunk/sqlobject/inheritance/tests/test_aggregates.py
+END
+test_inheritance.py
+K 25
+svn:wc:ra_dav:version-url
+V 78
+/!svn/ver/2230/SQLObject/trunk/sqlobject/inheritance/tests/test_inheritance.py
+END
+testDestroyCascade.py
+K 25
+svn:wc:ra_dav:version-url
+V 80
+/!svn/ver/1901/SQLObject/trunk/sqlobject/inheritance/tests/testDestroyCascade.py
+END
+test_indexes.py
+K 25
+svn:wc:ra_dav:version-url
+V 74
+/!svn/ver/2409/SQLObject/trunk/sqlobject/inheritance/tests/test_indexes.py
+END
+__init__.py
+K 25
+svn:wc:ra_dav:version-url
+V 69
+/!svn/ver/950/SQLObject/trunk/sqlobject/inheritance/tests/__init__.py
+END
+test_foreignKey.py
+K 25
+svn:wc:ra_dav:version-url
+V 77
+/!svn/ver/2052/SQLObject/trunk/sqlobject/inheritance/tests/test_foreignKey.py
+END
+test_deep_inheritance.py
+K 25
+svn:wc:ra_dav:version-url
+V 83
+/!svn/ver/2498/SQLObject/trunk/sqlobject/inheritance/tests/test_deep_inheritance.py
+END
+test_asdict.py
+K 25
+svn:wc:ra_dav:version-url
+V 73
+/!svn/ver/2885/SQLObject/trunk/sqlobject/inheritance/tests/test_asdict.py
+END
+test_inheritance_tree.py
+K 25
+svn:wc:ra_dav:version-url
+V 83
+/!svn/ver/2236/SQLObject/trunk/sqlobject/inheritance/tests/test_inheritance_tree.py
+END

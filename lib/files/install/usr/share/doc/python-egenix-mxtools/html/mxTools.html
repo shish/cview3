@@ -1,0 +1,1345 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+  <HEAD>
+    <TITLE>mxTools - A Collection of New Builtins for Python</TITLE>
+    <META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=iso-8859-1">
+    <STYLE TYPE="text/css">
+      p { text-align: justify; }
+      ul.indent { }
+      body { }
+    </STYLE>
+  </HEAD>
+
+  <BODY TEXT="#000000" BGCOLOR="#FFFFFF" LINK="#0000EE" VLINK="#551A8B" ALINK="#FF0000">
+
+    <HR SIZE=2 NOSHADE WIDTH="100%">
+    <H2>mxTools - A Collection of New Builtins for Python</H2>
+
+    <HR SIZE=1 NOSHADE WIDTH="100%">
+    <TABLE WIDTH="100%">
+      <TR>
+	<TD>
+	  <SMALL>
+	    <A HREF="#BuiltinFunctions">Builtin Functions</A> :
+	    <A HREF="#BuiltinObjects">Builtin Objects</A> :
+	    <A HREF="#SysFunctions">sys-Module Functions</A> :
+	    <A HREF="#Functions">mx.Tools Functions</A> :
+	    <A HREF="#Examples">Examples</A> :
+	    <A HREF="#Structure">Structure</A> :
+	    <A HREF="#Support">Support</A> :
+            <A HREF="http://www.egenix.com/files/python/eGenix-mx-Extensions.html#Download-mxBASE"><B>Download</B></A> :
+	    <A HREF="#Copyright">Copyright &amp; License</A> :
+	    <A HREF="#History">History</A> :
+	    <A HREF="" TARGET="_top">Home</A>
+	</SMALL>
+	</TD>
+	<TD ALIGN=RIGHT>
+	  <SMALL>
+	    <FONT COLOR="#FF0000">Version 2.0.3</FONT>
+	  </SMALL>
+	</TD>
+    </TABLE>
+    <HR SIZE=1 NOSHADE WIDTH="100%">
+
+    <H3>Introduction</H3>
+
+    <UL CLASS="indent">
+
+	<P>
+	  As time passes there have often been situations where I
+	  thought "Hey, why not have this as builtin". In most cases
+	  the functions were easily coded in Python. But I started to
+	  use them quite heavily and since performance is always an
+	  issue (at least for me: hits/second pay my bills), I decided
+	  to code them in C. Well, that's how it started and here we
+	  are now with an ever growing number of goodies...
+
+	<P>
+	  The functions defined by the C extensions are installed by
+	  the package at import time in different places of the Python
+	  interpreter. They work as fast add-ons to the existing set
+	  of functions and objects.
+
+	<P>
+	  
+    </UL><!--CLASS="indent"-->
+
+    <A NAME="BuiltinFunctions">
+    
+    <H3>New Builtin Functions</H3>
+
+    <UL CLASS="indent">
+
+	<P>
+	  The following functions are installed as Python builtin
+	  functions at package import time. They are then available as
+	  normal builtin functions in every module without explicit
+	  import in each module using them (though it is good practice
+	  to still put a '<CODE>import mx.Tools.NewBuiltins</CODE>' at
+	  the top of each module relying on these add-ons).
+
+	<P><DL>
+
+	  <DT><CODE><FONT COLOR="#000099">
+
+		indices(object)
+
+	      </FONT></CODE></DT>
+
+	  <DD>
+	    Returns the same as <CODE>tuple(range(len(object)))</CODE>
+	    -- a tad faster and a lot easier to type.<P></DD>
+
+	  <DT><CODE><FONT COLOR="#000099">
+
+		trange([start=0,]stop[,step=1])
+
+	      </FONT></CODE></DT>
+
+	  <DD>
+	    This works like the builtin function <CODE>range()</CODE>
+	    but returns a tuple instead of a list. Since
+	    <CODE>range()</CODE> is most often used in for-loops there
+	    really is no need for a mutable data type and construction
+	    of tuples is somewhat (20%) faster than that of lists. So
+	    changing the usage of <CODE>range()</CODE> in for-loops to
+	    <CODE>trange()</CODE> pays off in the long run.<P></DD>
+
+	  <DT><CODE><FONT COLOR="#000099">
+
+		range_len(object)
+
+	      </FONT></CODE></DT>
+
+	  <DD>
+	    Returns the same as
+	    <CODE>range(len(object))</CODE>.<P></DD>
+
+	  <DT><CODE><FONT COLOR="#000099">
+
+		tuples(sequence)
+
+	      </FONT></CODE></DT>
+
+	  <DD>
+	    Returns much the same as
+	    <CODE>apply(map,(None,)+tuple(sequence))</CODE> does,
+	    except that the resulting list will always have the length
+	    of the first sub-sequence in sequence. The function
+	    returns a list of tuples <CODE>(a[0], b[0], c[0],...),
+	    (a[1], b[1], c[1],...), ...</CODE> with missing elements
+	    being filled in with <CODE>None</CODE>.
+
+	    <P>
+	      Note that the function is of the single argument type
+	      meaning that calling <CODE>tuples(a,b,c)</CODE> is the
+	      same as calling <CODE>tuples((a,b,c))</CODE>. tuples()
+	      can be used as inverse to lists().<P></DD>
+
+	  <DT><CODE><FONT COLOR="#000099">
+
+		lists(sequence)
+
+	      </FONT></CODE></DT>
+
+	  <DD>
+	    Same as tuples(sequence), except that a tuple of lists is
+	    returned. Can be used as inverse to tuples().<P></DD>
+
+	  <DT><CODE><FONT COLOR="#000099">
+
+		reverse(sequence)
+
+	      </FONT></CODE></DT>
+
+	  <DD>
+	    Returns a tuple or list with the elements from
+	    <CODE>sequence</CODE> in reverse order. A tuple is
+	    returned, if the sequence itself is a tuple. In all other
+	    cases a list is returned. <P></DD>
+
+	  <DT><CODE><FONT COLOR="#000099">
+
+		dict(items)
+
+	      </FONT></CODE></DT>
+
+	  <DD>
+	    Constructs a dictionary from the given items sequence. The
+	    sequence items must contain sequence entries with at least
+	    two values. The first one is interpreted as key, the
+	    second one as associated object. Remaining values are
+	    ignored.  <P></DD>
+
+	  <DT><CODE><FONT COLOR="#000099">
+
+		setdict(sequence,value=None)
+
+	      </FONT></CODE></DT>
+
+	  <DD>
+	    Constructs a dictionary from the given sequence. The
+	    sequence must contain hashable objects which are used as
+	    keys. The values are all set to value. Multiple keys are
+	    silently ignored. The function comes in handy whenever you
+	    need to work with a sequence in a set based context
+	    (e.g. to determine the set of used values). <P></DD>
+
+	  <DT><CODE><FONT COLOR="#000099">
+
+		invdict(dictionary)
+
+	      </FONT></CODE></DT>
+
+	  <DD>
+	    Constructs a new dictionary from the given one with
+	    inverted mappings. Keys become values and vice versa. Note
+	    that no exception is raised if the values are not
+	    unique. The result is undefined in this case (there is a
+	    value:key entry, but it is not defined which key gets
+	    used).  <P></DD>
+
+	  <DT><CODE><FONT COLOR="#000099">
+
+		irange(object[,indices])
+
+	      </FONT></CODE></DT>
+
+	  <DD>
+	    Builds a tuple of tuples
+	    <CODE>(index,object[index])</CODE>. If a sequence
+	    <CODE>indices</CODE> is given, the indices are read from
+	    it. If not, then the index sequence defaults to
+	    <CODE>trange(len(object))</CODE>.
+
+	    <P>
+	      Note that <CODE>object</CODE> can be any object that can
+	      handle <CODE>object[index]</CODE>, e.g. lists, tuples,
+	      string, dictionaries, even your own objects, if they
+	      provide a __getitem__-method.  This makes very nifty
+	      constructions possible and extracting items from another
+	      sequence becomes a piece of cake. Give it a try ! You'll
+	      soon love this little function. <P></DD>
+
+	  <DT><CODE><FONT COLOR="#000099">
+
+		ifilter(condition,object[,indices])
+
+	      </FONT></CODE></DT>
+
+	  <DD>
+	    Builds a list of tuples <CODE>(index,object[index])</CODE>
+	    such that <CODE>condition(object[index])</CODE> is true
+	    and index is found in the sequence indices (defaulting to
+	    <CODE>trange(len(object))</CODE>).  Order is
+	    preserved. condition must be a callable object.<P></DD>
+
+	  <DT><CODE><FONT COLOR="#000099">
+
+		get(object,index[,default])
+
+	      </FONT></CODE></DT>
+
+	  <DD>
+	    Returns <CODE>object[index]</CODE>, or, if that fails,
+	    <CODE>default</CODE>. If <CODE>default</CODE> is not given
+	    or the singleton <CODE>NotGiven</CODE> an error is raised
+	    (the error produced by the object).  <P></DD>
+
+	  <DT><CODE><FONT COLOR="#000099">
+
+		extract(object,indices[,defaults])
+
+	      </FONT></CODE></DT>
+
+	  <DD>
+	    Builds a list with entries <CODE>object[index]</CODE> for
+	    each index in the sequence <CODE>indices</CODE>.
+
+	    <P>
+	      If a lookup fails and the sequence <CODE>defaults</CODE>
+	      is given, then <CODE>defaults[nth_index]</CODE> is used,
+	      where <CODE>nth_index</CODE> is the index of
+	      <CODE>index</CODE> in <CODE>indices</CODE> (confused ?
+	      it works as expected !). <CODE>defaults</CODE> should
+	      have the same length as <CODE>indices</CODE>.
+
+	    <P>
+	      If you need the indices as well, try the
+	      <CODE>irange</CODE> function. The function raises an
+	      <CODE>IndexError</CODE> in case it can't find an entry
+	      in indices or defaults. <P></DD>
+
+	  <DT><CODE><FONT COLOR="#000099">
+
+		iremove(object,indices)
+
+	      </FONT></CODE></DT>
+
+	  <DD>
+	    Removes the items indexed by indices from object. 
+
+	    <P>
+	      This changes the object in place and thus is only
+	      possible for mutable types.
+
+	    <P>
+	      For sequences the index list must be sorted ascending;
+	      an <CODE>IndexError</CODE> will be raised otherwise (and
+	      the object left in an undefined state).  <P></DD>
+
+	  <DT><CODE><FONT COLOR="#000099">
+
+		findattr(object_list,attrname)
+
+	      </FONT></CODE></DT>
+
+	  <DD>
+	    Returns the first attribute with name
+	    <CODE>attrname</CODE> found among the objects in the
+	    list. Raises an <CODE>AttributeError</CODE> if the
+	    attribute is not found.  <P></DD>
+
+	  <DT><CODE><FONT COLOR="#000099">
+
+		attrlist(object_list,attrname)
+
+	      </FONT></CODE></DT>
+
+	  <DD>
+	    Returns a list of all attributes with name
+	    <CODE>attrname</CODE> found among the objects in the
+	    list. <P></DD>
+
+	  <DT><CODE><FONT COLOR="#000099">
+
+		napply(number_of_calls,function[,args=(),kw={}])
+
+	      </FONT></CODE></DT>
+
+	  <DD>
+	    Calls the given function <CODE>number_of_calls</CODE>
+	    times with the same arguments and returns a tuple with the
+	    return values. This is roughly equivalent to a for-loop
+	    that repeatedly calls <CODE>apply(function,args,kw)</CODE>
+	    and stores the return values in a tuple. Example: create
+	    a tuple of 10 random integers... <CODE>l =
+	    napply(10,whrandom.randint,(0,10)).</CODE><P></DD>
+
+	  <DT><CODE><FONT COLOR="#000099">
+
+		mapply(callable_objects[,args=(),kw={}])
+
+	      </FONT></CODE></DT>
+
+	  <DD>
+	    Creates a tuple of values by applying the given arguments
+	    to each object in the sequence
+	    <CODE>callable_objects</CODE>. 
+
+	    <P>
+	      This function has a functionality dual to that of
+	      <CODE>map()</CODE>.  While <CODE>map()</CODE> applies
+	      many different arguments to one callable object, this
+	      function applies one set of arguments to many different
+	      callable objects. <P></DD>
+
+	  <DT><CODE><FONT COLOR="#000099">
+
+		method_mapply(objects,methodname[,args=(),kw={}])
+
+	      </FONT></CODE></DT>
+
+	  <DD>
+	    Creates a tuple of values by applying the given arguments
+	    to each object's &lt;methodname&gt; method. The objects
+	    are processed as given in the sequence
+	    <CODE>objects</CODE>. 
+
+	    <P>
+	      A simple application is
+	      e.g. <CODE>method_mapply([a,b,c],'method', (x,y))</CODE>
+	      resulting in a tuple <CODE>(a.method(x,y),
+	      b.method(x,y), c.method(x,y))</CODE>. Thanks to Aaron
+	      Waters for suggesting this function. <P></DD>
+
+	  <DT><CODE><FONT COLOR="#000099">
+
+		count(condition,sequence)
+
+	      </FONT></CODE></DT>
+
+	  <DD>
+	    Counts the number of objects in sequence for which
+	    condition returns true and returns the result as
+	    integer. condition must be a callable object.<P></DD>
+
+	  <DT><CODE><FONT COLOR="#000099">
+
+		exists(condition,sequence)
+
+	      </FONT></CODE></DT>
+
+	  <DD>
+	    Return 1 if and only if condition is true for at least one
+	    of the items in sequence and 0 otherwise. condition must
+	    be a callable object.  <P></DD>
+
+	  <DT><CODE><FONT COLOR="#000099">
+
+		forall(condition,sequence)
+
+	      </FONT></CODE></DT>
+
+	  <DD>
+	    Return 1 if and only if condition is true for all of the
+	    items in sequence and 0 otherwise. condition must be a
+	    callable object.  <P></DD>
+
+	  <DT><CODE><FONT COLOR="#000099">
+
+		index(condition,sequence)
+
+	      </FONT></CODE></DT>
+
+	  <DD>
+	    Return the index of the first item for which condition is
+	    true. A <CODE>ValueError</CODE> is raised in case no item
+	    is found.  condition must be a callable object.  <P></DD>
+
+	  <DT><CODE><FONT COLOR="#000099">
+
+		sizeof(object)
+
+	      </FONT></CODE></DT>
+
+	  <DD>
+	    Returns the number of bytes allocated for the given Python
+	    object.  Additional space allocated by the object and
+	    stored in pointers is not taken into account (though the
+	    pointer itself is). If the object defines tp_itemsize in
+	    its type object then it is assumed to be a variable size
+	    object and the size is adjusted accordingly.  <P></DD>
+
+	  <DT><CODE><FONT COLOR="#000099">
+
+		acquire(object,name)
+
+	      </FONT></CODE></DT>
+
+	  <DD>
+	    Looks up the attribute name in object.baseobj and returns
+	    the result. If object does not have an attribute 'baseobj'
+	    or that attribute is None or the attribute name starts
+	    with an underscore, an AttributeError is raised. 
+
+	    <P>
+	      This function can be used as __getattr__ hook in Python
+	      classes to enable implicit acquisition along a
+	      predefined lookup chain (object.baseobj provides a way
+	      to set up this chain). See Examples/Acquistion.py for
+	      some sample code. <P></DD>
+
+	  <DT><CODE><FONT COLOR="#000099">
+
+		defined(name)
+
+	      </FONT></CODE></DT>
+
+	  <DD>
+	    Returns true iff a symbol name is defined in the current
+	    namespace.
+
+	    <P>
+	      The function has intimate knowledge about how symbol
+	      resolution works in Python: it first looks in locals(),
+	      then in globals() and if that fails in
+	      __builtins__. <P></DD>
+
+	  <DT><CODE><FONT COLOR="#000099">
+
+		reval(codestring[,locals={}])
+
+	      </FONT></CODE></DT>
+
+	  <DD>
+	    Evaluates the given codestring in a restricted environment
+	    that only allows access to operators and basic type
+	    constructors like (), [] and {}.
+	    <P>
+	      No builtins are available for the evaluation.  locals
+	      can be given as local namespace to use when evaluating
+	      the codestring.
+	    <P>
+	      After a suggestion by Tim Peters on
+	      comp.lang.python.
+	    <P></DD>
+
+	  <DT><CODE><FONT COLOR="#000099">
+
+		truth(object)
+
+	      </FONT></CODE></DT>
+
+	  <DD>
+	    Returns the truth value of object as truth singleton (True or
+	    False). Note that the singletons are ordinary Python integers
+	    1 and 0, so you can also use them in calculations.
+	    <P>
+	      This function is different from the one in the
+	      <CODE>operator</CODE> module: the function does not
+	      return truth singletons but integers.
+	    <P></DD>
+	      
+	  <DT><CODE><FONT COLOR="#000099">
+
+		sign(object)
+
+	      </FONT></CODE></DT>
+
+	  <DD>
+	    Returns the signum of object interpreted as number,
+	    i.e. -1 for negative numbers, +1 for positive ones and 0
+	    in case it is equal to 0. The method used is equivalent to
+	    cmp(object,-object).
+	      
+	    <P></DD>
+
+	</DL>
+
+	<P>
+	  A note on the naming scheme used:
+	<UL>
+
+	  <LI><CODE>i</CODE> stands for indexed, meaning that you have
+	  access to indices
+
+	  <LI><CODE>m</CODE> stands for multi, meaning that processing
+	  involves multiple objects
+
+	  <LI><CODE>n</CODE> stands for n-times, e.g. a function is
+	  executed a certain number of times
+
+	  <LI><CODE>t</CODE> stands for tuple
+
+	  <LI><CODE>x</CODE> stands for lazy evaluation
+
+	</UL>
+
+	<P>
+	  Since this is (and will always be) work-in-progress, more
+	  functions will eventually turn up in this module, so
+	  stopping by every now and then is not a bad idea
+	  <TT>:-)</TT>.
+
+	<P>
+
+    </UL><!--CLASS="indent"-->
+
+    <A NAME="BuiltinObjects">
+    
+    <H3>New Builtin Objects</H3>
+
+    <UL CLASS="indent">
+      
+	<P>
+	  These objects are available after importing the package:
+
+	<P><DL>
+
+	  <DT><CODE><FONT COLOR="#000099">
+		
+		xmap(func, seq, [seq, seq, ...])
+
+	      </FONT></CODE></DT>
+
+	  <DD>
+	    Constructs a new xmap object emulating <CODE>map(func,
+	      seq, [seq, seq, ...])</CODE>. 
+
+	    <P>
+	      The object behaves like a list, but evaluation of the
+	      function is postponed until a specific element from the list
+	      is requested. Unlike map, xmap can handle sequences not
+	      having a __len__ method defined (due to the
+	      evaluation-on-demand feature).
+
+	    <P>The <CODE>xmap</CODE> objects define one method:
+	      
+	    <P><DL>
+	      
+	      <DT><CODE><FONT COLOR="#000099">
+		    
+		    tolist()
+
+		  </FONT></CODE></DT>
+
+	      <DD>Return the whole list giving the same result as the
+		emulated map()-construct. <P></DD>
+	      
+	    </DL>
+
+	    <P>
+	      This object is a contribution by Christopher Tavares (see
+	      xmap.c for his email address). I am providing this extension
+	      AS-IS, since I haven't had time to adapt it to my coding
+	      style.
+
+	    <P></DD>
+
+	  <DT><CODE><FONT COLOR="#000099">
+		
+		NotGiven
+
+	      </FONT></CODE></DT>
+
+	  <DD>
+	    This is a singleton similar to <CODE>None</CODE>. Its main
+	    purpose is providing a way to indicate that a keyword was not
+	    given in a call to a keyword capable function, e.g.
+
+	    <PRE><FONT COLOR="#000066">import mx.Tools.NewBuiltins
+
+	      def f(a,b=4,c=NotGiven,d=''):
+	      if c is NotGiven:
+	         return a / b, d
+	      else:
+	         return a*b + c, d
+	    </FONT></PRE>
+
+	    <P>
+	      It is also considered false in <CODE>if</CODE>-statements, e.g.
+	    <PRE><FONT COLOR="#000066">import mx.Tools.NewBuiltins
+
+	      a = NotGiven
+	      # ...init a conditionally...
+	      if not a:
+	         print 'a was not given as value'
+	    </FONT></PRE>
+
+	    <P></DD>
+
+	  <DT><CODE><FONT COLOR="#000099">
+		
+		True, False
+
+	      </FONT></CODE></DT>
+
+	  <DD>
+	    These two singletons are used by Python internally to
+	    express the boolean values true and false. They represent
+	    Python integer objects for 1 and 0 resp. All explicit
+	    comparisons return these singletons, e.g. <CODE>(1==1) is
+	    True</CODE> and <CODE>(1==0) is False</CODE>.
+
+	    <P></DD>
+
+	</DL>
+
+    </UL><!--CLASS="indent"-->
+
+    <A NAME="SysFunctions">
+    
+    <H3>New sys-Module Functions</H3>
+
+    <UL CLASS="indent">
+
+	<P>
+	  The following functions are installed as add-ons to the
+	  builtin <TT>sys</TT> module.
+
+	<P><DL>
+
+	  <DT><CODE><FONT COLOR="#003399">
+
+		sys.verbosity([level])
+
+	      </FONT></CODE></DT>
+
+	  <DD>
+	    If level is given, the value of the interpreter's
+	    verbosity flag is set to level and the previous value of
+	    that flag is returned.  Otherwise, the current value is
+	    returned. 
+
+	    <P>
+	      You can use this function to e.g. enable verborse lookup
+	      output to stderr for import statements even when the
+	      interpreter was not invoked with '-v' or '-vv' switch or
+	      to force verbosity to be switched off. <P></DD>
+
+	  <DT><CODE><FONT COLOR="#003399">
+
+		sys.debugging([level])
+
+	      </FONT></CODE></DT>
+
+	  <DD>
+	    If level is given, the value of the interpreter's
+	    debugging flag is set to level and the previous value of
+	    that flag is returned.  Otherwise, the current value is
+	    returned.
+
+	    <P>
+	      You can use this function to check whether the
+	      interpreter was called with '-d' flag or not. Some
+	      extensions use this flag to enable/disable debugging log
+	      output (e.g. all the <A
+	      HREF="http://www.egenix.com/files/python/eGenix-mx-Extensions.html">eGenix.com
+	      mx Extensions</A>).<P></DD>
+
+	  <DT><CODE><FONT COLOR="#000099">
+
+		sys.optimization([level])
+
+	      </FONT></CODE></DT>
+
+	  <DD>
+	    If level is given, the value of the interpreter's
+	    optimization flag is set to level and the previous value
+	    of that flag is returned.  Otherwise, the current value is
+	    returned. 
+
+	    <P>
+	      You can use this function to e.g. compile Python scripts
+	      in optimized mode even though the interpreter was not
+	      started with -O.  <P></DD>
+
+	  <DT><CODE><FONT COLOR="#000099">
+
+		sys.cur_frame([offset=0])
+
+	      </FONT></CODE></DT>
+
+	  <DD>
+	    Return the current execution frame. If level is given,
+	    the returned frame is taken from offset levels up the
+	    execution stack. None is returned in case the frame is
+	    not found, i.e. there are not enough frames on the stack.
+
+	    <P>
+	      Note: Storing the execution frame in a local variable
+	      introduces a circular reference, since the locals and
+	      globals are referenced in the execution frame, so use
+	      the return value with caution.  <P></DD>
+
+	  <DT><CODE><FONT COLOR="#000099">
+
+		sys.makeref(id)
+
+	      </FONT></CODE></DT>
+
+	  <DD>
+	    Provided that id is a valid address of a Python object
+	    (<TT>id(object)</TT> returns this address), this function
+	    returns a new reference to it. Only objects that are
+	    "alive" can be referenced this way, ones with zero
+	    reference count cause an exception to be raised.
+
+	    <P>
+	      You can use this function to reaccess objects lost
+	      during garbage collection.
+
+	    <P>
+	      <I>USE WITH CARE:</I> this is an expert-only function
+	      since it can cause instant core dumps and many other
+	      strange things -- even ruin your system if you don't
+	      know what you're doing !
+
+	    <P>
+	      <I>SECURITY WARNING:</I> This function can provide you
+	      with access to objects that are otherwise not visible,
+	      e.g. in restricted mode, and thus be a potential
+	      security hole.
+
+	    <P></DD>
+
+	</DL>
+
+	<P>
+
+    </UL><!--CLASS="indent"-->
+
+    <A NAME="Functions">
+    
+    <H3>mx.Tools Functions</H3>
+
+    <UL CLASS="indent">
+
+	<P>
+	  The following functions are not installed in any builtin
+	  module. Instead, you have to reference them via the
+	  <TT>mx.Tools</TT> module.
+
+	<P><DL>
+
+	  <DT><CODE><FONT COLOR="#003399">
+
+		mx.Tools.verscmp(a,b)
+
+	      </FONT></CODE></DT>
+
+	  <DD>
+	    Compares two version strings and returns a cmp() function
+	    compatible value (&lt;,==,&gt; 0). The function is useful
+	    for sorting lists containing version strings.
+	    <P>
+	      The logic used is as follows: the strings are compared
+	      at each level, empty levels defaulting to '0', numbers
+	      with attached strings (e.g. '1a1') compare less than
+	      numbers without attachement (e.g. '1a1' &lt; '1).
+	    <P></DD>
+
+	  <DT><CODE><FONT COLOR="#003399">
+
+		mx.Tools.dictscan(dictobj[,prevposition=0])
+
+	      </FONT></CODE></DT>
+
+	  <DD>
+	    Dictionary scanner.
+	    <P>
+	      Returns a tuple (key,value,position) containing the
+	      key,value pair and slot position of the next item found
+	      in the dictionaries hash table after slot
+	      prevposition.
+	    <P>
+	      Raises an IndexError when the end of the table is
+	      reached or the prevposition index is out of range.
+	    <P>
+	      Note that the dictionary scanner does <I>not</I> produce
+	      an items list. It provides a very memory efficient way
+	      of iterating over large dictionaries.  <P></DD>
+
+	  <DT><CODE><FONT COLOR="#003399">
+
+		mx.Tools.srange(string)
+
+	      </FONT></CODE></DT>
+
+	  <DD>
+	    Converts a textual representation of integer numbers and
+	    ranges to a Python list.
+	    <P>
+	      Supported formats: "2,3,4,2-10,-1 - -3, 5 - -2"
+	    <P>
+	      Values are appended to the created list in the order
+	      specified in the string.  <P></DD>
+
+	  <DT><CODE><FONT COLOR="#003399">
+
+		mx.Tools.fqhostname(hostname=None, ip=None)
+
+	      </FONT></CODE></DT>
+
+	  <DD>
+	    Tries to return the fully qualified (hostname, ip) for the
+	    given hostname.
+	    <P>
+	      If hostname is None, the default name of the local host
+	      is chosen. ip then defaults to '127.0.0.1' if not given.
+	    <P>
+	      The function modifies the input data according to what
+	      it finds using the socket module. If that doesn't work
+	      the input data is returned unchanged.<P></DD>
+
+	  <DT><CODE><FONT COLOR="#003399">
+
+		mx.Tools.username(default='')
+
+	      </FONT></CODE></DT>
+
+	  <DD>
+	    Return the user name of the user running the current process.
+	    <P>
+	      If no user name can be determined, default is returned.
+	      <P></DD>
+
+	  <DT><CODE><FONT COLOR="#003399">
+
+		mx.Tools.scanfiles(files, dir=None, levels=0, filefilter=None)
+
+	      </FONT></CODE></DT>
+
+	  <DD>
+	    Build a list of filenames starting with the filenames and
+	    directories given in files.
+	    <P>
+	      The filenames in are made absolute relative to dir. dir
+	      defaults to the current working directory if not given.
+	    <P>
+	      If levels is greater than 0, directories in the files
+	      list are recursed into up the given number of levels.
+	    <P>
+	      If filefilter is given, as re match object, then all
+	      filenames (the absolute names) are matched against
+	      it. Filenames which do not match the criteria are
+	      removed from the list.
+	    <P>
+	      Note that directories are not included in the resulting
+	      list.  All filenames are non-directories.
+	    <P>
+	      If no user name can be determined, default is returned.
+	    <P></DD>
+
+	</DL>
+
+	<P>
+
+    </UL><!--CLASS="indent"-->
+
+    <A NAME="Objects">
+    
+    <H3>mx.Tools Objects</H3>
+
+    <UL CLASS="indent">
+
+	<P>
+	  The following objects are not installed in any builtin
+	  module. Instead, you have to reference them via the
+	  <TT>mx.Tools</TT> module.
+
+	<P><DL>
+
+	  <DT><CODE><FONT COLOR="#003399">
+
+		mx.Tools.DictScan(dictionary)
+
+	      </FONT></CODE></DT>
+
+	  <DD>
+	    Creates a forward iterator for the given dictionary. It is
+	    based on mx.Tools.dictscan().
+	    <P>
+	      The dictionary scanner does <I>not</I> produce an items
+	      list. It provides a very memory efficient way of
+	      iterating over large dictionaries.
+	    <P>
+	      Note that no precaution is taken to insure that the
+	      dictionary is not modified in-between calls to the
+	      __getitem__ method. It is the user's responsibility to
+	      ensure that the dictionary is neither modified, nor
+	      changed in size, since this would result in skipping
+	      entries or double occurance of items in the scan.
+	    <P>
+	      The iterator inherits all methods from the underlying
+	      dictionary for convenience.
+	    <P>
+	      The returned object inherits all methods from the
+	      underlying dictionary and additionally provides the
+	      following methods:
+	      
+	    <P><DL>
+	      
+	      <DT><CODE><FONT COLOR="#000099">
+		    
+		    reset()
+
+		  </FONT></CODE></DT>
+
+	      <DD>Resets the iterator to its initial position.
+		<P></DD>
+	      
+	    </DL>
+
+	    <P></DD>
+
+	  <DT><CODE><FONT COLOR="#003399">
+
+		mx.Tools.DictItems(dictionary)
+
+	      </FONT></CODE></DT>
+
+	  <DD>
+	    Is an alias for mx.Tools.DictScan.
+	    <P></DD>
+	    
+	</DL>
+
+	<P>
+
+    </UL><!--CLASS="indent"-->
+
+    <A NAME="Examples">
+    
+    <H3>Examples of Use</H3>
+
+    <UL CLASS="indent">
+
+	<P>
+	  A few simple examples:<PRE><FONT COLOR="#000066">import mx.Tools.NewBuiltins
+
+sequence = range(100)
+
+# In place calculations:
+for i,item in irange(sequence):
+    sequence[i] = 2*item
+
+# Get all odd-indexed items from a sequence:
+odds = extract(sequence,trange(0,len(sequence),2))
+
+# Turn a tuple of lists into a list of tuples:
+chars = 'abcdefghji'
+ords = map(ord,chars)
+table = tuples(chars,ords)
+
+# The same as dictionary:
+chr2ord = dict(table)
+
+# Inverse mapping:
+ord2chr = invdict(chr2ord)
+
+# Range checking:
+if exists( lambda x: x > 10, sequence ):
+    print 'Warning: Big sequence elements!'
+
+# Handle special cases:
+if forall( lambda x: x > 0, sequence ):
+    print 'Positive sequence'
+else:
+    print 'Index %i loses' % (index( lambda x: x &lt;= 0, sequence ),)
+
+# dict.get functionality for e.g. lists:
+print get(sequence,101,"Don't have an element with index 101")
+
+# Filtering away false entries of a list:
+print filter(truth,[1,2,3,0,'',None,NotGiven,4,5,6])
+
+</FONT></PRE>
+
+	<P>
+	  More elaborate examples can be found in the Examples/
+	  subdirectory of the package.
+
+    </UL><!--CLASS="indent"-->
+
+    <A NAME="Structure">
+    
+    <H3>Package Structure</H3>
+
+    <UL CLASS="indent">
+
+	<PRE>
+[Tools]
+       Doc/
+       [Examples]
+              Acquisition.py
+       [mxTools]
+              vc5/
+              bench1.py
+              bench2.py
+              hack.py
+              test.py
+       NewBuiltins.py
+       Tools.py
+	</PRE>
+
+	<P>
+	  Entries enclosed in brackets are packages (i.e. they are
+	  directories that include a <TT>__init__.py</TT> file) or
+	  submodules. Ones with slashes are just ordinary
+	  subdirectories that are not accessible via
+	  <CODE>import</CODE>.
+
+	<P>
+	  <U>Note</U>: Importing <CODE>mx.Tools</CODE> will
+	  automatically install the functions and objects defined in
+	  this package as builtins.  They are then available in all
+	  other modules without having to import then again every
+	  time. If you don't want this feature, you can turn it off in
+	  <TT>mx/Tools/__init__.py</TT>.
+
+	<P>
+
+    </UL><!--CLASS="indent"-->
+
+    <A NAME="Support">
+
+    <H3>Support</H3>
+
+    <UL CLASS="indent">
+
+	<P>
+	  eGenix.com is providing commercial support for this
+	  package. If you are interested in receiving information
+	  about this service please see the <A
+	  HREF="http://www.egenix.com/files/python/eGenix-mx-Extensions.html#Support">eGenix.com
+	  Support Conditions</A>.
+
+    </UL><!--CLASS="indent"-->
+
+    <A NAME="Copyright">
+    
+    <H3>Copyright &amp; License</H3>
+
+    <UL CLASS="indent">
+
+	<P>
+	  &copy; 1997-2000, Copyright by Marc-Andr&eacute; Lemburg;
+	  All Rights Reserved.  mailto: <A
+	  HREF="mailto:mal@lemburg.com">mal@lemburg.com</A>
+	<P>
+	  &copy; 2000-2001, Copyright by eGenix.com Software GmbH,
+	  Langenfeld, Germany; All Rights Reserved.  mailto: <A
+	  HREF="mailto:info@egenix.com">info@egenix.com</A>
+
+	<P>
+	  This software is covered by the <A
+	  HREF="mxLicense.html#Public"><B>eGenix.com Public
+	  License Agreement</B></A>. The text of the license is also
+	  included as file "LICENSE" in the package's main directory.
+
+	<P>
+	  <B> By downloading, copying, installing or otherwise using
+	  the software, you agree to be bound by the terms and
+	  conditions of the eGenix.com Public License
+	  Agreement. </B>
+
+    </UL><!--CLASS="indent"-->
+
+    <A NAME="History">
+    
+    <H3>History & Future</H3>
+
+    <UL CLASS="indent">
+
+      <P>Things that still need to be done:
+
+      <P><UL>
+
+	  <LI> Implement a generic join() builtin: <BR>
+	    join((a,b,c),sep) := (((a + sep) + b) + sep) + c<BR> with
+	    optimizations for sequences of strings, unicode objects,
+	    lists and tuples (e.g. join(((1,2),(3,4),(0,))) gives
+	    (1,2,0,3,4)).
+	    <P>
+
+	  <LI> Provide some more examples.
+
+	  <LI> Add Neil S.'s repeat module (see private dir).
+
+	  <LI> Make dict(dict) return a copy of the dictionary
+	       just like list(list) returns a copy of the list.
+
+	</UL>
+
+	<P>Changes from 2.0.0 to 2.0.3:
+
+	<P>
+	<UL>
+
+	  <LI> Removed config.h include from xmap.c -- this was never
+	    really needed and causes problems with Python 2.2. Thanks to
+	    Gerhard Häring for finding this one.
+
+	</UL>
+
+	<P>Changes from <A HREF="mxTools-1.0.0.zip">1.0.0</A> to 2.0.0:
+
+	<P>
+	<UL>
+
+	  <LI>Added truth(;-).
+
+	    <P><LI>Added VC5 project files donated by Darrell Gallion.
+
+	    <P><LI>Added sys.debugging() and sign().
+
+	    <P><LI><B>Moved</B> the package under a new top-level
+	    package 'mx' and <B>renamed</B> it to mx.Tools. It is part
+	    of the <I>eGenix.com mx BASE distribution</I>.
+
+	    <P><LI>Added mx.Tools.verscmp().
+
+	    <P><LI>Added mx.Tools.dictscan() and mx.Tools.DictScan class.
+
+	    <P><LI>Added mx.Tools.scanfiles().
+
+	</UL>
+
+	<P>Changes from <A HREF="mxTools-0.9.1.zip">0.9.1</A> to 1.0.0:
+
+	<P>
+	<UL>
+
+	  <LI>Added defined().
+
+	    <P><LI><B>Moved</B> the two functions verbosity() and
+	    optimization() to the sys module and added enhanced
+	    custimization code to NewBuiltins/NewBuiltins.py. You can
+	    now define where the functions and objets are installed by
+	    editing that file.
+
+	    <P><LI><B>Important change:</B> Cleaned up the packages
+	    offerings in that all old function names are now disabled
+	    by default. You can edit NewBuiltins/NewBuiltins.py to
+	    reenable them without the need to recompile.
+
+	    <P><LI>Added sys.cur_frame() and iremove().
+
+	    <P><LI>Added Macintosh precompiled binaries for PowerMacs
+	    donated by Joseph Strout. They are included in a StuffIt
+	    file in the mxTools subdir.
+
+	    <P><LI>Added True and False singletons.
+
+	</UL>
+
+	<P>Changes from <A HREF="mxTools-0.9.0.zip">0.9.0</A> to 0.9.1:
+
+	<P>
+	<UL>
+
+	  <LI>Added optimization() (XXX should probably go into sys
+	    rather than __builtins__ just as verbosity()).
+
+	    <P><LI>Added new PYD files provided by David
+	    Ascher. Thanks Dave :-)
+
+	    <P><LI>Added NotGiven singleton.
+
+	</UL>
+
+	<P>Changes from <A HREF="mxTools-0.8.zip">0.8.1</A> to 0.9.0:
+
+	<P>
+	<UL>
+
+	  <LI>Added acquire() and a some sample code for its usage in
+	    Examples/Acquisition.py.
+
+	    <P><LI><B>Renamed mget()</B> to extract(). The old
+	    function is aliased to mget, so this should not break any
+	    existing code.
+
+	    <P><LI><B>tuples()</B> now is a single argument function,
+	    just as lists(): passing tuples() a single tuple will
+	    cause it to interpret the tuple as argument tuple,
+	    e.g. tuples((a,b)) gets interpreted as tuples(a,b). Note
+	    that this causes the semantics of tuples(a) (called with
+	    only one sequence) to change !!!
+
+	    <P><LI>Added setdict() and attrlist().
+
+	    <P><LI>Added verbosity().
+
+	</UL>
+
+	<P>Changes from <A HREF="mxTools-0.7.zip">0.7</A> to 0.8:
+
+	<P>
+	<UL>
+
+	  <LI>Version 0.8.1: Fixed a bug that caused sizeof(),
+	  reverse() and invdict() to dump core when called without
+	  argument.
+
+	  <P><LI>Fixed a bug in forall() that caused it to fail. Found by
+	  Henk Jansen.
+
+	  <P><LI>Added index(). Contributed by Henk Jansen (TU Delft).
+
+	  <P><LI>Added tests for forall(), exists(), count() and index()
+	  to the test script.
+
+	</UL>
+
+	<P>Changes from <A HREF="mxTools-0.6.zip">0.6</A> to 0.7:
+
+	<P>
+	<UL>
+
+	  <LI><B>Renamed mgetattr()</B> to findattr().
+	  The old function name still works, but it will either be
+	  removed in the near future or replaced with another
+	  functionality.
+
+	  <P><LI>Changed the way list creation works. This should speed
+	  up all functions from the package which create and return
+	  lists.
+
+	  <P><LI>Fixed a serious memory leakage in dict().
+
+	  <P><LI>Fixed a bug in get().
+	    
+	  <P><LI>Added lists().
+
+	  <P><LI>Made many functions taking only one argument use a simpler
+	    calling mechanism. Note that passing more than one argument
+	    to these functions results in the "multiple" arguments being
+	    seen as a tuple, e.g. sizeof(1,2) is the same as calling
+	    sizeof((1,2)). Note that there are some other methods in core
+	    Python that work in the same way, e.g. list.append(1,2) really
+	    does a list.append((1,2)). I find this convenient at times.
+
+	  <P><LI><B>Renamed trange_len()</B> to indices() (easier to
+	    write and intuitive enough to use, e.g. in 'for i in
+	    indices(obj):...').  The old function name still works, but
+	    it will be removed in the near future.
+
+	</UL>
+
+	<P>Changes from <A HREF="mxTools-0.5.zip">0.5</A> to 0.6:
+
+	<P>
+	<UL>
+
+	  <LI>Added dict().
+
+	  <P><LI>Added invdict().
+
+	  <P><LI>Added tuples().
+
+	  <P><LI>Added reverse().
+
+	</UL>
+
+	<P>Changes from <A HREF="mxTools-0.4.zip">0.4</A> to 0.5:
+
+	<P>
+	<UL>
+
+	  <LI>Added get() and mget().
+
+	  <P><LI>Added sizeof().
+
+	  <P><LI>Added mgetattr().
+
+	</UL>
+
+	<P>Changes from <A HREF="mxTools-0.3.zip">0.3</A> to 0.4:
+
+	<P>
+	<UL>
+
+	  <LI>Converted the module into a package called
+	  'NewBuiltins'. Importing it installs all of the functions
+	  defined in the C extension modules as builtins.
+
+	  <P><LI>Fixed a few memory leaks.
+
+	  <P><LI>Added method_mapply().
+
+	  <P><LI>Added Christopher Tavares' xmap module.
+
+	</UL>
+
+	<P>
+
+    </UL><!--CLASS="indent"-->
+
+    <HR WIDTH="100%">
+    <CENTER><FONT SIZE=-1>
+        <P>
+          &copy; 1997-2000, Copyright by Marc-Andr&eacute; Lemburg;
+          All Rights Reserved.  mailto: <A
+          HREF="mailto:mal@lemburg.com">mal@lemburg.com</A>
+        <P>
+          &copy; 2000-2001, Copyright by eGenix.com Software GmbH; 
+          All Rights Reserved.  mailto: <A
+          HREF="mailto:info@egenix.com">info@egenix.com</A>
+    </FONT></CENTER>
+    </FONT></CENTER>
+
+  </BODY>
+</HTML>

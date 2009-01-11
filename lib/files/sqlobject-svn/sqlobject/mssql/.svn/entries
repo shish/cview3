@@ -1,0 +1,52 @@
+8
+
+dir
+3768
+http://svn.colorstudy.com/SQLObject/trunk/sqlobject/mssql
+http://svn.colorstudy.com
+
+
+
+2008-05-21T14:54:05.330799Z
+3456
+phd
+
+
+svn:special svn:externals svn:needs-lock
+
+
+
+
+
+
+
+
+
+
+
+95a46c32-92d2-0310-94a5-8d71aeb3d4b3
+
+__init__.py
+file
+
+
+
+
+2009-01-10T20:33:08.000000Z
+cb25a5a5e6e9cda7e4afe510afd86ff3
+2005-10-04T18:45:20.288072Z
+1075
+phd
+
+mssqlconnection.py
+file
+
+
+
+
+2009-01-10T20:33:08.000000Z
+2a19db0dc23628e767b3e565f3771205
+2008-05-21T14:54:05.330799Z
+3456
+phd
+

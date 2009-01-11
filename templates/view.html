@@ -3,12 +3,13 @@ $def with()
 <html>
 	<head>
 		<title>Rule34c</title>
-		<link rel="stylesheet" href="cview.css" type="text/css">
-		<script type="text/javascript" src="cview.js"></script>
+		<link rel="stylesheet" href="/static/cview.css" type="text/css">
+		<script type="text/javascript" src="/static/cview.js"></script>
     </head>
     <body onload="init();">
 		<center>
 			<form id="selector">
+				<a href="/comic/list">Browse</a>
 				<select id="book" onchange="initChapSelector();"></select>
 				<select id="chap" onchange="initPageSelector();"></select>
 				<select id="page" onchange="initDisplay();"></select>
@@ -17,8 +18,14 @@ $def with()
 					<option value="100%">Page Width</option>
 					<option value="50%">Half Page</option>
 				</select>
+				<!--
+				<span id="buffering">
+					Buffering 
+					<img valign="center" src="/static/minispinner.gif">
+				</span>
+				-->
 			</form>
-			<a href="#" onclick="moveToNextPage(); return false;"><img id="display" src="spinner.gif"></a>
+			<a href="#" onclick="moveToNextPage(); return false;"><img id="display" src="/static/spinner.gif"></a>
 		</center>
 		<div id="comments"></div>
     </body>

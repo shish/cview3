@@ -1,0 +1,17 @@
+K 25
+svn:wc:ra_dav:version-url
+V 47
+/!svn/ver/2615/SQLObject/trunk/sqlobject/sybase
+END
+__init__.py
+K 25
+svn:wc:ra_dav:version-url
+V 58
+/!svn/ver/950/SQLObject/trunk/sqlobject/sybase/__init__.py
+END
+sybaseconnection.py
+K 25
+svn:wc:ra_dav:version-url
+V 67
+/!svn/ver/2615/SQLObject/trunk/sqlobject/sybase/sybaseconnection.py
+END

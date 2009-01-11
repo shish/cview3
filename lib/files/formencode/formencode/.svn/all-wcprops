@@ -1,0 +1,113 @@
+K 25
+svn:wc:ra_dav:version-url
+V 42
+/!svn/ver/3745/FormEncode/trunk/formencode
+END
+variabledecode.py
+K 25
+svn:wc:ra_dav:version-url
+V 60
+/!svn/ver/3086/FormEncode/trunk/formencode/variabledecode.py
+END
+doctest_xml_compare.py
+K 25
+svn:wc:ra_dav:version-url
+V 65
+/!svn/ver/3296/FormEncode/trunk/formencode/doctest_xml_compare.py
+END
+htmlrename.py
+K 25
+svn:wc:ra_dav:version-url
+V 56
+/!svn/ver/3395/FormEncode/trunk/formencode/htmlrename.py
+END
+htmlgen.py
+K 25
+svn:wc:ra_dav:version-url
+V 53
+/!svn/ver/3296/FormEncode/trunk/formencode/htmlgen.py
+END
+__init__.py
+K 25
+svn:wc:ra_dav:version-url
+V 53
+/!svn/ver/755/FormEncode/trunk/formencode/__init__.py
+END
+schema.py
+K 25
+svn:wc:ra_dav:version-url
+V 52
+/!svn/ver/3725/FormEncode/trunk/formencode/schema.py
+END
+htmlfill_schemabuilder.py
+K 25
+svn:wc:ra_dav:version-url
+V 68
+/!svn/ver/1304/FormEncode/trunk/formencode/htmlfill_schemabuilder.py
+END
+national.py
+K 25
+svn:wc:ra_dav:version-url
+V 54
+/!svn/ver/3742/FormEncode/trunk/formencode/national.py
+END
+foreach.py
+K 25
+svn:wc:ra_dav:version-url
+V 53
+/!svn/ver/3696/FormEncode/trunk/formencode/foreach.py
+END
+validators.py
+K 25
+svn:wc:ra_dav:version-url
+V 56
+/!svn/ver/3740/FormEncode/trunk/formencode/validators.py
+END
+fieldstorage.py
+K 25
+svn:wc:ra_dav:version-url
+V 58
+/!svn/ver/1139/FormEncode/trunk/formencode/fieldstorage.py
+END
+api.py
+K 25
+svn:wc:ra_dav:version-url
+V 49
+/!svn/ver/3738/FormEncode/trunk/formencode/api.py
+END
+htmlfill.py
+K 25
+svn:wc:ra_dav:version-url
+V 54
+/!svn/ver/3741/FormEncode/trunk/formencode/htmlfill.py
+END
+declarative.py
+K 25
+svn:wc:ra_dav:version-url
+V 57
+/!svn/ver/1019/FormEncode/trunk/formencode/declarative.py
+END
+interfaces.py
+K 25
+svn:wc:ra_dav:version-url
+V 56
+/!svn/ver/1306/FormEncode/trunk/formencode/interfaces.py
+END
+context.py
+K 25
+svn:wc:ra_dav:version-url
+V 53
+/!svn/ver/1182/FormEncode/trunk/formencode/context.py
+END
+compound.py
+K 25
+svn:wc:ra_dav:version-url
+V 54
+/!svn/ver/3544/FormEncode/trunk/formencode/compound.py
+END
+rewritingparser.py
+K 25
+svn:wc:ra_dav:version-url
+V 61
+/!svn/ver/3430/FormEncode/trunk/formencode/rewritingparser.py
+END

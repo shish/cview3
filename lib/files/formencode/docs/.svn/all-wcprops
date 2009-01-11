@@ -1,0 +1,89 @@
+K 25
+svn:wc:ra_dav:version-url
+V 36
+/!svn/ver/3746/FormEncode/trunk/docs
+END
+build
+K 25
+svn:wc:ra_dav:version-url
+V 41
+/!svn/ver/805/FormEncode/trunk/docs/build
+END
+history.txt
+K 25
+svn:wc:ra_dav:version-url
+V 48
+/!svn/ver/1306/FormEncode/trunk/docs/history.txt
+END
+community.txt
+K 25
+svn:wc:ra_dav:version-url
+V 50
+/!svn/ver/1091/FormEncode/trunk/docs/community.txt
+END
+ToDo.txt
+K 25
+svn:wc:ra_dav:version-url
+V 45
+/!svn/ver/1303/FormEncode/trunk/docs/ToDo.txt
+END
+Validator.txt
+K 25
+svn:wc:ra_dav:version-url
+V 50
+/!svn/ver/3675/FormEncode/trunk/docs/Validator.txt
+END
+download.txt
+K 25
+svn:wc:ra_dav:version-url
+V 49
+/!svn/ver/3377/FormEncode/trunk/docs/download.txt
+END
+index.txt
+K 25
+svn:wc:ra_dav:version-url
+V 46
+/!svn/ver/3449/FormEncode/trunk/docs/index.txt
+END
+Design.txt
+K 25
+svn:wc:ra_dav:version-url
+V 47
+/!svn/ver/3104/FormEncode/trunk/docs/Design.txt
+END
+htmlfill.txt
+K 25
+svn:wc:ra_dav:version-url
+V 49
+/!svn/ver/3589/FormEncode/trunk/docs/htmlfill.txt
+END
+news.txt
+K 25
+svn:wc:ra_dav:version-url
+V 45
+/!svn/ver/3746/FormEncode/trunk/docs/news.txt
+END
+default.css
+K 25
+svn:wc:ra_dav:version-url
+V 47
+/!svn/ver/762/FormEncode/trunk/docs/default.css
+END
+conf.py
+K 25
+svn:wc:ra_dav:version-url
+V 44
+/!svn/ver/3746/FormEncode/trunk/docs/conf.py
+END
+i18n.txt
+K 25
+svn:wc:ra_dav:version-url
+V 45
+/!svn/ver/2501/FormEncode/trunk/docs/i18n.txt
+END
+test_docs.py
+K 25
+svn:wc:ra_dav:version-url
+V 48
+/!svn/ver/909/FormEncode/trunk/docs/test_docs.py
+END

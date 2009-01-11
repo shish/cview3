@@ -1,0 +1,43 @@
+8
+
+dir
+3768
+http://svn.colorstudy.com/FormEncode/trunk/examples
+http://svn.colorstudy.com
+
+
+
+2005-10-12T17:25:50.116212Z
+1111
+test
+
+
+svn:special svn:externals svn:needs-lock
+
+
+
+
+
+
+
+
+
+
+
+95a46c32-92d2-0310-94a5-8d71aeb3d4b3
+
+webware_example.ini
+file
+
+
+
+
+2009-01-10T20:34:50.000000Z
+10bfba44777c5d776ad2619b763df7da
+2005-10-12T17:25:50.116212Z
+1111
+test
+
+WebwareExamples
+dir
+

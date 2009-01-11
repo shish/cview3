@@ -1,0 +1,9 @@
+Document: python-egenix-mxtools
+Title: eGenix mxTools Manual
+Author: Marc-Andre Lemburg
+Abstract: Manual for eGenix mxTools.
+Section: Apps/Programming
+
+Format: HTML
+Index: /usr/share/doc/python-egenix-mxtools/html/mxTools.html
+Files: /usr/share/doc/python-egenix-mxtools/html/*.html

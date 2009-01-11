@@ -1,0 +1,47 @@
+#chap {
+	width: 64px;
+}
+#page {
+	width: 64px;
+}
+#selector, #header {
+	padding: 8px;
+	background: #ACE4A3;
+	border-bottom: 1px solid #7EB977;
+}
+#comments {
+	width: 512px;
+	margin: auto;
+	padding: 8px;
+	background: #ACE4A3;
+	border: 1px solid #7EB977;
+}
+#comments P {
+	margin-top: 0px;
+}
+IMG {
+	border: 0px;
+}
+BODY {
+    background-image: url(bg.png);
+    font-family: "Arial", sans-serif;
+    font-size: 14px;
+    margin-left: 0px;
+    margin-top: 0px;
+    margin-right: 0px;
+}
+.padded {
+	margin: 16px;
+}
+.note {
+	background: #FFA;
+	border: 1px solid black;
+	font-size: 0.8em;
+	padding: 2px;
+}
+#comiclist {
+	background: #ACE4A3;
+}
+#comiclist TD {
+	font-size: 0.8em;
+}

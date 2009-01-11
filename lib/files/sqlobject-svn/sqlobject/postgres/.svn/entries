@@ -1,0 +1,52 @@
+8
+
+dir
+3768
+http://svn.colorstudy.com/SQLObject/trunk/sqlobject/postgres
+http://svn.colorstudy.com
+
+
+
+2008-07-23T14:20:47.285513Z
+3522
+phd
+has-props
+
+svn:special svn:externals svn:needs-lock
+
+
+
+
+
+
+
+
+
+
+
+95a46c32-92d2-0310-94a5-8d71aeb3d4b3
+
+__init__.py
+file
+
+
+
+
+2009-01-10T20:33:07.000000Z
+1a0bb6a24c15f2b256a204390bab3861
+2005-10-28T15:34:24.334570Z
+1166
+phd
+
+pgconnection.py
+file
+
+
+
+
+2009-01-10T20:33:07.000000Z
+973df9c510cb1eafca8082993a8c37e2
+2008-07-23T14:20:47.285513Z
+3522
+phd
+

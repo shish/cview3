@@ -1,142 +1,143 @@
 #!/usr/bin/python2.4
 
+import sys
+sys.path.append("./lib/")
+
 import cgi
 import web
-import os
-import sqlite
-import zipfile
-import tempfile
-import os
 import re
+import os
+import tempfile
+import md5
+import logging
+
+from shcomdb import *
+from cview import *
 
 urls = (
     '/?', 'browse',
     '/browse', 'browse',
     '/browse.cgi', 'browse',
     '/view', 'view',
-    '/upload', 'upload',
-    '/tag_set', 'tag_set',
-    '/comment', 'comment',
+    '/comment/add', 'comment_add',
+    '/comment/get', 'comment_get',
+    '/admin', 'admin',
+    '/admin/hack', 'hack',
+    '/user/login', 'login',
+    '/user/logout', 'logout',
+    '/comic/list', 'browse',
+    '/comic/upload', 'upload',
+    '/comic/rename', 'rename',
+    '/comic/set_tags', 'set_tags',
+    '/comic/delete', 'delete',
 )
 render = web.template.render("templates/")
 app = web.application(urls, locals())
+session = web.session.Session(
+    app, web.session.DiskStore('./sessions'),
+    initializer={'username': "Anonymous", 'admin': False})
 
-# common upload
-class BadComicException(Exception):
-    pass
 
-def count_pages(archive):
-    """
-    Count the pages in a comic zip, raise an exception
-    of anything is dodgy
-    """
-    if not zipfile.is_zipfile(archive):
-        raise BadComicException("Archive is not a zip file")
+# utility functions
+def if_user_is_admin(func):
+    def splitter(*args):
+        if session.admin:
+            return func(*args)
+        else:
+            return render.login()
+    return splitter
 
-    pages = 0
-
-    zf = zipfile.ZipFile(archive)
-    for zipname in zf.namelist():
-        if valid_comicfile(zipname):
-            pages = pages + 1
-    zf.close()
-
-    if pages == 0:
-        raise BadComicException("No pages found")
+def log_info(text):
+    logging.info("%s (%s): %s" % (session.username, web.ctx.ip, text))
     
-    return pages
 
-def valid_comicfile(name):
-    """
-    check for allowed filetype
-    """
-    return (name[-3:].lower() in ["png", "jpg", "peg", "gif", "txt"])
-
-def sanitise(name):
-    """
-    Given a human name, return a filesystem-safe name
-    """
-    return name.replace(" ", "_").replace("!", "").replace("'", "").replace("/", "")
-
-def comicname(zipname):
-    """
-    Given the name of a file within a comic zip, return a canonical
-    name in the form chapter_name/page_name.ext
-    """
-    parts = zipname.split("/")
-    if len(parts) == 1:
-        return "01/"+sanitise(zipname)
-    if len(parts) >= 2:
-        return sanitise(parts[-2])+"/"+sanitise(parts[-1])
-    
-def extract_archive(archive, title):
-    zf = zipfile.ZipFile(archive)
-    for zipname in zf.namelist():
-        outname = "books/"+sanitise(title)+"/"+comicname(zipname)
-        if valid_comicfile(zipname):
-            if not os.path.exists(os.path.dirname(outname)):
-                os.makedirs(os.path.dirname(outname))
-            data = zf.read(zipname)
-            outfile = open(outname, "wb")
-            outfile.write(data)
-            outfile.close()
-    zf.close()
-
-# database
-def get_database():
-    """
-    Get a connection to the database, creating it if necessary
-    """
-    if not os.path.exists('comics.db'):
-        conn = sqlite.connect('comics.db')
-        cursor = conn.cursor()
-        cursor.execute("""
-			CREATE TABLE comics (
-				title varchar(64) not null unique,
-				tags varchar(255) not null,
-                description text not null default "",
-				pages integer not null,
-				rating decimal not null default 0.0
-			)
-        """)
-        conn.commit()
-    else:
-        conn = sqlite.connect('comics.db')
-    return conn
-
-def get_comics(search=None):
-    """
-    Find comics, optionally filtered with a tag
-    """
-    tag = "%"
-    if search:
-        tag = "%"+search+"%"
-    conn = get_database()
-    cursor = conn.cursor()
-    cursor.execute("SELECT * FROM comics WHERE tags LIKE %s ORDER BY title", tag)
-    comics = cursor.fetchall()
-    conn.close()
-    return comics
-
-def add_to_db(title, tags, pages):
-    """
-    Add some meta-info to the database
-    """
-    if len(title) == 0:
-        raise BadComicException("No title specified")
-    conn = get_database()
-    cursor = conn.cursor()
-    cursor.execute("SELECT * FROM comics WHERE title=%s", title)
-    if len(cursor.fetchall()) > 0:
-        raise BadComicException("There's already a comic with that title")
-    cursor.execute("INSERT INTO comics(title, tags, pages) VALUES (%s, %s, %d)", title, tags, pages)
-    conn.commit()
-    conn.close()
-
-# page
 class browse:
+    @if_user_is_admin
     def GET(self):
-        return render.browse(get_comics())
+        x = web.input(sort="default", way="asc")
+        return render.browse(get_comics(orderBy=x["sort"], way=x["way"]), session)
+
+class login:
+    def GET(self):
+        return render.login()
+
+    def POST(self):
+        x = web.input(username=None, password=None)
+        try:
+            passhash = md5.md5(x["username"].lower() + x["password"]).hexdigest()
+            user = User.select("name LIKE %s AND pass=%s" % (
+                User.sqlrepr(str(x["username"])), User.sqlrepr(str(passhash))
+            ))[0]
+        except Exception, e:
+            user = None
+        if user:
+            session["username"] = user.name
+            log_info("Logged in")
+            session["admin"] = user.comic_admin
+            if user.comic_admin:
+                web.seeother("/admin")
+            else:
+                web.seeother("/comic/list")
+        else:
+            return "Login failed"
+
+class logout:
+    def GET(self):
+        session.kill()
+        log_info("Logged out")
+        web.seeother("/comic/list")
+
+class admin:
+    @if_user_is_admin
+    def GET(self):
+        x = web.input(sort="default", way="asc")
+        return render.admin(get_comics(orderBy=x["sort"], way=x["way"]))
+
+class rename:
+    @if_user_is_admin
+    def POST(self):
+        try:
+            x = web.input(comic_id=None, title=None)
+            if x["comic_id"] and x["title"]:
+                comic = Comic.get(int(x["comic_id"]))
+                log_info("Renamed %s (%d) to %s" % (comic.title, comic.id, x["title"]))
+                comic.rename(x["title"])
+                return "Renamed OK"
+            else:
+                return "Missing comic_id or title"
+        except Exception, e:
+            return "Error: "+str(e)
+
+class set_tags:
+    @if_user_is_admin
+    def POST(self):
+        try:
+            x = web.input(comic_id=None, tags=None)
+            if x["comic_id"] and x["tags"]:
+                comic = Comic.get(int(x["comic_id"]))
+                comic.tags = x["tags"]
+                log_info("Set tags for %s (%d) to %s" % (comic.title, comic.id, comic.tags))
+                return "Tags set OK"
+            else:
+                return "Missing comic_id or tags"
+        except Exception, e:
+            return "Error: "+str(e)
+
+class delete:
+    @if_user_is_admin
+    def POST(self):
+        try:
+            x = web.input(comic_id=None)
+            if x["comic_id"]:
+                comic = Comic.get(int(x["comic_id"]))
+                comic.remove_files()
+                comic.destroySelf()
+                log_info("Deleted %s (%d)" % (comic.title, comic.id))
+                return "Deleted OK"
+            else:
+                return "Missing comic_id"
+        except Exception, e:
+            return "Error: "+str(e)
 
 class view:
     def GET(self):
@@ -147,24 +148,33 @@ class upload:
         try:
             x = web.input(title=None, tags="tagme", archive={})
 
-            outinfo = tempfile.mkstemp(".zip")
+            outinfo = tempfile.mkstemp(".zip", dir="./upload_tmp/")
             outfile = open(outinfo[1], "wb")
             outfile.write(x['archive'].value)
             outfile.close()
             archive_name = outinfo[1]
 
             pages = count_pages(archive_name)
-            add_to_db(x['title'], x['tags'], pages)
+            add_to_db(x['title'], x['tags'], pages, session["username"], web.ctx.ip)
             extract_archive(archive_name, x['title'])
+            log_info("Uploaded %s (%s)" % (x['title'], x['tags']))
             return "Comic uploaded without error"
         except BadComicException, e:
             return str(e)
 
-class tag_set:
-    def GET(self, url):
-        return url
+class hack:
+    def GET(self):
+        import time
+        conn = connect()
+        comics = Comic.select()
+        for comic in comics:
+            if os.path.exists("books/"+comic.get_disk_title()):
+                time_secs = os.stat("books/"+comic.get_disk_title())[8]
+                comic.posted = time.strftime("%Y-%m-%d", time.localtime(time_secs))
+        conn.close()
+        return "ok"
 
-class comment:
+class comment_add:
     def POST(self):
         x = web.input(target=None, comment=None)
         target = x["target"];
@@ -191,4 +201,10 @@ class comment:
             return "image not found"
 
 if __name__ == "__main__":
+    logging.basicConfig(
+        level=logging.DEBUG,
+        format='%(asctime)s %(levelname)-8s %(message)s',
+        filename="cview.log")
+    conn = connect()
     app.run()
+    conn.close()

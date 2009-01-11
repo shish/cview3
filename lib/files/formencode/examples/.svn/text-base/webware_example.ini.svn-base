@@ -1,0 +1,20 @@
+# To use this example install Paste: http://svn.pythonpaste.org
+# and run:
+# $ PYTHONPATH=path/to/examples paster serve webware_example.ini
+# and open:
+# http://localhost:9999/
+
+[app:main]
+use = egg:PasteWebKit
+servlet_directory = WebwareExamples
+debug = True
+
+[server:main]
+use = egg:PasteScript#wsgiutils
+host = 127.0.0.1
+port = 9999
+
+[server:flup]
+use = egg:PasteScript#flup_scgi_thread
+host = 127.0.0.1
+port = 5050

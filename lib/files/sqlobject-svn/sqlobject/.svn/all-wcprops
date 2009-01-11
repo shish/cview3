@@ -1,0 +1,125 @@
+K 25
+svn:wc:ra_dav:version-url
+V 40
+/!svn/ver/3757/SQLObject/trunk/sqlobject
+END
+converters.py
+K 25
+svn:wc:ra_dav:version-url
+V 54
+/!svn/ver/3503/SQLObject/trunk/sqlobject/converters.py
+END
+views.py
+K 25
+svn:wc:ra_dav:version-url
+V 49
+/!svn/ver/2716/SQLObject/trunk/sqlobject/views.py
+END
+classregistry.py
+K 25
+svn:wc:ra_dav:version-url
+V 56
+/!svn/ver/950/SQLObject/trunk/sqlobject/classregistry.py
+END
+__init__.py
+K 25
+svn:wc:ra_dav:version-url
+V 52
+/!svn/ver/3223/SQLObject/trunk/sqlobject/__init__.py
+END
+cache.py
+K 25
+svn:wc:ra_dav:version-url
+V 49
+/!svn/ver/2976/SQLObject/trunk/sqlobject/cache.py
+END
+events.py
+K 25
+svn:wc:ra_dav:version-url
+V 50
+/!svn/ver/3443/SQLObject/trunk/sqlobject/events.py
+END
+dbconnection.py
+K 25
+svn:wc:ra_dav:version-url
+V 56
+/!svn/ver/3639/SQLObject/trunk/sqlobject/dbconnection.py
+END
+wsgi_middleware.py
+K 25
+svn:wc:ra_dav:version-url
+V 59
+/!svn/ver/2825/SQLObject/trunk/sqlobject/wsgi_middleware.py
+END
+sqlbuilder.py
+K 25
+svn:wc:ra_dav:version-url
+V 54
+/!svn/ver/3403/SQLObject/trunk/sqlobject/sqlbuilder.py
+END
+constraints.py
+K 25
+svn:wc:ra_dav:version-url
+V 55
+/!svn/ver/2976/SQLObject/trunk/sqlobject/constraints.py
+END
+index.py
+K 25
+svn:wc:ra_dav:version-url
+V 49
+/!svn/ver/3074/SQLObject/trunk/sqlobject/index.py
+END
+col.py
+K 25
+svn:wc:ra_dav:version-url
+V 47
+/!svn/ver/3707/SQLObject/trunk/sqlobject/col.py
+END
+boundattributes.py
+K 25
+svn:wc:ra_dav:version-url
+V 59
+/!svn/ver/1321/SQLObject/trunk/sqlobject/boundattributes.py
+END
+joins.py
+K 25
+svn:wc:ra_dav:version-url
+V 49
+/!svn/ver/3081/SQLObject/trunk/sqlobject/joins.py
+END
+dberrors.py
+K 25
+svn:wc:ra_dav:version-url
+V 52
+/!svn/ver/1981/SQLObject/trunk/sqlobject/dberrors.py
+END
+styles.py
+K 25
+svn:wc:ra_dav:version-url
+V 50
+/!svn/ver/2976/SQLObject/trunk/sqlobject/styles.py
+END
+declarative.py
+K 25
+svn:wc:ra_dav:version-url
+V 55
+/!svn/ver/3382/SQLObject/trunk/sqlobject/declarative.py
+END
+main.py
+K 25
+svn:wc:ra_dav:version-url
+V 48
+/!svn/ver/3611/SQLObject/trunk/sqlobject/main.py
+END
+sresults.py
+K 25
+svn:wc:ra_dav:version-url
+V 52
+/!svn/ver/3435/SQLObject/trunk/sqlobject/sresults.py
+END
+conftest.py
+K 25
+svn:wc:ra_dav:version-url
+V 52
+/!svn/ver/2495/SQLObject/trunk/sqlobject/conftest.py
+END

@@ -1,0 +1,89 @@
+K 25
+svn:wc:ra_dav:version-url
+V 37
+/!svn/ver/3725/FormEncode/trunk/tests
+END
+test_cc_validator.py
+K 25
+svn:wc:ra_dav:version-url
+V 58
+/!svn/ver/2106/FormEncode/trunk/tests/test_cc_validator.py
+END
+test_doctest_xml_compare.py
+K 25
+svn:wc:ra_dav:version-url
+V 65
+/!svn/ver/3296/FormEncode/trunk/tests/test_doctest_xml_compare.py
+END
+test_htmlfill.py
+K 25
+svn:wc:ra_dav:version-url
+V 54
+/!svn/ver/3685/FormEncode/trunk/tests/test_htmlfill.py
+END
+test_htmlrename.py
+K 25
+svn:wc:ra_dav:version-url
+V 56
+/!svn/ver/3396/FormEncode/trunk/tests/test_htmlrename.py
+END
+test_htmlgen.py
+K 25
+svn:wc:ra_dav:version-url
+V 52
+/!svn/ver/906/FormEncode/trunk/tests/test_htmlgen.py
+END
+test_i18n.py
+K 25
+svn:wc:ra_dav:version-url
+V 50
+/!svn/ver/3681/FormEncode/trunk/tests/test_i18n.py
+END
+__init__.py
+K 25
+svn:wc:ra_dav:version-url
+V 49
+/!svn/ver/3297/FormEncode/trunk/tests/__init__.py
+END
+non_empty.txt
+K 25
+svn:wc:ra_dav:version-url
+V 51
+/!svn/ver/3448/FormEncode/trunk/tests/non_empty.txt
+END
+test_schema.py
+K 25
+svn:wc:ra_dav:version-url
+V 52
+/!svn/ver/3725/FormEncode/trunk/tests/test_schema.py
+END
+test_cc_expires.py
+K 25
+svn:wc:ra_dav:version-url
+V 56
+/!svn/ver/2106/FormEncode/trunk/tests/test_cc_expires.py
+END
+test_context.py
+K 25
+svn:wc:ra_dav:version-url
+V 53
+/!svn/ver/3297/FormEncode/trunk/tests/test_context.py
+END
+disabled_sqlschema.py
+K 25
+svn:wc:ra_dav:version-url
+V 59
+/!svn/ver/2129/FormEncode/trunk/tests/disabled_sqlschema.py
+END
+test_doctests.py
+K 25
+svn:wc:ra_dav:version-url
+V 54
+/!svn/ver/3185/FormEncode/trunk/tests/test_doctests.py
+END
+test_validators.py
+K 25
+svn:wc:ra_dav:version-url
+V 56
+/!svn/ver/3667/FormEncode/trunk/tests/test_validators.py
+END

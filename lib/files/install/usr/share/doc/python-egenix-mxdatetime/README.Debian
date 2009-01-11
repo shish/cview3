@@ -1,0 +1,14 @@
+The python*-egenix-mx* packages supersede the old python-mx* packages
+found in earlier Debian versions.
+
+A notable difference:
+
+The modules (e.g. DateTime) now have the prefix "mx." in the
+namespace.  So, for example, if you have used the old DateTime module
+in a program, you should instead use mx.Datetime.  E.g.:
+
+    # Old:
+    import DateTime
+
+    # New:
+    from mx import DateTime

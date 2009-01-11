@@ -1,0 +1,9 @@
+Document: python-egenix-mxdatetime
+Title: eGenix mxDateTime Manual
+Author: Marc-Andre Lemburg
+Abstract: Manual for eGenix mxDateTime.
+Section: Apps/Programming
+
+Format: HTML
+Index: /usr/share/doc/python-egenix-mxdatetime/html/mxDateTime.html
+Files: /usr/share/doc/python-egenix-mxdatetime/html/*.html

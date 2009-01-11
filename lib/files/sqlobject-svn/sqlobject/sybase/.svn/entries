@@ -1,0 +1,52 @@
+8
+
+dir
+3768
+http://svn.colorstudy.com/SQLObject/trunk/sqlobject/sybase
+http://svn.colorstudy.com
+
+
+
+2007-05-01T01:35:15.808920Z
+2615
+luke
+has-props
+
+svn:special svn:externals svn:needs-lock
+
+
+
+
+
+
+
+
+
+
+
+95a46c32-92d2-0310-94a5-8d71aeb3d4b3
+
+__init__.py
+file
+
+
+
+
+2009-01-10T20:33:01.000000Z
+5b4d64626cea518bfbcc93749ca8e257
+2004-02-11T01:13:17.229168Z
+13
+ianb
+
+sybaseconnection.py
+file
+
+
+
+
+2009-01-10T20:33:01.000000Z
+97d7f47b5f5e29fe60f686f3b0ac5563
+2007-05-01T01:35:15.808920Z
+2615
+luke
+

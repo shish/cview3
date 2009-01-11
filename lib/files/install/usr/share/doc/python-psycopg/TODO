@@ -1,0 +1,44 @@
+TODO:
+
+  + wait for libpq to become really thread safe w.r.t. the use of the
+    crypt() function and reenable threads around PQconnectdb.
+ 
+  + finish documentation, both psycopg-specific and dbapi.
+
+  + write more regression tests.
+
+  + finish dbapi-2.0 testsuite.
+
+  + how to cope with time zones? postgres include tz information in results, 
+    so, how should we use it?
+
+  + profile and optimize
+
+  + do a commit when switching back from autocommit (better transaction level
+    management, really.)
+
+DONE:
+
+  + add database management from inside zope (not done, but i am
+    rapidly loosing interest in zope. patches welcome...)
+
+  + replace all the '-1' (ignored) values in TABLE_DESCRIPTIONS with 
+    meaningfull values. Will be done while moving testsuite out of
+    psycopg.
+
+  + make tuples static where possible (A: not possible in a multithreaded
+    environment!)
+  
+  + add tests to test suite, check for BINARY (has postgres a binary type?) 
+    and for ROWID (moving testsuite 'paco' in its own package).
+
+  + convert mxDateTime to DateTime in ZPsycopgDA.
+
+  + add exceptions to curs_closeall(), curs_commitall(), curs_rollbackall()
+    [added asserts].
+
+  + add missing types to the builting type objects.
+
+  + write macros to autogenerate types from postgresql headers.
+ 
+  + add autocommit.

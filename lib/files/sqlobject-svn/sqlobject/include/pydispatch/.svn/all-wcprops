@@ -1,0 +1,47 @@
+K 25
+svn:wc:ra_dav:version-url
+V 59
+/!svn/ver/2615/SQLObject/trunk/sqlobject/include/pydispatch
+END
+saferef.py
+K 25
+svn:wc:ra_dav:version-url
+V 70
+/!svn/ver/1184/SQLObject/trunk/sqlobject/include/pydispatch/saferef.py
+END
+errors.py
+K 25
+svn:wc:ra_dav:version-url
+V 69
+/!svn/ver/1184/SQLObject/trunk/sqlobject/include/pydispatch/errors.py
+END
+robust.py
+K 25
+svn:wc:ra_dav:version-url
+V 69
+/!svn/ver/1184/SQLObject/trunk/sqlobject/include/pydispatch/robust.py
+END
+__init__.py
+K 25
+svn:wc:ra_dav:version-url
+V 71
+/!svn/ver/1184/SQLObject/trunk/sqlobject/include/pydispatch/__init__.py
+END
+README.txt
+K 25
+svn:wc:ra_dav:version-url
+V 70
+/!svn/ver/1184/SQLObject/trunk/sqlobject/include/pydispatch/README.txt
+END
+robustapply.py
+K 25
+svn:wc:ra_dav:version-url
+V 74
+/!svn/ver/1184/SQLObject/trunk/sqlobject/include/pydispatch/robustapply.py
+END
+dispatcher.py
+K 25
+svn:wc:ra_dav:version-url
+V 73
+/!svn/ver/1184/SQLObject/trunk/sqlobject/include/pydispatch/dispatcher.py
+END

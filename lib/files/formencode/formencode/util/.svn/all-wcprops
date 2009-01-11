@@ -1,0 +1,23 @@
+K 25
+svn:wc:ra_dav:version-url
+V 47
+/!svn/ver/1182/FormEncode/trunk/formencode/util
+END
+doctest24.py
+K 25
+svn:wc:ra_dav:version-url
+V 59
+/!svn/ver/748/FormEncode/trunk/formencode/util/doctest24.py
+END
+__init__.py
+K 25
+svn:wc:ra_dav:version-url
+V 58
+/!svn/ver/748/FormEncode/trunk/formencode/util/__init__.py
+END
+threadinglocal.py
+K 25
+svn:wc:ra_dav:version-url
+V 65
+/!svn/ver/1182/FormEncode/trunk/formencode/util/threadinglocal.py
+END

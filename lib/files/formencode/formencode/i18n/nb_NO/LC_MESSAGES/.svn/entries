@@ -1,0 +1,53 @@
+8
+
+dir
+3768
+http://svn.colorstudy.com/FormEncode/trunk/formencode/i18n/nb_NO/LC_MESSAGES
+http://svn.colorstudy.com
+
+
+
+2008-12-20T01:02:12.329920Z
+3745
+pjenvey
+
+
+svn:special svn:externals svn:needs-lock
+
+
+
+
+
+
+
+
+
+
+
+95a46c32-92d2-0310-94a5-8d71aeb3d4b3
+
+FormEncode.mo
+file
+
+
+
+
+2009-01-10T20:34:42.000000Z
+8a0603bf7aeea7a4d774e574eb6f5cfb
+2008-12-20T01:02:12.329920Z
+3745
+pjenvey
+has-props
+
+FormEncode.po
+file
+
+
+
+
+2009-01-10T20:34:42.000000Z
+96fd2b207b98cd72fd6d20d08697da85
+2008-12-20T01:00:36.777173Z
+3744
+pjenvey
+

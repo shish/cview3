@@ -1,0 +1,17 @@
+K 25
+svn:wc:ra_dav:version-url
+V 49
+/!svn/ver/3522/SQLObject/trunk/sqlobject/postgres
+END
+__init__.py
+K 25
+svn:wc:ra_dav:version-url
+V 61
+/!svn/ver/1166/SQLObject/trunk/sqlobject/postgres/__init__.py
+END
+pgconnection.py
+K 25
+svn:wc:ra_dav:version-url
+V 65
+/!svn/ver/3522/SQLObject/trunk/sqlobject/postgres/pgconnection.py
+END

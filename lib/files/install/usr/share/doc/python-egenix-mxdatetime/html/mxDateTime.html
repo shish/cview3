@@ -1,0 +1,3646 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+  <HEAD>
+    <TITLE>mxDateTime - Date/time types for Python</TITLE>
+    <META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=iso-8859-1">
+    <STYLE TYPE="text/css">
+      p { text-align: justify; }
+      ul.indent { }
+      body { }
+    </STYLE>
+  </HEAD>
+
+  <BODY TEXT="#000000" BGCOLOR="#FFFFFF" LINK="#0000EE" VLINK="#551A8B" ALINK="#FF0000">
+
+    <DIV CLASS="title">
+      
+      <HR NOSHADE WIDTH="100%">
+      <H2>mxDateTime - Date and Time types for Python</H2>
+
+      <HR SIZE=1 NOSHADE WIDTH="100%">
+      <TABLE WIDTH="100%" CELLSPACING=4>
+	<TR>
+	  <TD>
+	    <SMALL>
+	      <A HREF="#Interface">Interface</A> (
+	      <A HREF="#DateTime">DateTime</A> :
+	      <A HREF="#DateTimeDelta">DateTimeDelta</A> :
+	      <A HREF="#RelativeDateTime">RelativeDateTime</A> :
+	      <A HREF="#Constants">Constants</A> :
+	      <A HREF="#Functions">Functions</A> ) :
+	      <A HREF="#Arithmetic">Arithmetic</A> :
+	      <A HREF="#Submodules">Submodules</A> (
+	      <A HREF="#ISO">ISO</A> :
+	      <A HREF="#ARPA">ARPA</A> :
+	      <A HREF="#Feasts">Feasts</A> :
+	      <A HREF="#Parser">Parser</A> :
+	      <A HREF="#NIST">NIST</A> ) :
+	      <A HREF="#Examples">Examples</A> :
+	      <A HREF="#API">C API</A> : 
+	      <A HREF="#Structure">Structure</A> :
+	      <A HREF="#Support">Support</A> :
+	      <A HREF="http://www.egenix.com/files/python/eGenix-mx-Extensions.html#Download-mxBASE"><B>Download</B></A> :
+	      <A HREF="#Copyright">Copyright &amp; License</A> :
+	      <A HREF="#History">History</A> :
+	      <A HREF="" TARGET="_top">Home</A>
+	    </SMALL>
+	  </TD>
+	  <TD ALIGN=RIGHT VALIGN=TOP>
+	    <SMALL>
+	      <FONT COLOR="#FF0000">Version 2.0.3</FONT>
+	    </SMALL>
+	  </TD>
+      </TABLE>
+      <HR SIZE=1 NOSHADE WIDTH="100%">
+
+    </DIV>
+
+    <H3>Introduction</H3>
+
+    <UL CLASS="indent">
+
+	<P>
+	  These types were created to provide a consistent way of
+	  transferring date and time data between Python and databases.
+	  Apart from handling date before the Unix epoch (1.1.1970) they
+	  also correctly work with dates beyond the Unix time limit
+	  (currently with Unix time values being encoded using 32bit
+	  integers, the limit is reached in 2038) and thus is <B>Year
+	    2000</B> and <B>Year 2038</B> safe.
+
+	<P>
+	  The primary absolute date/time type <B>DateTime</B> uses the
+	  following internal format:
+
+	<P>
+	<DL>
+	  <DT><B>Absolute date</B></DT>
+
+	  <DD>
+	    This is a C <TT>long</TT> defined as being the number of
+	    days in the Gregorian calendar since the day before
+	    January 1 in the year 1 (0001-01-01, the Christian Epoch
+	    (CE)), thus the Gregorian date 0001-01-01 corresponds to
+	    absolute date 1. Note that the Julian Epoch lies two days
+	    before the Gregorian one. <P></DD>
+
+	  <DT><B>Absolute time</B></DT>
+
+	  <DD>
+	    This is a C <TT>double</TT> defined as the number of
+	    seconds since midnight (0:00:00.00) of the day expressed
+	    by the above value.<P></DD>
+
+	</DL>
+
+	<P>
+	  The <I>Epoch</I> used by the module is January 1st of the
+	  year 1 at midnight (0:00:00.00) in the Gregorian
+	  calendar. This date corresponds to absolute day 1 and
+	  absolute time 0. Dates before the Epoch are handled by
+	  extrapolating the calendars using negative years as basis
+	  (the year 1 BCE corresponds to the year 0, 2 BCE is
+	  represented as year -1 and so on).
+
+	<P>
+	  For the purpose of storing absolute time differences, the
+	  package provides a second type called
+	  <B>DateTimeDelta</B>. The internal representation for this
+	  type is seconds and stored in a signed C <TT>double</TT>.
+
+	<P>
+	  To handle relative time deltas a third object type is
+	  available: <B>RelativeDateTime</B>. This object is currently
+	  implemented in Python and may be used to store relative time
+	  deltas (see below for an exact description). It's main
+	  purpose is providing an intuitive way to calculate e.g. the
+	  "first of next month".
+
+	<P>
+	  Designing the types wasn't as easy as expected, since many
+	  criteria had to be taken into account. Here are some of them
+	  and their implementation:
+
+    <H4>Time Zones, Daylight Savings Time (DST) and Leap Seconds</H4>
+
+    <P>
+      Time zones are among the most difficult to handle issues when it
+      comes to implementing and using types for date and time. We
+      chose to move the time zone handling functionality out of the C
+      implementation and into Python. This means that the types know
+      nothing about the time zones of the values they store and
+      calculations are done using the raw data.
+
+    <P>
+      If you need to store and use these informations in calculations,
+      you can "subclass" the types to implement your ideas rather than
+      having to stick to what the C implementation defines. The
+      included ODMG submodule is an example of how this can be done.
+
+    <P>
+      Leap seconds are not supported either. You can implement classes
+      respecting these by "subclassing" DateTime and DateTimeDelta and
+      then overriding the calculation methods with methods that work
+      on Unix ticks values (provided the underlying C lib knows about
+      leap seconds -- most don't and the POSIX standard even invorces
+      not to use leap seconds).
+
+    <H4>Calendars</H4>
+
+    <P>
+      The module supports two calendars, the Gregorian (default and
+      needed for most conversions) and the Julian, which is handy for
+      dates prior to the year 1582 when the calendar was revised by
+      Pope Gregory XIII.
+
+    <P>
+      Construction of Julian dates can be done using either the
+      <CODE>JulianDateTime()</CODE> constructor or indirect through
+      the <CODE>.Julian()</CODE> method of DateTime instances. To
+      check which calendar a DateTime instance uses, query the
+      <CODE>calendar</CODE> instance attribute.
+
+    <P>
+      Note that Julian dates output the Julian date through the
+      instances date attributes and broken down values. Not all
+      conversions are available on instances using the Julian
+      calendar. Even though in the Julian calendar days start at noon
+      (12:00:00.0), mxDateTime will use the Gregorian convention of
+      using the date for the period from 00:00:00.0 to 23:59:59.99 of
+      that day. (This may change in future versions, though.)
+
+    <P>
+      Both calendars use mathematical models as basis -- they do not
+      account for the many inaccuracies that occurred during their
+      usage history. For this reason, the <CODE>.absdate</CODE> values
+      should be interpreted with care, esp. for dates using the Julian
+      calendar. As a result of the mathematical models, the Epochs in
+      the calendars differ by a few days. This was needed in order to
+      synchronize the calendars in the switching year 1582 (I'm still
+      not 100% sure whether this is correct or not: JulianDate(1,1,1)
+      lies two days before Date(1,1,1)).
+
+    <P>
+      
+
+    <H4>Conversion from and to other formats</H4>
+
+    <P>
+      For the purpose of converting the stored values to Unix ticks
+      (number of seconds since the Unix epoch; the C lib also uses
+      this representation) we assume that the values are given in
+      <B>local time</B>. This assumption had to be made because the C
+      lib provides no standard way to convert a broken down date/time
+      value in any other way into a ticks value.
+
+    <P>
+      Conversions to COM dates and tuples are done without any
+      assumption on the time zone. The raw values are used.
+
+    <P>
+      Conversion from other formats to DateTime instances is always
+      done by first calculating the corresponding absolute time and
+      date values (which are also used as basis for calculations).
+
+    <H4>Rounding errors</H4>
+
+    <P>
+      The internal representation of date/times behaves much like
+      floats do in Python, i.e. <I>rounding errors</I> can occur when
+      doing calculations. There is a special compare function included
+      (<CODE>cmp()</CODE>) in the package that allows you to compare
+      two date/time values using a given accuracy,
+      e.g. <CODE>cmp(date1,date2,0.5)</CODE> will allow 12:00:00.5 and
+      12:00:01.0 to compare equal.
+
+    <P>
+      Special care has been taken to prevent these rounding errors
+      from occurring for COM dates. If you create a DateTime instance
+      using a COM date, then the value returned by the .COMDate()
+      method is guaranteed to be exactly the same as the one used for
+      creation.  The same is true for creation using absolute time and
+      absolute date and broken down values.
+
+    <H4>Immutability</H4>
+
+    <P>
+      One other thing to keep in mind when working with DateTime and
+      DateTimeDelta instances is that they are immutable (like
+      tuples). Once an instance is created you can not change its
+      value. Instead, you will have to create a new instance with
+      modified values. The advantage of having immutable objects is
+      that they can be used as dictionary keys.
+
+    <H4>UTC and GMT</H4>
+
+    <P>
+      UTC (Universal Time Code) and GMT (Greenich Mean Time) are two
+      names for more or less the same thing: they both refer to the
+      international universal time which is used throughout the world
+      to coordinate events in time regardeless of time zone, day light
+      savings time or other local time alterations.  See the <A
+      HREF="http://www.tondering.dk/claus/calendar.html">Calendar FAQ</A> for
+      more infos.
+
+    <P>
+      The mx.DateTime package uses these two names interchangeably.
+      Sometimes API only refer to one name for simplicity. The name
+      preference (GMT or UTC) is often chosen according to common
+      usage.
+
+    <H4>Interaction with other types</H4>
+
+    <P>
+      DateTime and DateTimeDelta instances can be compared and hashed,
+      making them compatible to the dictionary implementation Python
+      uses (they can be used as keys).  The copy protocol, simple
+      arithmetic and pickleing are also supported (ee below for
+      details).
+
+    <H4>String formats</H4>
+
+    <P>
+      DateTime and DateTimeDelta instances know how to output
+      themselves as ISO8601-strings. The format is very simple:
+      YYYY-MM-DD HH:MM:SS.ss for DateTime instances and
+      [-][DD:]HH:MM:SS.ss for DateTimeDelta instances (the DD-part
+      (days) is only given if the absolute delta value is greater than
+      24 hours). Customized conversion to strings can be done using
+      the <CODE>strftime</CODE>-methods or the included submodules.
+
+    <P>
+      String parsing is supported through the <CODE>strptime()</CODE>
+      constructor which implements a very strict parsing scheme and
+      the included submodules (e.g. <A HREF="#ISO">ISO</A> and <A
+	HREF="#ARPA">ARPA</A>), which allow a little more freedom.
+
+    <H4>Speed and Memory</H4>
+
+    <P>
+      Comparing the types to time-module based routines is not really
+      possible, since the used strategies differ. You can compare them
+      to tuple-based date/time classes though: DateTime[Delta] are
+      much faster on creation, use less storage and are faster to
+      convert to the supported other formats than any equivalent
+      tuple-based implementation written in Python.
+
+    <P>
+      Creation of time-module values using time.mktime() is much
+      slower than doing the same thing with DateTime(). The same holds
+      for the reverse conversion (using time.localtime()). 
+
+    <P>
+      The storage size of ticks (floats, which the time module uses)
+      is about 1/3 of the size a DateTime instance uses. This is
+      mainly due to the fact that DateTime instances cache the broken
+      down values for fast access.
+
+    <P>
+      To summarize: DateTime[Delta] are faster, but also use more
+      memory than traditional time-module based techniques.
+
+    <P>
+
+    <H4>Background and Sources on the Web</H4>
+
+    <P>
+      Here is a small list of links I used as starting points to find
+      some of the date/time related information included in this
+      package:
+
+    <P>
+    <UL>
+      
+      <LI>The <A
+	  HREF="http://www.tondering.dk/claus/calendar.html">Calendar
+	  FAQ</A> by Claus Tondering.
+
+      <LI>The <A
+	  HREF="http://www.interlog.com/~r937/callinks.html">Calendar
+	  Links</A> by Rudy Limeback.
+
+      <LI>The <A
+	  HREF="http://www.smart.net/~mmontes/ec-cal.html">Ecclesiastical
+	  Calendar</A> by Marcos J. Montes.
+
+      <LI>The <A
+	  HREF="http://tycho.usno.navy.mil/systime.html">Systems of
+	  Time</A> page provided by the Time Service Dept., U.S. Naval
+	Observatory, Washington, DC.
+
+      <LI>The <A
+	  HREF="http://genealogy.org/~scottlee/calconvert.cgi">Calendar
+	  Conversion </A> page by Scott E. Lee.
+
+      <LI>For the interested reader, I also suggest <A
+	  HREF="http://physics.nist.gov/time">A walk through time </A>
+	presented by the NIST Time and Frequency Division.
+
+    </UL>
+
+    <P>
+
+    </UL><!--CLASS="indent"-->
+
+      <A NAME="Interface">
+
+    <H3>Interface</H3>
+
+    <UL CLASS="indent">
+
+	<P>The package provides three data structures for working with date
+	  and time values. These are:
+
+	<P>
+	<OL>
+	  <LI><A HREF="#DateTime">DateTime</A> for referring to
+	    absolute date/time values,
+	    
+	  <LI><A HREF="#DateTimeDelta">DateTimeDelta</A> for date/time
+	    spans and
+	    
+	  <LI><A HREF="#RelativeDateTime">RelativeDateTime</A> for
+	    representing variable date/time spans (these are the TABs of
+	    date/time calculation)
+	</OL>
+
+
+	<A NAME="DateTime">
+
+    <H4>DateTime Constructors</H4>
+
+    <UL CLASS="indent">
+
+	<P>Several constructors are available in the module
+	  <TT>DateTime</TT>.  All of these return DateTime instances
+	  using the Gregorian calendar except for JulienDateTime() which
+	  returns instances using the Julian calendar.
+
+	<P><DL>
+
+	  <DT><CODE><FONT COLOR="#000099">
+		DateTime(year,month=1,day=1,hour=0,minute=0,second=0.0)</FONT></CODE></DT>
+
+	  <DD>
+	    Constructs a DateTime instance from the given values.
+
+	    <P>
+	      Assumes that the date is given in the Gregorian calendar
+	      (which it the one used in many countries today).
+
+	    <P>
+	      The entry for <CODE>day</CODE> can be negative to
+	      indicate days counted in reverse order, that is the last
+	      day becomes -1, the day before that -2, and so on,
+	      e.g. <CODE>DateTime(1997,12,-2)</CODE> gives the
+	      30.12.1997 (this is useful especially for months).
+
+	    <P>
+	      Note that although the above makes it look like this
+	      function can handle keywords, it currently cannot.
+	  <P></DD>
+
+	  <DT><CODE><FONT COLOR="#000099">
+		GregorianDateTime(year,month=1,day=1,hour=0,minute=0,second=0.0)</FONT></CODE></DT>
+
+	  <DD>
+	    Is just another name binding for DateTime().<P></DD>
+
+	  <DT><CODE><FONT COLOR="#000099">
+		JulianDateTime(year,month=1,day=1,
+		hour=0,minute=0,second=0.0)</FONT></CODE></DT>
+
+	  <DD>
+	    Constructs a DateTime instance from the given values
+	    assuming they are given in the Julian calendar.
+
+	    <P>
+	      The instance will use the Julian calendar for all date
+	      related methods and attributes.
+
+	    <P>
+	      Same comments as for DateTime().  
+
+	  <P></DD>
+
+	  <DT><CODE><FONT COLOR="#000099">
+		JulianDate(year,month=1,day=1)</FONT></CODE></DT>
+
+	  <DD>
+	    Is just another name binding for JulianDateTime(). The
+	    time part is set to 00:00:00.0.<P></DD>
+
+	  <DT><CODE><FONT COLOR="#000099">
+		Timestamp(year,month,day,hour=0,minute=0,second=0.0)</FONT></CODE></DT>
+
+	  <DD>
+	    Is just another name binding for DateTime(). <P></DD>
+
+	  <DT><CODE><FONT COLOR="#000099">
+		Date(year,month,day)</FONT></CODE></DT>
+
+	  <DD>
+	    Is just another name binding for DateTime(). The
+	    time part is set to 00:00:00.0.<P></DD>
+
+	  <DT><CODE><FONT COLOR="#000099">
+		GregorianDate(year,month,day)</FONT></CODE></DT>
+
+	  <DD>
+	    Is just another name binding for DateTime(). The
+	    time part is set to 00:00:00.0.<P></DD>
+
+	  <DT><CODE><FONT COLOR="#000099">
+		mktime(tuple)</FONT></CODE></DT>
+
+	  <DD>
+	    Same as the DateTime() constructor accept that the
+	    interface used is compatible to the similar time.mktime()
+	    API. tuple has to be a 9-tuple
+	    (year,month,day,hour,minute,second,dow,doy,dst).
+
+	    <P>
+	      Note that the tuple elements
+	      <CODE>dow</CODE>,<CODE>doy</CODE> and <CODE>dst</CODE>
+	      are not used in any way.
+
+	    <P>
+	      You should only use this contructor for porting
+	      applications from time module based functions to
+	      DateTime.  <P></DD>
+
+	  <DT><CODE><FONT COLOR="#000099">
+		DateTimeFromAbsDateTime(absdate,abstime)</FONT></CODE></DT>
+
+	  <DD>
+	    Returns a new DateTime instance for the given absolute
+	    date and time. 
+
+	    <P>
+	      This interface can be used by classes written in Python
+	      which implement other calendars than the Gregorian, for
+	      example.<P></DD>
+
+	  <DT><CODE><FONT COLOR="#000099">
+		localtime(ticks)</FONT></CODE></DT>
+
+	  <DD>
+	    Constructs a DateTime instance from the ticks value (this
+	    is what <TT>time.time()</TT> returns; see the
+	    <TT>time</TT> module for details). 
+
+	    <P>
+	      The instance will hold the associated local
+	      time. <P></DD>
+
+	  <DT><CODE><FONT COLOR="#000099">
+		now()</FONT></CODE></DT>
+
+	  <DD>
+	    Returns a new DateTime instance reflecting the current
+	    local time. <P></DD>
+
+	  <DT><CODE><FONT COLOR="#000099">
+		gmt()</FONT></CODE></DT>
+
+	  <DD>
+	    Returns a new DateTime instance reflecting the current
+	    GMT time. <P></DD>
+
+	  <DT><CODE><FONT COLOR="#000099">
+		utc()</FONT></CODE></DT>
+
+	  <DD>
+	    Alias for gmt().<P></DD>
+
+	  <DT><CODE><FONT COLOR="#000099">
+		gmtime(ticks=time.time())</FONT></CODE></DT>
+
+	  <DD>
+	    Constructs a DateTime instance from the ticks value (this
+	    is what <TT>time.time()</TT> returns; see the
+	    <TT>time</TT> module for details). 
+
+	    <P>
+	      The instance will hold the associated UTC time.  If
+	      ticks is not given, the current time is
+	      used. <CODE>gmticks()</CODE> is the inverse of this
+	      function.<P></DD>
+
+	  <DT><CODE><FONT COLOR="#000099">
+		utctime(ticks=time.time())</FONT></CODE></DT>
+
+	  <DD>
+	    Alias for <CODE>gmtime()</CODE>.<P></DD>
+
+	  <DT><CODE><FONT COLOR="#000099">
+		today(hour=0,minute=0,second=0.0)</FONT></CODE></DT>
+
+	  <DD>
+	    Returns a DateTime instance for the current date (in local
+	    time) at the given time (defaults to midnight). E.g.
+	    today(14,00) is today at 1400 hours.<P></DD>
+
+	  <DT><CODE><FONT COLOR="#000099">
+		DateTimeFromAbsDays(days)</FONT></CODE></DT>
+
+	  <DD>
+	    Constructs a DateTime instance from the days since the
+	    (Christian) Epoch value.  <P></DD>
+
+	  <DT><CODE><FONT COLOR="#000099">
+		DateTimeFromCOMDate(comdate)</FONT></CODE></DT>
+
+	  <DD>
+	    Constructs a DateTime instance from the <I>COM date</I>
+	    value.
+
+	    <P>
+	      This is used in the COM mechanism I'm told and repesents
+	      the date/time difference between 30.12.1899 and the
+	      represented date/time, with time being encoded as
+	      fraction of a whole day, thus 0.5 corresponds to
+	      12:00:00.00.  
+
+	    <P>
+	      Special care is taken that the resulting instance's
+	      method <CODE>COMDate()</CODE> returns exactly the same
+	      value as the one used for constructing it -- even though
+	      the internal representation is more accurate. <P></DD>
+
+	  <DT><CODE><FONT COLOR="#000099">
+		strptime(string,format_string[,default])</FONT></CODE></DT>
+
+	  <DD>
+	    Parse the given string using the format string and
+	    construct a DateTime instance from the found value. 
+
+	    <P>
+	      If <CODE>default</CODE> is given (must be a DateTime
+	      instance), it's entries are used as default
+	      values. Otherwise, 0001-01-01 00:00:00.00 is used. An
+	      <CODE>Error</CODE> is raised if the underlying C parsing
+	      function <CODE>strptime()</CODE> fails.
+
+	    <P>
+	      Portability note: <CODE>default</CODE> does not work on
+	      Solaris. You will have to reassemble the correct
+	      DateTime instance yourself (knowing which parts the
+	      <CODE>strptime()</CODE> function parsed) if you intend
+	      to use default values. Solaris sets the defaults to
+	      1900-01-01 00:00:00.00 and then overwrites them with the
+	      parsed values.
+
+	    <P>
+	      Note: Since this C API is relatively new, you may not
+	      have access to this constructor on your platform. For
+	      further information on the format, please refer to the
+	      Unix manpage (it is very similar to that of
+	      <CODE>strftime()</CODE> which is documented in the
+	      Python library reference for the time module).<P></DD>
+
+	  <DT><CODE><FONT COLOR="#000099">
+		DateTimeFromMJD(mjd)</FONT></CODE></DT>
+
+	  <DD>
+	    Constructs a DateTime instance from the given <I>Modified
+	      Julian Day</I> (MJD) value.
+
+	    <P>
+	      Since MJD values are given in UTC, the instance will
+	      represent UTC. See the <A
+		HREF="http://www.tondering.dk/claus/calendar.html">Calendar
+		FAQ</A> for details.
+
+	    <P>
+	      <U>Note:</U> Usage of MJD notation is discouraged by the
+	      International Astronomical Union (IAU). Use JDN instead.
+
+	  <P></DD>
+
+	  <DT><CODE><FONT COLOR="#000099">
+	  	DateTimeFromTJD(tjd,tjd_myriad=current_myriad)</FONT></CODE></DT>
+
+	  <DD>
+	    Constructs a DateTime instance from the given <I>Truncated
+	      Julian Day</I> (TJD) value as used by NASA and the U.S. Naval
+	    Observatory, that is TJD = (MJD - 40000) % 10000 or simply TJD =
+	    MJD % 10000. Some sources define TJD = MJD - 40000 making it
+	    non-periodic; this is not supported by this constructor.
+
+	    <P>
+	      tjd_myriad will default to the tjd_myriad current at
+	      package import time, if not given. It refers to the
+	      truncated part of the TDJ number. The current myriad
+	      (245) started on 1995-10-10 00:00:00.00 UTC and will
+	      last until 2023-02-24 23:59:59.99 UTC.
+
+	    <P>
+	      Since TJD values are always given in UTC, the instance
+	      will represent UTC.
+
+	    <P>
+	      Please note that usage of TJD is depreciated because of
+	      the information loss involved with truncating data: use
+	      MJD or JDN instead.	      
+
+	  <P></DD>
+
+	  <DT><CODE><FONT COLOR="#000099">
+		DateTimeFromJDN(jdn)</FONT></CODE></DT>
+
+	  <DD>
+	    Constructs a DateTime instance from the given <I>Julian
+	      Day Number</I> (JDN).
+
+	    <P>
+	      Since JDN values are given in UTC, the instance will
+	      represent UTC. See the <A
+		HREF="http://www.tondering.dk/claus/calendar.html">Calendar
+		FAQ</A> for details. <P></DD>
+
+	  <DT><CODE><FONT COLOR="#000099">
+		DateTimeFrom(*args,**kws)</FONT></CODE></DT>
+
+	  <DD>
+	    Constructs a DateTime instance from the arguments.
+
+	    <P>
+	      This constructor can parse strings, handle numeric
+	      arguments and knows about the keywords
+	      <CODE>year,month,day,hour,minute,second</CODE>.
+
+	    <P>
+	      It uses type inference to find out how to interpret the
+	      arguments and makes use of the Parser module.
+
+	  <P></DD>
+
+	  <DT><CODE><FONT COLOR="#000099">
+		TimestampFrom(*args,**kws)</FONT></CODE></DT>
+
+	  <DD>
+	    Alias for DateTimeFrom().
+	    
+	  <P></DD>
+
+	  <DT><CODE><FONT COLOR="#000099">
+		DateFromTicks(ticks)</FONT></CODE></DT>
+
+	  <DD>
+	    Constructs a DateTime instance pointing to the local time
+	    date at 00:00:00.00 (midnight) indicated by the given
+	    ticks value.  The time part is ignored.
+	  <P></DD>
+
+	  <DT><CODE><FONT COLOR="#000099">
+		TimestampFromTicks(ticks)</FONT></CODE></DT>
+
+	  <DD>
+	    Constructs a DateTime instance pointing to the local date
+	    and time indicated by the given ticks value. 
+	  <P></DD>
+
+	</DL>
+
+    </UL><!--CLASS="indent"-->
+
+    <H4>DateTime Instance Methods</H4>
+
+    <UL CLASS="indent">
+      
+	<P>A <TT>DateTime</TT> instance has the following
+	  methods. Note that the calendar setting of the instance
+	  effects all methods relying on date values.
+
+	<P><DL>
+
+	  <DT><CODE><FONT COLOR="#000099">
+		tuple()</FONT></CODE></DT>
+
+	  <DD>
+	    Returns the instances value as <TT>time.localtime()</TT>
+	    tuple.  
+
+	    <P>
+	      DST is set assuming local time. It can also be -1,
+	      meaning that the information is not available. <P></DD>
+
+	  <DT><CODE><FONT COLOR="#000099">
+		absvalues()</FONT></CODE></DT>
+
+	  <DD>
+	    Returns the instances value as tuple <CODE>(absdate,
+	      abstime)</CODE>.<P></DD>
+
+	  <DT><CODE><FONT COLOR="#000099">
+		ticks(offset=0.0,dst=-1)</FONT></CODE></DT>
+
+	  <DD>
+	    Returns a float repesenting the instances value in ticks
+	    (see above). 
+
+	    <P>
+	      The conversion routine assumes that the stored date/time
+	      value is given in <I>local time</I>. 
+
+	    <P>
+	      The given value for DST is used by the conversion (0 =
+	      DST off, 1 = DST on, -1 = unkown) and offset is
+	      subtracted from the resulting value. 
+
+	    <P>
+	      The method raises a <CODE>RangeError</CODE> exception if
+	      the objects value does not fit into the system's ticks
+	      range.
+	      
+	    <P>
+	      <U>Note:</U> On some platforms the C lib's mktime()
+	      function that this method uses does not allow setting
+	      DST to an arbitrary value. The module checks for this
+	      and raises a <CODE>SystemError</CODE> in case setting
+	      DST to 0 or 1 does not result in valid results.
+	  <P></DD>
+
+	  <DT><CODE><FONT COLOR="#000099">
+		gmticks(offset=0.0)</FONT></CODE></DT>
+
+	  <DD>
+	    Returns a float representing the instances value in ticks
+	    (see above).
+
+	    <P>
+	      The conversion routine assumes that the stored date/time
+	      value is given in <I>UTC time</I>. offset is subtracted
+	      from the resulting value. 
+
+	    <P>
+	      The method raises an <CODE>RangeError</CODE>
+	      exception if the objects value does not fit into the
+	      system's ticks range.
+
+	  <P></DD>
+
+	  <DT><CODE><FONT COLOR="#000099">
+		gmtoffset()</FONT></CODE></DT>
+
+	  <DD>
+	    Returns a DateTimeDelta instance representing the UTC
+	    offset for the instance assuming that the stored values
+	    refer to local time. This is also sometimes called
+	    timezone.
+
+	    <P>
+	      The UTC offset is defined as: local time - UTC time,
+	      e.g.  it is negative in the US and positive in eastern
+	      Europe and Asia.
+
+	  <P></DD>
+
+	  <DT><CODE><FONT COLOR="#000099">
+		gmtime()</FONT></CODE></DT>
+
+	  <DD>
+	    Assuming that the instance refers to local time, this method
+	    returns new DateTime instance holding the corresponding
+	    UTC value.
+
+	  <P></DD>
+
+	  <DT><CODE><FONT COLOR="#000099">
+		localtime()</FONT></CODE></DT>
+
+	  <DD>
+	    Assuming that the instance refers to UTC time, this method
+	    returns new DateTime instance holding the corresponding
+	    local time value.
+
+	  <P></DD>
+
+	  <DT><CODE><FONT COLOR="#000099">
+		COMDate()</FONT></CODE></DT>
+
+	  <DD>
+	    Returns a float float repesenting the instances value as
+	    COM date (see above).<P></DD>
+
+	  <DT><CODE><FONT COLOR="#000099">
+		strftime(format_string="%c")</FONT></CODE></DT>
+	  
+	  <DD>
+	    Format the instances value as indicated by the format
+	    string. 
+
+	    <P>
+	      This is the same function as the one in the
+	      <TT>time</TT> module. For further information please
+	      refer to the manpage or the Python reference
+	      manual. 
+
+	    <P>
+	      Note: <TT>strftime()</TT> and <TT>strptime()</TT> try to
+	      be the inverse of each other. The output from
+	      <TT>strftime()</TT> given to <TT>strptime()</TT>
+	      together with the format string passed to
+	      <TT>strftime()</TT> will in most cases give you a
+	      DateTime instance referring to the same date and
+	      time. 
+
+	    <P>
+	      Time zone information is <I>not</I> available.  Use the
+	      instance variable <CODE>tz</CODE> instead.  <P></DD>
+
+	  <DT><CODE><FONT COLOR="#000099">
+		Format(format_string="%c")</FONT></CODE></DT>
+
+	  <DD>
+	    This is just an alias for strftime() to make the type
+	    compatible to other date/time types.<P></DD>
+
+	  <DT><CODE><FONT COLOR="#000099">
+		Gregorian()</FONT></CODE></DT>
+
+	  <DD>
+	    Returns a DateTime instance pointing to the same point in
+	    time but using the Gregorian calendar.<P></DD>
+
+	  <DT><CODE><FONT COLOR="#000099">
+		Julian()</FONT></CODE></DT>
+
+	  <DD>
+	    Returns a DateTime instance pointing to the same point in
+	    time but using the Julian calendar.<P></DD>
+
+	</DL>
+
+    </UL><!--CLASS="indent"-->
+
+    <H4>DateTime Instance Variables</H4>
+
+    <UL CLASS="indent">
+
+	<P>
+	  To make life easier, the instances also provide a more
+	  direct interface to their stored values (these are all
+	  read-only).  Note that the calendar setting of the instance
+	  effects all attributes referring to date values.
+
+	<P><DL>
+
+	  <DT><CODE><FONT COLOR="#000099">
+		hour, minute, second</FONT></CODE></DT>
+
+	  <DD>
+	    Return the indicated values in their standard ranges. 
+
+	    <P>
+	      Note that in a future release, leap seconds may also be
+	      considered and thus second has a range of 0-60.<P></DD>
+
+	  <DT><CODE><FONT COLOR="#000099">
+		year, month, day</FONT></CODE></DT>
+
+	  <DD>
+	    Return the indicated values in their standard 1-based
+	    ranges.<P></DD>
+
+	  <DT><CODE><FONT COLOR="#000099">
+		date, time</FONT></CODE></DT>
+
+	  <DD>
+	    Returns the ISO representation of the date part as
+	    string. The format is [-]YYYY-MM-DD. <P></DD>
+
+	  <DT><CODE><FONT COLOR="#000099">
+		time</FONT></CODE></DT>
+
+	  <DD>
+	    Returns the ISO representation of the time part as
+	    string. The format is HH:MM:SS.ss with ss being the
+	    truncated fraction of the seconds value. <P></DD>
+
+	  <DT><CODE><FONT COLOR="#000099">
+		dst</FONT></CODE></DT>
+
+	  <DD>
+	    Integer indicating whether DST is active (1) or not (0) or
+	    cannot be determined (-1).  
+
+	    <P>
+	      The value is calculated assuming that the stored value
+	      is local time.  <P></DD>
+
+	  <DT><CODE><FONT COLOR="#000099">
+		tz</FONT></CODE></DT>
+
+	  <DD>
+	    Returns the time zone string, assuming local time, or
+	    "???"  if the information is not available. <P></DD>
+
+	  <DT><CODE><FONT COLOR="#000099">
+		day_of_week</FONT></CODE></DT>
+
+	  <DD>
+	    Returns the day of the week. Monday is returned as
+	    0.<P></DD>
+
+	  <DT><CODE><FONT COLOR="#000099">
+		day_of_year</FONT></CODE></DT>
+
+	  <DD>
+	    Returns the day of the year; 1.1. is returned as
+	    1.<P></DD>
+
+	  <DT><CODE><FONT COLOR="#000099">
+		days_in_month</FONT></CODE></DT>
+
+	  <DD>
+	    Returns the number of days in the object's month.  <P></DD>
+
+	  <DT><CODE><FONT COLOR="#000099">
+		iso_week</FONT></CODE></DT>
+
+	  <DD>
+	    Returns a tuple (year,isoweek,isoday) signifying the <A
+	      HREF="http://www.cl.cam.ac.uk/~mgk25/iso-time.html">ISO
+	      week notation</A> for the date the object points
+	    to.
+
+	    <P>
+	      Note: isoday 1 is Monday !<P></DD>
+
+	  <DT><CODE><FONT COLOR="#000099">
+		is_leapyear</FONT></CODE></DT>
+
+	  <DD>
+	    Returns 1 iff the instances value points to a leap year in
+	    the Gregorian calendar.<P></DD>
+
+	  <DT><CODE><FONT COLOR="#000099">
+		yearoffset</FONT></CODE></DT>
+
+	  <DD>
+	    Returns the absolute date of the 31.12. in the year before
+	    the instance's year.<P></DD>
+
+	  <DT><CODE><FONT COLOR="#000099">
+		absdays</FONT></CODE></DT>
+
+	  <DD>
+	    Returns the absolute date and time of the object converted
+	    to a Python float representing absolute days (days since
+	    the epoch).  
+
+	    <P>
+	      The value is calculated using a 86400.0 seconds/day
+	      basis and does not account for leap seconds. This value
+	      is handy if you need the date/time value stored in one
+	      number. By using a Python float, which is mapped to a C
+	      double internally, the accuracy should give a fairly
+	      large range of valid dates.<P></DD>
+
+	  <DT><CODE><FONT COLOR="#000099">
+		absdate</FONT></CODE></DT>
+
+	  <DD>
+	    Returns the absolute date as used by the instance.<P></DD>
+
+	  <DT><CODE><FONT COLOR="#000099">
+		abstime</FONT></CODE></DT>
+
+	  <DD>
+	    Returns the absolute time as used by the instance.<P></DD>
+
+	  <DT><CODE><FONT COLOR="#000099">
+		mjd</FONT></CODE></DT>
+
+	  <DD>
+	    Returns a float representing the instance's value in terms
+	    of <I>Modified Julian Days</I> (1858-11-17 00:00:00.00 UTC
+	    being Modified Julian Day 0).
+
+	    <P>
+	      It is assumed for the calculation that the stored value
+	      is given in UTC. Fractions indicate parts of the full
+	      day, e.g. 0.5 referrs to noon on the 17 November
+	      1858. 
+
+	    <P>
+	      See the <A
+		HREF="http://www.tondering.dk/claus/calendar.html">Calendar
+		FAQ</A> or <A
+		HREF="http://tycho.usno.navy.mil/systime.html">Systems
+		of Time</A> for details.<P></DD>
+
+	<P>
+	  <U>Note:</U> Usage of MJD notation is discouraged by the
+	  International Astronomical Union (IAU). Use JDN instead.
+
+	<P>
+
+	  <DT><CODE><FONT COLOR="#000099">
+		tjd</FONT></CODE></DT>
+
+	  <DD>
+	    Returns a float representing the instance's value in terms
+	    of <I>Truncated Julian Days</I> (TJD).
+
+	    <P>
+	      TJDs are calculated using 00:00 UTC on 1 January 4713 BC
+	      as epoch, counting the number of days as for the Julian
+	      Day Numbers and then omitting the myriad part (div
+	      10000) from it.  As a result the TJD will always have at
+	      most 4 digits. The divisor is available through the
+	      <CODE>tjd_myriad</CODE> attribute.
+
+	    <P>
+	      It is assumed for the calculation that the stored value
+	      is given in UTC. Fractions indicate parts of the full
+	      day. 
+
+	    <P>
+	      Some people claim that this term is also known under the
+	      name <I>Star Date</I>.  Remember ? ... <TT>"Captain's
+		Log, Star Date 8143.65"</TT>. I wonder which myriad
+	      these dates refer to.
+
+	  <P></DD>
+
+	  <DT><CODE><FONT COLOR="#000099">
+		tjd_myriad</FONT></CODE></DT>
+
+	  <DD>
+	    Returns the truncated part of the TJD
+	    representation.<P></DD>
+
+	  <DT><CODE><FONT COLOR="#000099">
+		jdn</FONT></CODE></DT>
+
+	  <DD>
+	    Returns a float representing the instance's value as
+	    <I>Julian Day Number</I> (Julian Day Number 0 starts at
+	    12:00 UTC on 1 January 4713 BC and ends 24 hours later at
+	    noon on 2 January 4713 BC).
+
+	    <P>
+	      It is assumed for the calculation that the stored value
+	      is given in UTC. Fractions indicate parts of the full
+	      day, e.g. JDN 2451170.17393 referrs to Tue, 22 Dec 1998
+	      16:10:27 UTC. 
+
+	    <P>
+	      See the <A
+		HREF="http://www.tondering.dk/claus/calendar.html">Calendar
+		FAQ</A> for details.<P></DD>
+
+	  <DT><CODE><FONT COLOR="#000099">
+		calendar</FONT></CODE></DT>
+
+	  <DD>
+	    Calendar used by the instance. This can either be the
+	    constant <CODE>Julian</CODE> or
+	    <CODE>Gregorian</CODE>.<P></DD>
+
+	</DL>
+
+    </UL><!--CLASS="indent"-->
+
+    <A NAME="DateTimeDelta">
+
+    <H4>DateTimeDelta Constructors</H4>
+
+    <UL CLASS="indent">
+
+	<P>Several constructors are available:
+
+	<P><DL>
+	  <DT><CODE><FONT COLOR="#000099">
+		DateTimeDelta(days[,hours=0.0,minutes=0.0,seconds=0.0])</FONT></CODE></DT>
+
+	  <DD>
+	    Returns a new DateTimeDelta instance for the given time
+	    delta.  
+
+	    <P>
+	      The internal value is calculated using the formula
+	      <CODE>days*86400.0 + hours*3600.0 + minutes*60.0 +
+	      seconds</CODE>. Keep this in mind when passing negative
+	      values to the constructor.  <P></DD>
+
+	  <DT><CODE><FONT COLOR="#000099">
+		TimeDelta(hour=0.0,minute=0.0,second=0.0)</FONT></CODE></DT>
+
+	  <DD>
+	    Constructs a DateTimeDelta instance from the given values.
+
+	    <P>
+	      The internal value is calculated using the formula
+	      <CODE>hours * 3600 + minutes * 60 + seconds</CODE>. Keep
+	      this in mind when passing negative values to the
+	      constructor. 
+
+	    <P>
+	      The constructor allows usage of keywords,
+	      e.g. Time(seconds=1.5) works. <P></DD>
+
+	  <DT><CODE><FONT COLOR="#000099">
+		Time(hour,minute=0.0,second=0.0)</FONT></CODE></DT>
+
+	  <DD>
+	    Is just another name binding for TimeDelta.<P></DD>
+
+	  <DT><CODE><FONT COLOR="#000099">
+		DateTimeDeltaFromSeconds(seconds)</FONT></CODE></DT>
+
+	  <DD>
+	    Constructs a DateTimeDelta instance from the given
+	    <TT>seconds</TT> value. It can be given as float. <P></DD>
+
+	  <DT><CODE><FONT COLOR="#000099">
+		DateTimeDeltaFromDays(days)</FONT></CODE></DT>
+
+	  <DD>
+	    Constructs a DateTimeDelta instance from the given
+	    <TT>days</TT> value. It can be given as float.
+
+	    <P>
+	      The internal value is calculated using a 86400.0
+	      seconds/day basis.<P></DD>
+
+	  <DT><CODE><FONT COLOR="#000099">
+		DateTimeDeltaFrom(*args,**kws)</FONT></CODE></DT>
+
+	  <DD>
+	    Constructs a DateTimeDelta instance from the arguments.
+
+	    <P>
+	      This constructor can parser strings, handle numeric
+	      arguments and knows about the keywords
+	      <CODE>year,month,day,hour,minute,second</CODE>.
+
+	    <P>
+	      It uses type inference to find out how to interpret the
+	      arguments and makes use of the Parser module.
+
+	  <P></DD>
+	  
+	  <DT><CODE><FONT COLOR="#000099">
+		TimeDeltaFrom(*args,**kws)</FONT></CODE></DT>
+
+	  <DD>
+	    Constructs a DateTimeDelta instance from the arguments.
+
+	    <P>
+	      The interface is the same as for DateTimeDeltaFrom()
+	      with the exception that numeric arguments are
+	      interpreted without day part as for the TimeDelta()
+	      constructor.
+
+	  <P></DD>
+
+	  <DT><CODE><FONT COLOR="#000099">
+		TimeFrom(*args,**kws)</FONT></CODE></DT>
+
+	  <DD>
+	    Alias for TimeDeltaFrom().
+
+	  <P></DD>
+
+	  <DT><CODE><FONT COLOR="#000099">
+		TimeFromTicks(ticks)</FONT></CODE></DT>
+
+	  <DD>
+	    Constructs a DateTimeDelta instance pointing to the local
+	    time indicated by the given ticks value. The date part is
+	    ignored.
+	  <P></DD>
+
+	</DL>
+
+    </UL><!--CLASS="indent"-->
+
+    <H4>DateTimeDelta Instance Methods</H4>
+
+    <UL CLASS="indent">
+
+	<P>A <TT>DateTimeDelta</TT> instance has the following methods:
+
+	<P><DL>
+
+	  <DT><CODE><FONT COLOR="#000099">
+		absvalues()</FONT></CODE></DT>
+
+	  <DD>
+	    Return a <CODE>(absdays, absseconds)</CODE> tuple. 
+
+	    <P>
+	      The <CODE>absseconds</CODE> part is normalized in such
+	      way that it is always smaller than 86400.0. Both values
+	      are signed.<P></DD>
+
+	  <DT><CODE><FONT COLOR="#000099">
+		tuple()</FONT></CODE></DT>
+
+	  <DD>
+	    Returns the instance's value as
+	    <TT>(day,hour,minute,second)</TT> tuple. 
+
+	    <P>
+	      The values are the same those returned by the attributes
+	      of the same name. <P></DD>
+
+	  <DT><CODE><FONT COLOR="#000099">
+		strftime(format_string)</FONT></CODE></DT>
+
+	  <DD>
+	    Format the instance's value as indicated by the format
+	    string. 
+
+	    <P>
+	      This is the same function as the one in the
+	      <TT>time</TT> module. For further information please
+	      refer to the manpage or the Python reference
+	      manual. 
+
+	    <P>
+	      Since some descriptors don't make any sense for
+	      date/time deltas these return undefined values. Only the
+	      fields hour, minute, seconds and day are set according
+	      to the objects value (the descriptors <CODE>%d %H %M %S
+		%I %p %X</CODE> work as expected). 
+
+	    <P>
+	      Negative values show up positive -- you'll have to
+	      provide your own way of showing the sign (the
+	      <CODE>seconds</CODE> instance variable is signed).
+	  <P></DD>
+
+	</DL>
+
+    </UL><!--CLASS="indent"-->
+
+    <H4>DateTimeDelta Instance Variables</H4>
+
+    <UL CLASS="indent">
+
+	<P>
+	  To make life easier, the instances also provide a more
+	  direct interface to their stored values (these are all
+	  read-only):
+
+	<P><DL>
+
+	  <DT><CODE><FONT COLOR="#000099">
+		day, hour, minute, second</FONT></CODE></DT>
+	  
+	  <DD>
+	    Return the indicated values in their standard ranges. The
+	    values are negative for negative time deltas.<P></DD>
+
+	  <DT><CODE><FONT COLOR="#000099">
+		days, hours, minutes, seconds</FONT></CODE></DT>
+
+	  <DD>
+	    Return the internal value of the object expressed as float
+	    in the resp. units, e.g. <CODE>TimeDelta(12,00,00).days ==
+	      0.5</CODE>.<P></DD>
+
+	</DL>
+
+	<P>
+
+    </UL><!--CLASS="indent"-->
+
+    <A NAME="RelativeDateTime">
+
+    <H4>RelativeDateTime Constructors</H4>
+
+    <UL CLASS="indent">
+
+	<P>These constructors are avaiable:
+
+	<P><DL>
+	  <DT><CODE><FONT COLOR="#000099">
+		RelativeDateTime(years=0,months=0,days=0,
+		year=0,month=0,day=0,
+		hours=0,minutes=0,seconds=0,
+		hour=None,minute=None,second=None,
+		weekday=None,weeks=0)</FONT></CODE></DT>
+
+	  <DD>
+	    Returns a RelativeDateTime instance for the specified
+	    relative time. 
+
+	    <P>
+	      The constructor handles keywords, so you'll only have to
+	      give those parameters which should be changed when you
+	      add the relative to an absolute DateTime instance. 
+
+	    <P>
+	      Do not pass arguments directly, always use the keyword
+	      notation !
+
+	    <P>
+	      Absolute values passed to the constructor will override
+	      delta values of the same type. Note that
+	      <CODE>weeks</CODE> is added to <CODE>days</CODE> so that
+	      the instances days values will be <CODE>days +
+		7*weeks</CODE>.
+
+	    <P>
+	      weekday must be a 2-tuple if given: (day_of_week,
+	      nth). The value is applied after all other calculations
+	      have been done resulting in moving the date to the nth
+	      weekday in the month that the date points to. Negative
+	      values for nth result in the ordering of the month's
+	      weekdays to be reversed, e.g. (Monday,-1) will move to
+	      the last Monday in that month. Setting nth to 0 results
+	      in the date's week to be used as reference, e.g
+	      (Tuesday,0) will move to Tuesday that week (which could
+	      lie in a different month). weekday is considered an
+	      absolute value, so multiplication or negation will not
+	      touch it.
+
+	  <P></DD>
+
+	  <DT><CODE><FONT COLOR="#000099">
+		RelativeDate(years=0,months=0,days=0,
+		year=0,month=0,day=0,
+		weeks=0)
+	      </FONT></CODE></DT>
+
+	  <DD>
+	    Is another name binding for RelativeDateTime. Do not pass
+	    arguments directly, always use the keyword notation ! 
+	  <P></DD>
+
+	  <DT><CODE><FONT COLOR="#000099">
+		RelativeDateTimeFrom(*args,**kws)</FONT></CODE></DT>
+
+	  <DD>
+	    Constructs a RelativeDateTime instance from the arguments.
+
+	    <P>
+	      This constructor can parse strings, handle numeric
+	      arguments and knows about the same keywords as the
+	      <CODE>RelativeDateTime()</CODE> constructor.
+
+	    <P>
+	      It uses type inference to find out how to interpret the
+	      arguments and makes use of the Parser module.
+
+	  <P></DD>
+
+	  <DT><CODE><FONT COLOR="#000099">
+		RelativeDateFrom(*args,**kws)
+	      </FONT></CODE></DT>
+
+	  <DD>
+	    Is another name binding for <CODE>RelativeDateTime()</CODE>.
+	    <P>
+	      Note that in future versions this constructor may explicitly
+	      ignore the time parts.
+	  <P></DD>
+
+	  <DT><CODE><FONT COLOR="#000099">
+		RelativeTimeFrom(*args,**kws)
+	      </FONT></CODE></DT>
+
+	  <DD>
+	    Is another name binding for <CODE>RelativeDateTime()</CODE>.
+	    <P>
+	      Note that in future versions this constructor may explicitly
+	      ignore the date parts.
+	  <P></DD>
+
+	  <DT><CODE><FONT COLOR="#000099">
+		RelativeDateTimeDiff(date1,date2)
+	      </FONT></CODE></DT>
+
+	  <DD>
+	    Returns a RelativeDateTime instance representing the
+	    difference between date1 and date2 in relative terms.
+
+	    The following should hold: <CODE>date2 +
+	      RelativeDateDiff(date1,date2) == date1</CODE>
+	    for all dates date1 and date2.
+
+	    <P>
+	      Note that due to the algorithm used by this function,
+	      not the whole range of DateTime instances is supported;
+	      there could also be a loss of precision
+
+	    <P>
+	      This constructor is still <I>experimental</I>. It is not
+	      fully debugged yet.
+
+	  <P></DD>
+
+	  <DT><CODE><FONT COLOR="#000099">
+		RelativeDateDiff(date1,date2)
+	      </FONT></CODE></DT>
+
+	  <DD>
+	    Is another name binding for <CODE>RelativeDateTimeDiff()</CODE>.
+	  <P></DD>
+
+	  <DT><CODE><FONT COLOR="#000099">
+		Age(date1,date2)
+	      </FONT></CODE></DT>
+
+	  <DD>
+	    Is another name binding for <CODE>RelativeDateTimeDiff()</CODE>.
+	  <P></DD>
+
+	</DL>
+
+	<P>
+	  RelativeDateTime objects store the given settings (plural
+	  nouns meaning deltas, singular nouns absolute values) and
+	  apply them when used in calculations. Delta values will have
+	  the effect of changing the corresponding attribute of the
+	  involved absolute DateTime object accordingly, while
+	  absolute values overwrite the DateTime objects attribute
+	  value with a new one. The effective value of the object is
+	  thus determined at calculation time and depends on the
+	  context it is used in.
+
+	<P>
+	  Adding and subtracting RelativeDateTime instances is
+	  supported with the following rules: deltas will be added
+	  together and right side absolute values override left side
+	  ones. 
+
+	<P>
+	  Multiplying RelativeDateTime instances with numbers will
+	  yield instances with scaled deltas (absolute values are not
+	  effected).
+
+	<P>
+	  Adding RelativeDateTime instances to and subtracting
+	  RelativeDateTime instances from DateTime instances will
+	  return DateTime instances with the appropriate calculations
+	  applied, e.g. to get a DateTime instance for the first of
+	  next month, you'd call <CODE>now() +
+	    RelativeDateTime(months=+1, day=01)</CODE>.
+
+	<P>
+	  <U>Note</U> that dates like <CODE>Date(1999,1,30) +
+	    RelativeDateTime(months=+1)</CODE> are not supported. The
+	  package currently interprets these constructions as
+	  <CODE>Date(1999,2,1) + 30</CODE>, thus giving the 1999-03-02
+	  which may not be what you'd expect.
+
+	<P>
+	  When providing both delta and absolute values for an entity
+	  the absolute value is set first and then the delta applied
+	  to the outcome.
+
+	<P>
+	  In tests, RelativeDateTime instances are false in case they
+	  do not define any date or time alterations and true
+	  otherwise.
+
+	<P>
+	  A few examples will probably make the intended usage
+	  clearer:
+	  
+	  <FONT COLOR="#000066">
+	<PRE>>>> from mx.DateTime import *
+
+>>> print now()                        
+1998-08-11 16:46:02.20
+
+# add one month
+>>> print now() + RelativeDateTime(months=+1)
+1998-09-11 16:46:24.59
+
+# add ten months
+>>> print now() + RelativeDateTime(months=+10) 
+1999-06-11 16:47:03.07
+
+# ten days from now
+>>> print now() + RelativeDateTime(days=+10)
+1998-08-21 16:47:10.58
+
+# first of next month
+>>> print now() + RelativeDateTime(months=+1,day=1) 
+1998-09-01 16:47:25.15
+
+# first of this month, same time
+>>> print now() + RelativeDateTime(day=1) 
+1998-08-01 16:47:35.48
+
+# first of this month at midnight
+>>> print now() + RelativeDateTime(day=1,hour=0,minute=0,second=0)
+1998-08-01 00:00:00.00
+
+# next year, first of previous month, same time
+>>> print now() + RelativeDateTime(years=+1,months=-1,day=1)
+1999-07-01 16:48:31.87
+
+# Last Sunday in October 1998
+>>> print Date(1998) + RelativeDateTime(weekday=(Sunday,-1),month=10)
+1998-10-25 00:00:00.00
+
+# The result in ARPA notation:
+>>> print ARPA.str(Date(1998) + RelativeDateTime(weekday=(Sunday,-1),month=10))
+Sun, 25 Oct 1998 00:00:00 +0200
+
+# Generic way of specifying "next tuesday":
+>>> NextTuesday = RelativeDateTime(days=+6,weekday=(Tuesday,0))
+	</PRE></FONT>
+
+    </UL><!--CLASS="indent"-->
+
+    <H4>RelativeDateTime Instance Methods</H4>
+
+    <UL CLASS="indent">
+
+	<P><TT>RelativeDateTime</TT> instances currently don't have
+	  any instance methods.
+
+    </UL><!--CLASS="indent"-->
+
+    <H4>RelativeDateTime Instance Variables</H4>
+
+    <UL CLASS="indent">
+
+	<P>
+	  The following attributes are exposed, but should not be
+	  written to directly (the objects are currently implemented
+	  in Python, but that could change in future releases).
+
+	<P><DL>
+
+	  <DT><CODE><FONT COLOR="#000099">
+		year, month, day, hour, minute, second, weekday</FONT></CODE></DT>
+	  
+	  <DD>
+	    Absolute values of the instance.<P></DD>
+
+	  <DT><CODE><FONT COLOR="#000099">
+		years, months, days, hours, minutes, seconds</FONT></CODE></DT>
+	  
+	  <DD>
+	    Relative values of the instance.<P></DD>
+
+	</DL>
+
+	<P>
+	  The given values are only defined in case they were set at
+	  instance creation time.
+
+    </UL><!--CLASS="indent"-->
+
+    <A NAME="Constants">
+
+    <H4>Constants</H4>
+
+    <UL CLASS="indent">
+
+	<P>The package defines these constants:
+
+	<P><DL>
+
+	  <DT><CODE><FONT COLOR="#000099">
+		oneWeek, oneDay, oneHour, oneMinute, oneSecond</FONT></CODE></DT>
+
+	  <DD>
+	    Are set to the indicated values wrapped into DateTimeDelta
+	    instances.  <P></DD>
+
+	  <DT><CODE><FONT COLOR="#000099">
+		Error, RangeError</FONT></CODE></DT>
+
+	  <DD>
+	    These are the exception objects. Exceptions will normally
+	    only be raised by functions, methods or arithmetic
+	    operations. RangeError is a subclass of Error. <P></DD>
+
+	  <DT><CODE><FONT COLOR="#000099">
+		DateTimeType, DateTimeDeltaType</FONT></CODE></DT>
+
+	  <DD>
+	    The type objects for the two types. <P></DD>
+
+	  <DT><CODE><FONT COLOR="#000099">
+		Epoch</FONT></CODE></DT>
+
+	  <DD>
+	    A DateTime instance pointing to the Christian Epoch, i.e.
+	    0001-01-01 00:00:00.00.<P></DD>
+
+	  <DT><CODE><FONT COLOR="#000099">
+		mxDateTimeAPI</FONT></CODE></DT>
+
+	  <DD>
+	    The C API wrapped by a C object. See mxDateTime.h for
+	    details. <P></DD>
+
+	  <DT><CODE><FONT COLOR="#000099">
+		MaxDateTime, MinDateTime, MaxDateTimeDelta, 
+		MinDateTimeDelta</FONT></CODE></DT>
+
+	  <DD>
+	    These constants define the accepted ranges for the basic
+	    types. The values depend on the ranges of C <TT>longs</TT>
+	    on your platform. <P></DD>
+
+	  <DT><CODE><FONT COLOR="#000099">
+		Monday, Tuesday, Wednesday,
+		Thursday, Friday, Saturday, Sunday </FONT></CODE></DT>
+
+	  <DD>
+	    Weekdays encoded as integers. Monday maps to 0, Tuesday to 1
+	    and so on. <P></DD>
+
+	  <DT><CODE><FONT COLOR="#000099">
+		Weekday </FONT></CODE></DT>
+
+	  <DD>
+	    Mapping that maps weekdays to integers and integers to
+	    weekdays. Monday maps to 0, Tuesday to 1 and so
+	    on. <P></DD>
+
+	  <DT><CODE><FONT COLOR="#000099"> 
+		January, February, March,
+		April, May, June, July, August, September, October,
+		November, December </FONT></CODE></DT>
+
+	  <DD>
+	    Months encoded as integers. January maps to 1, February to
+	    2 and so on. <P></DD>
+
+	  <DT><CODE><FONT COLOR="#000099">
+		Month </FONT></CODE></DT>
+
+	  <DD>
+	    Mapping that maps months to integers and integers to
+	    months. January maps to 1, February to 2 and so
+	    on. <P></DD>
+
+	  <DT><CODE><FONT COLOR="#000099">
+		Gregorian, Julian </FONT></CODE></DT>
+
+	  <DD>
+            The objects returned by <CODE>calendar</CODE> attribute of
+            DateTime objects. Currently these are the strings
+            'Gregorian' and 'Julian', but this mught change in future
+            versions: always use these objects for checking the
+            calendar type.<P></DD>
+
+	  <DT><CODE><FONT COLOR="#000099">
+		POSIX </FONT></CODE></DT>
+
+	  <DD>
+            Constant stating the POSIX compatibility of the system w/r
+            to Unix ticks.
+	    <P>
+	      If the system's time package uses POSIX time_t values
+	      (without counting leap seconds), it is set to 1.  In case
+	      the system's ticks values include leap seconds and thus
+	      correctly represent the term "seconds since the epoch",
+	      the constant is set to 0.
+          <P></DD>
+
+	</DL>
+
+    </UL><!--CLASS="indent"-->
+    
+    <A NAME="Functions">
+
+    <H4>Helper functions</H4>
+
+    <UL CLASS="indent">
+
+	<P>The package defines these additional functions:
+
+	<P><DL>
+
+	  <DT><CODE><FONT COLOR="#000099">
+		cmp(obj1,obj2,accuracy=0.0)</FONT></CODE></DT>
+
+	  <DD>
+	    Compares two DateTime[Delta] objects. 
+
+	    <P>
+	      If accuracy is given, then equality will result in case
+	      the absolute difference between the two values is less
+	      than or equal to accuracy.  <P></DD>
+
+	  <DT><CODE><FONT COLOR="#000099">
+		gmticks(datetime)</FONT></CODE></DT>
+
+	  <DD>
+	    Returns a ticks value for datetime assuming the stored
+	    value is given in UTC. 
+
+	    <P>
+	      DEPRECIATED: Use the .gmticks() method instead.
+
+	  <P></DD>
+
+	  <DT><CODE><FONT COLOR="#000099">
+		utcticks(datetime)</FONT></CODE></DT>
+
+	  <DD>
+	    Alias for <CODE>gmticks()</CODE>.
+
+	    <P>
+	      DEPRECIATED: Use the .gmticks() method instead.
+
+	  <P></DD>
+
+	  <DT><CODE><FONT COLOR="#000099">
+		tz_offset(datetime)</FONT></CODE></DT>
+
+	  <DD>
+	    Returns a DateTimeDelta instance representing the UTC
+	    offset for datetime assuming that the stored values refer
+	    to local time. If you subtract this value from datetime,
+	    you'll get UTC time. 
+
+	    <P>
+	      DEPRECIATED: Use the .gmtoffset() method instead.
+
+	  <P></DD>
+
+	  <DT><CODE><FONT COLOR="#000099">
+		gm2local(datetime)</FONT></CODE></DT>
+
+	  <DD>
+	    Convert a DateTime instance holding UTC time to a DateTime
+	    instance using local time.  
+	  <P></DD>
+
+	  <DT><CODE><FONT COLOR="#000099">
+		utc2local(datetime)</FONT></CODE></DT>
+
+	  <DD>
+	    Alias for <CODE>gm2local()</CODE>.<P></DD>
+
+	  <DT><CODE><FONT COLOR="#000099">
+		local2gm(datetime)</FONT></CODE></DT>
+
+	  <DD>
+	    Convert a DateTime instance holding local time to a
+	    DateTime instance using UTC time.<P></DD>
+
+	  <DT><CODE><FONT COLOR="#000099">
+		local2utc(datetime)</FONT></CODE></DT>
+
+	  <DD>
+	    Alias for <CODE>local2gm()</CODE>.<P></DD>
+
+	</DL>
+
+    </UL><!--CLASS="indent"-->
+
+    <P>If you find any bugs, please report them to <A
+	HREF="mailto:mal@lemburg.com?subject=mxDateTime">me</A> so that I
+      can fix them for the next release.
+
+    <P>
+
+    </UL><!--CLASS="indent"-->
+
+      <A NAME="Arithmetic">
+
+    <H3>Date/Time Arithmetic</H3>
+
+    <UL CLASS="indent">
+
+	<P>
+	  The three objects DateTime, DateTimeDelta and
+	  RelativeDateTime can be used to do simple date/time
+	  arithmetic. Addition and subtraction are supported and
+	  result in the expected results. In addition to handling
+	  arithmetic using only the two types, mixed arithmetic with
+	  numbers is also understood to a certain extent:
+	  
+	<P>
+
+	<TABLE BORDER=0 CELLSPACING=1 CELLPADDING=5 BGCOLOR="#F3F3F3">
+	  <TR BGCOLOR="#D6D6D6">
+	    <TD NOSAVE><B>Argument 1</B></TD>
+
+	    <TD><B>Argument 2</B></TD>
+
+	    <TD NOSAVE><B>Result</B></TD>
+	  </TR>
+
+	  <TR VALIGN=TOP NOSAVE>
+	    <TD NOSAVE>DateTime object v</TD>
+
+	    <TD NOSAVE>DateTime object w</TD>
+
+	    <TD>
+	      <DL>
+
+		<DT><CODE>v - w</CODE> <DD>returns a DateTimeDelta
+		  object representing the time difference; 
+
+		<DT><CODE>v + w</CODE> <DD>is not defined.
+
+	      </DL>
+	    </TD>
+	  </TR>
+
+	  <TR VALIGN=TOP NOSAVE>
+	    <TD NOSAVE>DateTime object v</TD>
+
+	    <TD NOSAVE>A number w</TD>
+
+	    <TD>
+	      <DL>
+
+		<DT><CODE>v - w</CODE> <DD> returns a new DateTime
+		  object with a date/time decremented by <CODE>w</CODE>
+		  <B>days</B> (floats can be used to indicate day
+		  fractions);
+
+		<DT><CODE>v + w</CODE> <DD>works accordingly;<BR>
+		  Note: you can use the object oneDay to get similar
+		  effects in a more intuitive way.
+
+		<DT><CODE>v cmp w</CODE> <DD>Converts <CODE>v</CODE>
+		  to Unix ticks and returns the result of comparing the
+		  ticks value to the number <CODE>w</CODE>. Note: the
+		  ticks conversion assumes that the stored value is
+		  given in local time. Also note that the comparison will
+		  only yield correct results if the DateTime instance is
+		  placed on the <I>left</I> of the comparison operator
+		  (this is because of the coercion quirks mentioned
+		  below).
+
+	      </DL>
+
+	    </TD>
+	  </TR>
+
+	  <TR VALIGN=TOP NOSAVE>
+	    <TD NOSAVE>DateTime object v</TD>
+
+	    <TD NOSAVE>DateTimeDelta object w</TD>
+
+	    <TD>
+	      <DL>
+
+		<DT><CODE>v - w</CODE> <DD>returns a new DateTimeDelta
+		  object with a date/time decremented by
+		  <CODE>w</CODE>'s value;
+
+		<DT><CODE>v + w</CODE> <DD>works accordingly.
+
+	      </DL>
+	    </TD>
+	  </TR>
+
+	  <TR VALIGN=TOP NOSAVE>
+	    <TD NOSAVE>DateTime object v</TD>
+
+	    <TD NOSAVE>RelativeDateTime object w</TD>
+
+	    <TD>
+	      <DL>
+
+		<DT><CODE>v + w</CODE> <DD>returns a new DateTime
+		  object with a date/time adjusted according to
+		  <CODE>w</CODE>'s settings;
+
+	      <DT><CODE>v - w</CODE> <DD>works accordingly.
+
+	    </DL>
+	  </TD>
+	</TR>
+
+	<TR VALIGN=TOP NOSAVE>
+	  <TD NOSAVE>RelativeDateTime object v</TD>
+
+	  <TD NOSAVE>A number w</TD>
+
+	  <TD>
+	    <DL>
+
+	      <DT><CODE>v * w</CODE> <DD>returns a new
+		RelativeDateTime object with all deltas multiplied by
+		<CODE>float(w)</CODE> (<CODE>w * v</CODE> works in the
+		same way);
+
+	      <DT><CODE>v / w</CODE> <DD>returns a new
+		RelativeDateTime object with all deltas divided by
+		<CODE>float(w)</CODE>;
+
+	    </DL>
+
+	  </TD>
+	</TR>
+
+	<TR VALIGN=TOP NOSAVE>
+	  <TD NOSAVE>DateTimeDelta object v</TD>
+
+	  <TD NOSAVE>DateTime object w</TD>
+
+	  <TD>
+
+	    <P>No operations defined.
+
+	  </TD>
+	</TR>
+
+	<TR VALIGN=TOP NOSAVE>
+	  <TD NOSAVE>DateTimeDelta object v</TD>
+
+	  <TD NOSAVE>A number w</TD>
+
+	  <TD>
+	    <DL>
+
+	      <DT><CODE>v - w</CODE> <DD> returns a new
+		DateTimeDelta object with a time delta value
+		decremented by <CODE>w</CODE> <B>seconds</B> (can be
+		given as float to indicate fractions of a second);
+
+	      <DT><CODE>v + w</CODE> <DD> works accordingly; <BR>
+		Note: you can use the object oneSecond to get similar
+		effects in a more intuitive way;
+
+	      <DT><CODE>v * w</CODE> <DD>returns a new DateTimeDelta
+		object with a time delta value multiplied by
+		<CODE>float(w)</CODE> (<CODE>w * v</CODE> works in the
+		same way);
+
+	      <DT><CODE>v / w</CODE> <DD>returns a new DateTimeDelta
+		object with a time delta value divided by
+		<CODE>float(w)</CODE>;
+
+	      <DT><CODE>v cmp w</CODE> <DD>Converts <CODE>v</CODE>
+		to a signed float representing the delta in seconds
+		and returns the result of comparing the seconds value
+		to the number <CODE>w</CODE>.Note that the comparison
+		will only yield correct results if the DateTimeDelta
+		instance is placed on the <I>left</I> of the comparison
+		operator (this is because of the coercion quirks
+		mentioned below).
+
+	    </DL>
+
+	  </TD>
+	</TR>
+
+	<TR VALIGN=TOP NOSAVE>
+	  <TD NOSAVE>DateTimeDelta object v</TD>
+
+	  <TD NOSAVE>DateTimeDelta object w</TD>
+
+	  <TD>
+	    <DL>
+
+	      <DT><CODE>v + w</CODE> <DD> returns a new
+		DateTimeDelta object for the sum of the two time
+		deltas (<CODE>(v+w).seconds == v.seconds +
+		  w.seconds</CODE>);
+
+	      <DT><CODE>v - w</CODE> <DD>works accordingly; 
+
+	      <DT><CODE>v / w</CODE> <DD> returns a float equal to
+		<CODE>v.seconds / w.seconds</CODE>.
+
+	    </DL>
+	  </TD>
+	</TR>
+
+      </TABLE>
+
+      <P><U>Notes:</U> 
+
+      <P>
+	Operation and argument order are important because of the
+	different ways arguments are coerced. Use parenthesis to
+	make your intent clear or you will get unwanted results.
+
+      <P>
+	Due to a flaw in the C interface for coercion in the
+	interpreter, it is not possible to do proper handling of
+	mixed type arithmetic for types which don't coerce to a
+	common type (without creating temporary objets all the
+	time). The module uses a workaround, but unfortunately the
+	order of the operands is lost along the way. Under normal
+	circumstances you won't notice this defect, but be warned
+	since e.g. <CODE>oneDay - 1 == 1 - oneDay</CODE>, yet
+	<CODE>oneDay - oneSecond != oneSecond - oneDay</CODE>.
+
+      <P>
+	Comparing RelativeDateTime instances does not work.
+
+      <P>
+	Adding/Subtracting DateTime instances causes the result to
+	inherit the calendar of the left operand.
+	
+      <P>
+	
+    </UL><!--CLASS="indent"-->
+
+    <A NAME="Submodules">
+
+    <H3>Submodules</H3>
+
+    <UL CLASS="indent">
+      <P>
+	The package provides additional features in form of the
+	following submodules. All submodules are imported on request
+	only.
+
+	<A NAME="ISO">
+
+      <H4>ISO Submodule</H4>
+
+      <UL CLASS="indent">
+
+	<P>
+	  The ISO submodule is intended to provide interfacing
+	  functions to <A
+	    HREF="http://www.cl.cam.ac.uk/~mgk25/iso-time.html">ISO 8601
+	    date and time representations </A> (the ISO document is also
+	  available as <A
+	    HREF="http://www.iso.ch/markete/8601.pdf">PDF file</A>).
+	  The most common format is:
+
+	<P ALIGN=CENTER>
+	  <TT>YYYY-MM-DD HH:MM:SS[+-HH:MM]</TT>
+	  
+	<P>
+	  <U>Note:</U> <I>timezone information</I> (+-HH:MM) is only
+	  interpreted by the <CODE>ParseDateTimeUTC()</CODE>
+	  constructor. All others ignore the given offset and store
+	  the time value as-is.
+
+	<P>
+	  You can access the functions and symbols defined in the
+	  submodule through <CODE>DateTime.ISO</CODE> -- it is
+	  imported on demand.
+
+	<P>
+	  The module defines these constructors and functions:
+
+	<P><DL>
+
+	  <DT><CODE><FONT COLOR="#000099">
+		WeekTime(year,isoweek=1,isoday=1,hour=0,minute=0,second=0.0) </FONT></CODE></DT>
+
+	  <DD>
+	    Returns a DateTime instance pointing to the given <A
+	      HREF="http://www.cl.cam.ac.uk/~mgk25/iso-time.html">ISO
+	      week and day</A>.  isoday defaults to 1, which corresponds
+	    to Monday in the ISO numbering. Note that the resulting
+	    date can in fact lie in the year before the one given as
+	    parameter, e.g. Week(1998,1,1) results in 1997-12-29.  The
+	    DateTime instance variable <CODE>iso_week</CODE> provides
+	    an inverse to this function.  <P></DD>
+
+	  <DT><CODE><FONT COLOR="#000099">
+		Week(year,isoweek,isoday=1) </FONT></CODE></DT>
+
+	  <DD>
+	    Alias for <CODE>WeekTime()</CODE>.  <P></DD>
+
+	  <DT><CODE><FONT COLOR="#000099">
+		DateTime(), Time(), TimeDelta()</FONT></CODE></DT>
+
+	  <DD>
+	    Aliases for the constructors you find in DateTime. Just
+	    included for completeness, since these also use ISO style
+	    notation for their argument order.  <P></DD>
+
+	  <DT><CODE><FONT COLOR="#000099">
+		ParseDateTime(isostring)</FONT></CODE></DT>
+
+	  <DD>
+	    Returns a DateTime instance reflecting the given ISO
+	    date. 
+	    <P>
+	      A time part is optional and must be delimited from the
+	      date by a space or 'T'. Year must be given, month and
+	      day default to 1. For the time part, hour and minute
+	      must be given, while second defaults to 0.
+	    <P>
+	      Time zone information is parsed, but not evaluated.
+	  <P></DD>
+
+	  <DT><CODE><FONT COLOR="#000099">
+		ParseDateTimeGMT(isostring)</FONT></CODE></DT>
+
+	  <DD>
+	    Same as ParseDateTime() except that timezone information
+	    is used to calculate and return the date/time value in
+	    UTC.
+	    <P>
+	      Note: UTC is practically the same as GMT, the old time
+	      standard.<P></DD>
+
+	  <DT><CODE><FONT COLOR="#000099">
+		ParseDateTimeUTC(isostring) </FONT></CODE></DT>
+
+	  <DD>
+	    Alias for ParseDateTimeGMT(). 
+	    <P>
+	      Note: UTC is practically the same as GMT, the old time
+	      standard.<P></DD>
+
+	  <DT><CODE><FONT COLOR="#000099">
+		ParseDate(isostring)</FONT></CODE></DT>
+
+	  <DD>
+	    Returns a DateTime instance reflecting the given ISO
+	    date. Year must be given, month and day default to 1.  A
+	    time part may not be included.  <P></DD>
+
+	  <DT><CODE><FONT COLOR="#000099">
+		ParseWeek(isostring)</FONT></CODE></DT>
+
+	  <DD>
+	    Returns a DateTime instance reflecting the given ISO
+	    date. Year must be given, week number and day are optional
+	    and default to 1. A time part may not be
+	    included. <P></DD>
+
+	  <DT><CODE><FONT COLOR="#000099">
+		ParseWeekTime(isostring)</FONT></CODE></DT>
+
+	  <DD>
+	    Returns a DateTime instance reflecting the given ISO
+	    date. Year must be given, week number and day are optional
+	    and default to 1. A time part may not be
+	    included. <P></DD>
+
+	  <DT><CODE><FONT COLOR="#000099">
+		ParseTime(isostring)</FONT></CODE></DT>
+
+	  <DD>
+	    Returns a DateTimeDelta instance reflecting the given ISO
+	    time.  Hours and minutes must be given, seconds are
+	    optional and default to 0. Fractions of a second may also
+	    be used, e.g. '12:23:12.34'. <P></DD>
+
+	  <DT><CODE><FONT COLOR="#000099">
+		ParseTimeDelta(isostring)</FONT></CODE></DT>
+
+	  <DD>
+	    Returns a DateTimeDelta instance reflecting the given ISO
+	    time as delta. Hours and minutes must be given, seconds
+	    are optional and default to 0. Fractions of a second may
+	    also be used, e.g. '12:23:12.34'. In addition to the ISO
+	    standard a sign may be prepended to the time,
+	    e.g. '-12:34'. <P></DD>
+
+	  <DT><CODE><FONT COLOR="#000099">
+		ParseAny(isostring)</FONT></CODE></DT>
+
+	  <DD>
+	    Returns a DateTime[Delta] instance reflecting the given
+	    ISO date and/or time. All ISO formats supported by the
+	    module are understood by this constructor. <P></DD>
+
+	  <DT><CODE><FONT COLOR="#000099">
+		str(datetime)</FONT></CODE></DT>
+
+	  <DD>
+	    Returns the datetime instance as standard ISO date string
+	    (omitting the seconds fraction and always adding timezone
+	    information). The function assumes that the stored value
+	    is given in local time and calculates the correct timezone
+	    offset accordingly.<P></DD>
+
+	  <DT><CODE><FONT COLOR="#000099">
+		strGMT(datetime)</FONT></CODE></DT>
+
+	  <DD>
+	    Returns the datetime instance as ISO date string assuming
+	    it is given in UTC. <P></DD>
+
+	  <DT><CODE><FONT COLOR="#000099">
+		strUTC(datetime)</FONT></CODE></DT>
+
+	  <DD>
+	    Alias for strGMT. <P></DD>
+
+	</DL>
+	  
+	<P>
+	  The parsing routines strip surrounding whitespace from the
+	  strings, but are strict in what they want to see. Additional
+	  characters are not allowed and will cause a
+	  <CODE>ValueError</CODE> to be raised.
+
+	<P>
+	  Timezone information may be included, but will not be
+	  interpreted unless explicitly stated.
+
+	<P>
+	  The parsing routines also understand the ISO 8601 date/time
+	  formats without seperating dashes and colons,
+	  e.g. '19980102T142020', and mixtures of both notations.
+
+	<H5>ISO 8601 string formats and DateTime[Delta] instances</H5>
+	
+	<P>
+	  DateTime and DateTimeDelta instances use a slightly enhanced ISO
+	  format for string represenation:
+
+	<P>
+	  DateTime instances are converted to <CODE>'YYYY-MM-DD
+	    HH:MM:SS.ss'</CODE> where the last ss indicate hundredths of a
+	  second (ISO doesn't define how to display these).
+	  
+	<P>
+	  DateTimeDelta instances use <CODE>'[-][DD:]HH:MM:SS.ss'</CODE>
+	  as format, where DD: is only shown for deltas spanning more than
+	  one day (24 hours). The ss part has the same meaning as for
+	  DateTime instances: hundredths of a second. A minus is shown for
+	  negative deltas. ISO does not define relative time deltas, but
+	  the time representation is allowed to be 'HH:MM:SS'.
+
+      </UL><!--CLASS="indent"-->
+
+      <A NAME="ARPA">
+
+      <H4>ARPA Submodule</H4>
+
+      <UL CLASS="indent">
+
+	<P>
+	  The ARPA submodule is intended to provide interfacing
+	  functions to ARPA date representations. These are used throughout
+	  the Internet for passing around mails, postings, etc. The
+	  format is very simple:
+
+	<P ALIGN=CENTER>
+	  <TT>[Day, ]DD Mon YYYY HH:MM[:SS] ZONE</TT>
+	  
+	<P>
+	  where <TT>ZONE</TT> can be one of these: MDT, O, EDT, X, Y,
+	  CDT, UT, AST, GMT, PST, Z, V, CST, ADT, I, W, T, U, R, S, P,
+	  Q, N, EST, L, M, MST, K, H, E, F, G, D, PDT, B, C, UTC, A
+	  (the single letter ones being <A
+	    HREF="http://www.alenafix.com/old-fbg/articles/mil-time.html">military
+	    time zones</A>). Use of explicit time zone names other than
+	  UTC and GMT is depreciated, though. The better alternative
+	  is providing the offset from UTC being in effect at the
+	  given local time: <TT>+-HHMM</TT> (this is the offset you
+	  have to subtract from the given time in order to get UTC).
+	  
+	<P>
+	  You can access the functions and symbols defined in the
+	  submodule through <CODE>DateTime.ARPA</CODE> -- it is
+	  imported on demand.
+
+	<P>
+	  The module defines these constructors and functions:
+
+	<P><DL>
+
+	  <DT><CODE><FONT COLOR="#000099">
+		ParseDate(arpastring) </FONT></CODE></DT>
+
+	  <DD>
+	    Returns a DateTime instance reflecting the given ARPA
+	    date.  Any time part included in the string is silently
+	    ignored.  <P></DD>
+
+	  <DT><CODE><FONT COLOR="#000099">
+		ParseDateTime(arpastring) </FONT></CODE></DT>
+
+	  <DD>
+	    Returns a DateTime instance reflecting the given ARPA date
+	    assuming it is local time (timezones are silently
+	    ignored).  <P></DD>
+
+	  <DT><CODE><FONT COLOR="#000099">
+		ParseDateTimeGMT(arpastring) </FONT></CODE></DT>
+
+	  <DD>
+	    Returns a DateTime instance reflecting the given ARPA date
+	    converting it to UTC (timezones are honored).<P></DD>
+
+	  <DT><CODE><FONT COLOR="#000099">
+		ParseDateTimeUTC(arpastring) </FONT></CODE></DT>
+
+	  <DD>
+	    Alias for ParseDateTimeGMT(). Note: UTC is practically the
+	    same as GMT, the old time standard.<P></DD>
+
+	  <DT><CODE><FONT COLOR="#000099">
+		str(datetime,tz=DateTime.tz_offset(datetime))</FONT></CODE></DT>
+
+	  <DD>
+	    Returns the datetime instance as ARPA date string. tz can
+	    be given as DateTimeDelta instance providing the time zone
+	    difference from datetime's zone to UTC. It defaults to
+	    DateTime.tz_offset(datetime) which assumes local
+	    time. <P></DD>
+
+	  <DT><CODE><FONT COLOR="#000099">
+		strGMT(datetime)</FONT></CODE></DT>
+
+	  <DD>
+	    Returns the datetime instance as ARPA date string assuming
+	    it is given in GMT using the 'GMT' timezone
+	    indicator.
+
+	    <P>
+	      <U>Note:</U> Most Internet software expects to find
+	      'GMT' and not 'UTC'.
+
+	  <P></DD>
+
+	  <DT><CODE><FONT COLOR="#000099">
+		strUTC(datetime)</FONT></CODE></DT>
+
+	  <DD>
+	    Returns the datetime instance as ARPA date string assuming
+	    it is given in UTC using the 'UTC' timezone indicator.
+	  <P></DD>
+
+	</DL>
+
+	<P>
+	  The parsing routines strip surrounding whitespace from the
+	  strings. Additional characters <I>are</I> allowed (because some
+	  mail apps add extra information to the date header).
+
+      </UL><!--CLASS="indent"-->
+
+      <A NAME="Feasts">
+
+      <H4>Feasts Submodule</H4>
+
+      <UL CLASS="indent">
+
+	<P>
+	  The Feasts submodule is intended to provide easy-to-use
+	  constructors for common moveable christian feasts that can
+	  be deduced from the date of Easter Sunday.
+
+	  The algorithm used to calculate Easter Sunday is based on
+	  the one presented in the <A
+	    HREF="http://www.tondering.dk/claus/calendar.html">Calendar
+	    FAQ</A> by Claus Tondering, which in return is based on the
+	  algorithm of Oudin (1940) as quoted in "Explanatory
+	  Supplement to the Astronomical Almanac", P. Kenneth
+	  Seidelmann, editor.
+
+	<P>
+	  The module defines these constructors and functions:
+
+	<P><DL>
+
+	  <DT><CODE><FONT COLOR="#000099"> EasterSunday(year),
+		Ostersonntag(year), DimanchePaques(year) </FONT></CODE></DT>
+
+	  <DD>
+	    Returns a DateTime instance pointing to Easter Sunday in
+	    the given year at midnight.  <P></DD>
+
+	</DL>
+
+	<P>
+	  The other feasts are deduced from this date and all use the
+	  same interface. The module defines these sets of
+	  constructors the return the corresponding DateTime instance
+	  for midnight of the implied day:
+
+	<P>
+	<UL>
+
+	  <LI><CODE><FONT COLOR="#000099"> CarnivalMonday(year),
+		Rosenmontag(year) </FONT></CODE><P>
+
+	  <LI><CODE><FONT COLOR="#000099"> MardiGras(year)
+	      </FONT></CODE><P>
+
+	  <LI><CODE><FONT COLOR="#000099"> AshWednesday(year),
+		Aschermittwoch(year), MercrediCendres(year)
+	      </FONT></CODE><P>
+
+	  <LI><CODE><FONT COLOR="#000099"> PalmSunday(year),
+		Palmsonntag(year), DimancheRameaux(year)
+	      </FONT></CODE><P>
+
+	  <LI><CODE><FONT COLOR="#000099"> EasterFriday(year),
+		GoodFriday(year), Karfreitag(year), VendrediSaint(year)
+	      </FONT></CODE><P>
+
+	  <LI><CODE><FONT COLOR="#000099"> EasterMonday(year),
+		Ostermontag(year), LundiPaques(year) </FONT></CODE><P>
+
+	  <LI><CODE><FONT COLOR="#000099"> Ascension(year),
+		Himmelfahrt(year) </FONT></CODE><P>
+
+	  <LI><CODE><FONT COLOR="#000099"> Pentecost(year),
+		WhitSunday(year), Pfingstsonntag(year),
+		DimanchePentecote(year) </FONT></CODE><P>
+
+	  <LI><CODE><FONT COLOR="#000099"> WhitMonday(year),
+		Pfingstmontag(year), LundiPentecote(year) </FONT></CODE><P>
+
+	  <LI><CODE><FONT COLOR="#000099"> TrinitySunday(year)
+	      </FONT></CODE><P>
+
+	  <LI><CODE><FONT COLOR="#000099"> CorpusChristi(year),
+		Fronleichnam(year), FeteDieu(year) </FONT></CODE><P>
+
+        </UL>
+
+	<P>
+	  For further reading, have a look at the <A
+	    HREF="http://www.smart.net/~mmontes/ec-cal.html">Ecclesiastical
+	    Calendar</A>.
+	  
+      </UL><!--CLASS="indent"-->
+
+      <A NAME="Parser">
+
+      <H4>Parser Submodule</H4>
+
+      <UL CLASS="indent">
+
+	<P>
+	  The Parser submodule provides constructors for DateTime[Delta]
+	  values taking a string as input. The module knows about quite
+	  a few different date and time formats and will try very hard to
+	  come up with a reasonable output given a valid input.
+
+	<P>
+	  Date/time parsing is a very diffcult field of endeavour and
+	  that's why the exact definition of what the module can parse
+	  and what not is defined by implementation rather than a
+	  rigorous set of formats.
+
+	<P>
+	  <U>Note:</U> The module still has <B>experimental
+	    status</B>. It is constantly being improved. This can also
+	  mean that some formats might be dropped again in favour of
+	  more general parsing regexps.
+
+	<P>
+	  Things the module will recognize are the outputs of ISO,
+	  ARPA and the .strftime() method. Currently only English,
+	  German, French, Spanish and Portuguese month and day names
+	  are supported. Have a look at the source code
+	  (<TT>Parser.py</TT>) for a full list of compatible date/time
+	  formats.
+
+	<P>
+	  The module defines these constructors and functions:
+
+	<P><DL>
+
+	  <DT><CODE><FONT COLOR="#000099">
+		DateTimeFromString(text[, formats, defaultdate]) </FONT></CODE></DT>
+
+	  <DD>
+	    Returns a DateTime instance reflecting the date and time
+    	    given in text. In case a timezone is given, the returned
+    	    instance will point to the corresponding UTC time
+    	    value. Otherwise, the value is set as given in the string.
+    
+	    <P>
+	      <CODE>formats</CODE> may be set to a tuple of strings
+    	      specifying which of the following parsers to use and in
+    	      which order to try them. Default is to try all of them
+    	      in the order given below:
+
+            <UL>
+	      <LI> 'euro' - the European date parser
+	      <LI> 'us' - the US date parser
+	      <LI> 'altus' - the alternative US date parser (with '-' instead of '/')
+	      <LI> 'iso' - the ISO date parser
+	      <LI> 'altiso' - the alternative ISO date parser (without '-')
+	      <LI> 'lit' - the US literal date parser
+	      <LI> 'altlit' - the alternative US literal date parser
+	      <LI> 'eurlit' - the Eurpean literal date parser
+	      <LI> 'unknown' - if no date part is found, use defaultdate
+            </UL>
+
+            <P>
+	      defaultdate provides the defaults to use in case no date
+    	      part is found. Most other parsers default to the current
+    	      year January 1 if some of these date parts are missing.
+
+            <P>
+	      If <CODE>'unknown'</CODE> is not given in formats and
+    	      the date/time cannot be parsed, a <CODE>ValueError</CODE> is
+    	      raised.
+
+	  <P></DD>
+
+	  <DT><CODE><FONT COLOR="#000099">
+		DateFromString(text[, formats, defaultdate]) </FONT></CODE></DT>
+
+	  <DD>
+	    Returns a DateTime instance reflecting the date given in
+	    text. A possibly included time part is ignored; the time
+	    part is always set to 0:00:00.00.
+
+	    <P>
+	      <CODE>formats</CODE> and <CODE>defaultdate</CODE> work
+	      just like for <CODE>DateTimeFromString()</CODE>.
+
+            <P></DD>
+
+	  <DT><CODE><FONT COLOR="#000099">
+		DateTimeDeltaFromString(text) </FONT></CODE></DT>
+
+	  <DD>
+	    Returns a DateTimeDelta instance reflecting the delta
+	    given in text. Defaults to 0:00:00:00.00 for parts that
+	    are not included in the textual representation or cannot
+	    be parsed.
+
+	  <P></DD>
+
+	  <DT><CODE><FONT COLOR="#000099">
+		TimeFromString(text) </FONT></CODE></DT>
+
+	  <DD>
+	    Alias for <CODE>DateTimeDeltaFromString()</CODE>.
+	    
+	  <P></DD>
+
+	  <DT><CODE><FONT COLOR="#000099">
+		TimeDeltaFromString(text) </FONT></CODE></DT>
+
+	  <DD>
+	    Alias for <CODE>DateTimeDeltaFromString()</CODE>.
+	    
+	  <P></DD>
+
+	  <DT><CODE><FONT COLOR="#000099">
+		RelativeDateTimeFromString(text) </FONT></CODE></DT>
+
+	  <DD>
+	    Returns a RelativeDateTime instance reflecting the
+	    relative date and time given in text.
+
+	    <P>
+	      Defaults to wildcards (None or 0) for parts or values
+	      which are not included in the textual representation or
+	      cannot be parsed.
+
+	    <P>
+	      The format used in text must adhere to the following
+	      ISO-style syntax:
+	    <P>
+	      <TT> [YYYY-MM-DD] [HH:MM[:SS]] </TT>
+	    <P>
+	      with the usual meanings. 
+
+	    <P>
+	      Values which should not be altered may be replaced with
+	      '*', '%', '?' or any combination of letters,
+	      e.g. 'YYYY'. Relative settings must be enclosed in
+	      parenthesis if given and should include a sign,
+	      e.g. '(+0001)' for the year part. All other settings are
+	      interpreted as absolute values.
+
+	    <P>
+	      Date and time parts are both optional as a
+	      whole. Seconds in the time part are optional
+	      too. Everything else (including the hyphens and colons)
+	      is mandatory.
+
+	  <P></DD>
+
+	  <DT><CODE><FONT COLOR="#000099">
+		RelativeDateFromString(text) </FONT></CODE></DT>
+
+	  <DD>
+	    Same as <CODE>RelativeDateTimeFromString(text)</CODE>
+	    except that only the date part of <CODE>text</CODE> is
+	    taken into account.
+	    
+	  <P></DD>
+
+	  <DT><CODE><FONT COLOR="#000099">
+		RelativeTimeFromString(text) </FONT></CODE></DT>
+
+	  <DD>
+	    Same as <CODE>RelativeDateTimeFromString(text)</CODE>
+	    except that only the time part of <CODE>text</CODE> is
+	    taken into account.
+	    
+	  <P></DD>
+
+	</DL>
+
+	<P>
+	  The parsing routines ignore surrounding
+	  whitespace. Additional characters and symbols are ignored.
+
+      </UL><!--CLASS="indent"-->
+
+      <A NAME="NIST">
+
+      <H4>NIST Submodule</H4>
+
+      <UL CLASS="indent">
+
+	<P>
+	  The NIST submodule is useful when you are connected to the
+	  Internet and want access to the <B>accurate world standard
+	    time</B>, the NIST atomic clocks.
+
+	<P>
+	  The module accesses a <A
+	    HREF="http://www.bldrdoc.gov/timefreq/service/nts.htm">special
+	    service</A> provided by NIST and other partner
+	  organizations, which allows anyone with Internet access to
+	  query the current UTC time. Of the three provided protocols,
+	  daytime, time and ntp, I chose the daytime protocol because
+	  of its simplicity and robustness.
+	  
+	<P>
+	  Since access through the Internet can be slow, the module
+	  also provides a way to calibrate itself and then use the
+	  computer's clock without the need to go accross the Internet
+	  for every call to the current time constructors. The
+	  defaults are set in such a way that calibration occurrs
+	  without further interaction on part of the programmer. See
+	  the code for details.
+
+	<P>
+	  The module defines these constructors and functions:
+
+	<P><DL>
+
+	  <DT><CODE><FONT COLOR="#000099">
+		utctime(nist_lookup=0) </FONT></CODE></DT>
+
+	  <DD>
+	    Returns the current UTC time as DateTime instance.
+
+	    <P>
+	      Works must like the standard DateTime.now(), but tries
+	      to use the NIST time servers as time reference -- not
+	      only the computer's builtin clock.
+
+	    <P>
+	      Note that the contructor may take several seconds to
+	      return in case no calibration was performed (see
+	      <CODE>calibrate()</CODE>). With calibration information,
+	      the computer's clock is used as reference and the offset
+	      to NIST time is compensated by the contructor.
+
+	    <P>
+	      In case the NIST service is not reachable, the
+	      contructor falls back to using either the calibrated
+	      (preferred) or uncalibrated computer's clock.
+
+	    <P>
+	      Setting <CODE>nist_lookup</CODE> to false (default) will
+	      cause the contructor to prefer the calibrated CPU time
+	      over the expensive Internet queries. If it is true, then
+	      Internet lookups are always tried first before using the
+	      local clock. A value of 2 will cause an
+	      <CODE>Error</CODE> (see below) to be raised in case the
+	      NIST servers are not reachable.
+	      
+	    <P>
+	      The constructor will use the received NIST information
+	      for auto calibration.
+
+	  <P></DD>
+
+	  <DT><CODE><FONT COLOR="#000099">
+		gmtime() </FONT></CODE></DT>
+
+	  <DD>
+	    Alias for utctime().
+	  <P></DD>
+
+	  <DT><CODE><FONT COLOR="#000099">
+		localtime(nist_lookup=0) </FONT></CODE></DT>
+
+	  <DD>
+	    Returns the current local time as DateTime instance.
+
+	    <P>
+	      Same notes as for utctime().
+
+	  <P></DD>
+
+	  <DT><CODE><FONT COLOR="#000099">
+		now() </FONT></CODE></DT>
+
+	  <DD>
+	    Alias for localtime().
+	  <P></DD>
+
+	  <DT><CODE><FONT COLOR="#000099">
+		time_offset(iterations=10) </FONT></CODE></DT>
+
+	  <DD>
+	    Returns the average offset of the computer's clock to the NIST
+	    time base in seconds.
+
+	    <P>
+	      If you add the return value to the return value of
+	      <CODE>time.time()</CODE>, you will have a pretty
+	      accurate time base to use in your applications.
+
+	    <P>
+	      Note that due to network latencies and the socket
+	      overhead, the calculated offset will include a small
+	      hopefully constant error.
+
+	    <P>
+	      iterations sets the number of queries done to the NIST
+	      time base.  The average is taken over all queries.
+
+	  <P></DD>
+
+	  <DT><CODE><FONT COLOR="#000099">
+		calibrate(iterations=20) </FONT></CODE></DT>
+
+	  <DD>
+	    Calibrates the localtime() and gmtime() functions supplied
+	    in this module (not the standard ones in DateTime !).
+
+	    <P>
+	      Uses the NIST time service as time base. The computer
+	      must have an active internet connection to be able to do
+	      calibration using the NIST servers.
+
+	    <P>
+	      iterations sets the number of round to be done.
+
+	    <P>
+	      Note: This function takes a few seconds to complete. For
+	      long running processes you should recalibrate every now
+	      and then because the system clock tends to drift
+	      (usually more than the hardware clock in the computer).
+	      
+	  <P></DD>
+
+	  <DT><CODE><FONT COLOR="#000099">
+		set_calibration(calibration_offset) </FONT></CODE></DT>
+
+	  <DD>
+	    Sets the calibration to be use by localtime() and utctime().
+
+	    <P>
+	      This also sets the global <CODE>calibrated</CODE> to 1
+	      and disables auto calibration.
+	      
+	  <P></DD>
+
+	  <DT><CODE><FONT COLOR="#000099">
+		reset_auto_calibration() </FONT></CODE></DT>
+
+	  <DD>
+	    Enables and resets the auto calibration for a new round.
+
+	    <P>
+	      This does not clear possibly available calibration
+	      information, so the two time APIs will continue to
+	      revert to the calibrated clock in case no connection to
+	      the NIST servers is possible.
+
+	    <P>
+	      Auto calibration is on per default when the module is
+	      imported.
+	      
+	  <P></DD>
+
+	  <DT><CODE><FONT COLOR="#000099">
+		enable_auto_calibration() </FONT></CODE></DT>
+
+	  <DD>
+	    Currently an alias for
+	    <CODE>reset_auto_calibration()</CODE>.
+	    
+	  <P></DD>
+
+	  <DT><CODE><FONT COLOR="#000099">
+		disable_auto_calibration() </FONT></CODE></DT>
+
+	  <DD>
+	    Turns auto calibration off.
+	    
+	  <P></DD>
+
+	</DL>
+
+	<P>The package defines these constants:
+
+	<P>
+	<DL>
+
+	  <DT><CODE><FONT COLOR="#000099">
+		Error </FONT></CODE></DT>
+
+	  <DD>
+	    This exception is raised by the contructors in case no
+	    connection to the NIST service was possible.
+	  <P></DD>
+
+	  <DT><CODE><FONT COLOR="#000099">
+		calibration </FONT></CODE></DT>
+
+	  <DD>
+	    Current calibration offset (NIST - CPU time) in seconds.
+	  <P></DD>
+
+	  <DT><CODE><FONT COLOR="#000099">
+		calibrated </FONT></CODE></DT>
+
+	  <DD>
+	    True in the global <CODE>calibration</CODE> contains
+	    valid information.
+	  <P></DD>
+
+	  <DT><CODE><FONT COLOR="#000099">
+		calibrating </FONT></CODE></DT>
+
+	  <DD>
+	    If true, the module will Try to auto-calibrate itself
+	    whenever the NIST servers are reachable.  <P></DD>
+
+	</DL>
+
+	<P>
+	  There's an example called <TT>AtomicClock.py</TT> in the
+	  <TT>Examples/</TT> subdir which demonstrates how easy it is
+	  to turn your PC into a fairly accurate time piece.
+
+	<P>
+	  For even better time accuracy, one would have to use NTP...
+
+      </UL><!--CLASS="indent"-->
+
+    </UL><!--CLASS="indent"-->
+
+    <A NAME="Examples">
+
+    <H3>Examples of Use</H3>
+
+    <UL CLASS="indent">
+
+      <P>
+	For an example of how to use the two types to develop other
+	date/time classes (e.g. ones that support time zones or
+	other calendars), see the included <TT>ODMG</TT> module. It
+	defines types similar to those of the ODMG standard.
+
+      <P>
+	Here is a little countdown script:
+
+	<FONT COLOR="#000066"><PRE>#!/usr/bin/python2.4 -u
+""" Y2000.py - The year 2000 countdown.
+"""
+from mx.DateTime import *
+from time import sleep
+
+while 1:
+    d = Date(2000,1,1) - now()
+    print 'Y2000... time left: %2i days %2i hours '
+	  '%2i minutes %2i seconds\r' % \
+	  (d.day,d.hour,d.minute,d.second),
+    sleep(1)</PRE></FONT>
+
+      <P>
+	This snippet demonstrates some of the possible string
+	representations for DateTime instances:
+
+	<FONT COLOR="#000066"><PRE>>>> from mx.DateTime import *
+
+>>> ISO.str(now())
+'1998-06-14 11:08:27+0200'
+
+>>> ARPA.str(now())
+'Sun, 14 Jun 1998 11:08:33 +0200'
+
+>>> now().strftime()
+'Sun Jun 14 11:08:51 1998'
+
+>>> str(now())
+'1998-06-14 11:09:17.82'</PRE></FONT>
+
+      <P>
+	More examples are available in the <TT>Examples</TT>
+	subdirectory of the package.
+
+    </UL><!--CLASS="indent"-->
+
+    <A NAME="API">
+
+    <H3>Supported Data Types in the C-API</H3>
+
+    <UL CLASS="indent">
+
+      Please have look at the file <TT>mxDateTime.h</TT> for details.
+      Interfacing is provided through a Python C object for ticks, struct
+      tm, COM doubles, Python tuples and direct input either by giving
+      absolute date/time or a broken down tuple.
+
+      To access the module, do the following (note the similarities with
+      Python's way of accessing functions from a module):
+
+      <PRE>
+#include "mxDateTime.h"
+
+...
+    PyObject *v;
+
+    /* Import the mxDateTime module */
+    if (mxDateTime_ImportModuleAndAPI())
+	goto onError;
+
+    /* Access functions from the exported C API through mxDateTime */
+    v = mxDateTime.DateTime_FromAbsDateAndTime(729376, 49272.0);
+    if (!v)
+	goto onError;
+
+    /* Type checking */
+    if (mxDateTime_Check(v))
+        printf("Works.\n");
+
+    Py_DECREF(v);
+...
+      </PRE>
+
+      <P>
+
+    </UL><!--CLASS="indent"-->
+
+    <A NAME="Structure">
+
+    <H3>Package Structure</H3>
+    
+    <UL CLASS="indent">
+
+      <PRE>
+[DateTime]
+       Doc/
+       [Examples]
+              AtomicClock.py
+              CommandLine.py
+              Y2000.py
+              alarm.py
+              lifespan.py
+       [mxDateTime]
+              test.py
+       ARPA.py
+       DateTime.py
+       Feasts.py
+       ISO.py
+       LazyModule.py
+       Locale.py
+       NIST.py
+       ODMG.py
+       Parser.py
+       Timezone.py
+       timegm.py
+      </PRE>
+
+      <P>
+	Names with trailing / are plain directories, ones with
+	[]-brackets are Python packages, ones with ".py" extension
+	are Python submodules.
+
+      <P>
+	The package imports all symbols from the extension module
+	and also registers the types so that they become compatible
+	to the pickle and copy mechanisms in Python.
+
+      <P>
+
+    </UL><!--CLASS="indent"-->
+
+    <A NAME="Support">
+
+    <H3>Support</H3>
+
+    <UL CLASS="indent">
+
+	<P>
+	  eGenix.com is providing commercial support for this
+	  package. If you are interested in receiving information
+	  about this service please see the <A
+	  HREF="http://www.egenix.com/files/python/eGenix-mx-Extensions.html#Support">eGenix.com
+	  Support Conditions</A>.
+
+    </UL><!--CLASS="indent"-->
+
+    <H3>What I'd like to hear from you...</H3>
+
+    <UL CLASS="indent">
+
+      <UL>
+
+	<LI> Is there anything important still missing ? <P>
+
+      </UL>
+
+    </UL><!--CLASS="indent"-->
+
+    <A NAME="Copyright">
+
+    <H3>Copyright &amp; License</H3>
+
+    <UL CLASS="indent">
+
+	<P>
+	  &copy; 1997-2000, Copyright by Marc-Andr&eacute; Lemburg;
+	  All Rights Reserved.  mailto: <A
+	  HREF="mailto:mal@lemburg.com">mal@lemburg.com</A>
+	<P>
+	  &copy; 2000-2001, Copyright by eGenix.com Software GmbH,
+	  Langenfeld, Germany; All Rights Reserved.  mailto: <A
+	  HREF="mailto:info@egenix.com">info@egenix.com</A>
+
+	<P>
+	  This software is covered by the <A
+	  HREF="mxLicense.html#Public"><B>eGenix.com Public
+	  License Agreement</B></A>. The text of the license is also
+	  included as file "LICENSE" in the package's main directory.
+
+	<P>
+	  <B> By downloading, copying, installing or otherwise using
+	  the software, you agree to be bound by the terms and
+	  conditions of the <A HREF="mxLicense.html#Public">eGenix.com
+	  Public License Agreement</A>. </B>
+
+    </UL><!--CLASS="indent"-->
+
+    <A NAME="History">
+
+    <H3>History & Future</H3>
+
+    <UL CLASS="indent">
+
+      <P>Things that still need to be done:
+
+      <P><UL>
+
+	    <LI> Provide some more examples.
+
+	    <P><LI> Add timezone information to the parsing routines
+	    or maybe even to DateTime instances. This likely to cause
+	    some trouble with old code, but I think it's worth
+	    considering.
+
+	    <P><LI> Fix bugs in RelativeDateTime addition and
+	    RelativeDateTimeDiff().
+
+	    <P><LI> Add Carel Fellinger's age() function.
+
+	    <P><LI> Add DateTime string format validation APIs to the
+	    Parser module.
+
+      </UL>
+
+      <P>Things that changed from 2.0.2 to 2.0.3:
+
+      <P><UL>
+
+	  <LI> Made the date/time parser case-insensitive and extended
+	  it to also parse many Eurpean literal date/time formats,
+	  such as 'Sonntag, der 6. November 1994, 08:49:37 GMT'
+
+	    <P><LI> Fixed a bug in TimeFromTicks(); thanks to Alex
+	    Martelli for finding this one.
+
+	    <P><LI> Added a new example <TT>numdate.py</TT> by
+	    J.J. Dukarm to the Examples directory which demonstrates
+	    writing date/time parsers using different more strict
+	    conventions. Thanks to JJD for this one !
+
+	    <P><LI> Fixed the Max/MinDateTime constant and the range
+	    checks in mxDateTime.c to 32-bit values. This allows
+	    mxDateTime to compile correctly on 64-bit
+	    platforms. Thanks to Trond Glomsrod for pointing this out.
+
+	    <P><LI> Made the date/time parser even more flexible and
+	    added support for partial date formats ('month/day',
+	    'litmonth day', 'day.month.') as well as mixes of
+	    different formats. Another new supported format is
+	    'MM-DD-YYYY' (note that the four year digits are important
+	    to distinguish this format from ISO).
+
+	    <P><LI> Added 'AM/PM' support to the Parser module.
+
+	    <P><LI> Made the C extension extra careful about float
+	    rounding bugs, so that dates like 2001-01-01 24:00:00
+	    don't happen anymore. Chuck Esterbrook mentioned that
+	    2.0.2 still had problems on Mandrake (sigh) with
+	    e.g. DateTime(2000,12,31)+1.
+
+	    <P><LI> Fixed the REs in DateTime.Parser to work with sre
+	    from Python 2.2 (group names have to be unique).
+
+      </UL>
+
+      <P>Things that changed from 2.0.0 to 2.0.2:
+
+      <P><UL>
+
+	  <LI> Fixed two typos in the Locale submodule. Thanks to
+	    Raul Garcia Garcia for spotting these.
+
+	    <P><LI> Fixed a bug in the coercion code which surfaced
+	    due to the rich comparison changes in Python 2.1. Python
+	    2.1 will now compare DateTime[Delta] objects to other
+	    objects without raising a TypeError.
+
+      </UL>
+
+      <P>Things that changed from 1.3.0 to 2.0.0:
+
+      <P><UL>
+
+	  <LI>Fixed a bug in the Parser submodule that caused two
+	  digit years to not fail parsing.
+
+	    <P><LI>Added more verbose RangeError messages. They now
+	    include the value in question.
+
+	    <P><LI><B>Changed:</B> The .calendar attributes of
+	    DateTime instances now always return the new constants
+	    Gregorian or Julian. They are currently still implemented
+	    as strings, but this might change in future versions.
+
+	    <P><LI>The module now checks the system's time functions
+	    for POSIX compatibility. In case it finds that the system
+	    does not use leap seconds in Unix ticks, it reverts to a
+	    simpler and faster method method for calculating the GMT
+	    ticks value from broken down values. This should
+	    significantly speed up processing on platforms that don't
+	    have timegm() and use POSIX ticks.
+
+	    <P><LI>Added the constants Julian, Gregorian and POSIX.
+
+	    <P><LI> Fixed a doc-bug: the constructor of DateTimeDelta
+	    objects has a different signature than what was previously
+	    documented -- strange enough, nobody seems to have noticed
+	    this. Perhaps everybody is using the Time() constructor
+	    instead ...
+
+	    <P><LI>Fixed a bug in Y2000.py: forgot to import sys.
+	    Thanks to Chad Netzer for finding this one.
+
+	    <P><LI><B>Changed:</B> The C API eported by the C
+	    extension module is now searched under the import path
+	    'mx.DateTime' first. The old path 'DateTime' is only used
+	    as fallback solution.
+
+	    <P><LI>Fixed a bug in the algorithm for .iso_weeks. It
+	    failed to calculate the right ISO week for a few dates.
+	    Thanks to Gregor Ottmann for finding this one.
+
+	    <P><LI>Fixed a bug that caused day_of_week to be wrong for
+	    negative dates (in case anyone cares: .iso_weeks/ISO.* now
+	    also work for negative dates).
+
+	    <P><LI>Changed the internal handling of the time.time()
+	    function. The reference is now set by the
+	    mxDateTime/__init__.py module which should hopefully solve
+	    some problems with using mxDateTime in PyApache setups.
+
+	    <P><LI>Added .time and .date attributes to DateTime
+	    objects.
+
+	    <P><LI>Fixed a bug in the calculation of weekdays for
+	    B.C. years. Thanks to Vadim Zeitlin for spotting this one.
+	    
+	    <P><LI>Fixed a bug in the __radd__ method of
+	    RelativeDateTime instances: the month part wasn't
+	    correctly handled. Thanks to Paul Epp for finding the bug.
+
+	    <P><LI>Added some extra checks to gmtime() calls which
+	    caused .gmticks() to sometimes seg fault on WinNT 4
+	    SP4. Found by Gordon McMillan.
+
+	    <P><LI>Fixed a rounding bug in localtime() and gmtime().
+	    Found by Vadim Chugunov.
+
+	    <P><LI>Fixed a doc-bug in the defintion of TJD. Thanks to
+	    Tadayoshi Funaba for spotting this one.
+
+	    <P><LI>Added fixes to make mxDateTime compile on OpenVMS.
+	    Thanks to Jean-François Piéronne for the patches. He also
+	    provided setup instructions (see the Installation
+	    section).
+
+	    <P><LI> <B>Changed:</B> The mktime() constructor was
+	    changed to reflect the Python 1.6 change in tuple argument
+	    handling. The constructor now only accepts a 9-tuple.
+
+            <P><LI> Redesigned the internals of the Parser module. It
+	    now correctly parses RFC822/RFC1123, RFC850/RFC1036,
+	    ANSI C's asctime() format, ISO format and probably a dozen
+	    more alternative formats. Thanks to Skip Montanaro for
+	    bugging me to fix it ;-)
+
+	    <P><LI> Added parsers for RelativeDateTime() string
+	    representations.
+
+	    <P><LI> Added __nonzero__ method to RelativeDateTime
+	    instances: they are considered false in case they do not
+	    define any date or time alterations.
+
+	    <P><LI> The Parser API will now include the original
+	    string in RangeError messages which occurred during
+	    parsing. Thanks to Skip Montanaro for suggesting this.
+
+	    <P><LI> Added gmt(), utc(), datetime.gmtime() and
+	    datetime.localtime(); the conversion support is not 100%
+	    robust during DST switching hours, but they work just fine
+	    at all other times.
+
+	    <P><LI> Added optional faster native API for querying the
+	    current system time. See Setup.in or mxDateTime.c for
+	    details on how to enable it. The speedup is not
+	    tremendous, so it may not be worthwhile the trouble --
+	    unlike time.time() integers, DateTime instances are broken
+	    down to the various date/time values at construction time
+	    and this consumes quite a few cycles.
+
+	    <P><LI> Added GregorianDateTime() and GregorianDate() as
+	    aliases for DateTime() and Date() for completeness.
+
+	    <P><LI> Added workaround for rounding bug on Linux
+	    Mandrake. Thanks to John Janecek for bringing this up.
+
+	    <P><LI> <B>Moved</B> the package under a new top-level
+	    package 'mx'. It is part of the <I>eGenix.com mx BASE
+	    distribution</I>.
+
+      </UL>
+
+      <P>Things that changed from 1.2.0 to 1.3.0:
+
+      <P><UL>
+
+	<LI>Added a set of new constructors needed to ease use of
+	  mxDateTime for <A
+            HREF="http://www.egenix.com/files/python/DatabaseAPI-2.0.html">DB
+            API 2.0</A> compliant database modules: DateFromTicks,
+	  TimestampFromTicks, TimeFromTicks.
+
+	  <P><LI><B>Changed:</B> The seconds part is no longer
+	  rounded prior to applying the strftime() C API. It is now
+	  truncated per default. This means that datetime.strftime()
+	  will now always display the seconds integral part as shown
+	  when using str(datetime). Thanks to Shawn Dyer for
+	  pointing this out.
+	  <P>
+	    The exported C API DateTime_AsTmStruct() will also
+	    reflect this change, since it uses the same conversion
+	    routines.
+
+	  <P><LI> Fixed a bug in the ISO parser: a backslash was
+	  missing which caused parsing of timezone information to
+	  fail. Thanks to Uche Ogbuji for finding the bug.
+
+	  <P><LI> Extended the timezone parser in ISO.py to handle
+	  'Z' timezone indicators and hours only offsets.
+
+	  <P><LI>Corrected the JDN bug DateTimeFromJDN(0).jdn == 1.
+
+	  <P><LI>Corrected a bug in the calculation of Julian dates:
+	  previous versions didn't take into account that the Julian
+	  Epoch is not the same as the Gregorian one. The Julian
+	  calendar implementation should now be correct -- at least
+	  it gives correct dates for all historic dates I could get
+	  my hands on (which aren't as many as I had expected to
+	  find on the net :-/).
+
+	  <P><LI><B>Changed:</B> Adding/Subtracting DateTime
+	  instances using the Julian calendar now causes the new
+	  instance to use the Julian calendar as well.
+
+	  <P><LI>Added support for Truncated Julian Day Numbers
+	  (TJD). Both a DateTime attribute (tjd) and a constructor
+	  (DateTimeFromTJD) are available.
+
+	  <P><LI>Cleaned up the code somewhat to eliminate multiple
+	  instances of the same algorithms.
+
+	  <P><LI>Modified the test suite to also check the JDN
+	  values and the Julian date constructor.
+
+	  <P><LI>Corrected a bug that caused repr(datetime) to be
+	  the same as str(datetime).
+
+	  <P><LI>Added RelativeDateTimeDiff() et al. inspired by a
+	  suggestion from Carel Fellinger for an age calculating
+	  function.
+
+	  <P><LI>Added NIST submodule and AtomicClock.py example.
+
+      </UL>
+
+      <P>Things that changed from 1.1.0 to 1.2.0:
+
+      <P><UL>
+
+	<LI>Fixed a few typos in the Feasts and Locale
+	  submodules. The changes were: Frohnleichnam ->
+	  Fronleichnam and introduction of GoodFriday and
+	  VendrediSaint. Thanks to Wolfgang Weitz for the spell
+	  check.
+
+	  <P><LI>Fixed a minor bug in localtime() and gmtime().
+	  Thanks to Just van Rossum for finding it (it caused an
+	  OverflowError on Macs).
+
+	  <P><LI>Added some additional range checks to prevent the
+	  module from crashing on huge date/time values and deltas
+	  due to integer overflows.
+
+	  <P><LI>Reformatted some doc-strings and parts of the
+	  documentation.
+
+	  <P><LI>Added TrinitySunday and Pentecost to the Feasts
+	  submodule.
+
+	  <P><LI>ARPA.strUTC() and ARPA.strGMT() now return strings
+	  using 'UTC' and 'GMT' resp. Most Internet software expects
+	  the string 'GMT' and usually doesn't know how to handle
+	  'UTC'.
+
+	  <P><LI>Added ARPA.ParseDate().
+
+	  <P><LI>Added new undocumented and experimental submodules
+	  Parser and Timezone.
+
+	  <P><LI><B>Added negative years</B> to DateTime
+	  instances. The package follows the convention used in
+	  astronomy which maps the year 0 to 1 B.C.E., -1 to 2
+	  B.C.E., etc. You may need to change code that does not
+	  expect negative years as input.
+
+	  <P>
+	    XXX Note that the support is still experimental and
+	    still contains some bugs that need fixing... e.g.
+	    DateTimeFromJDN(0).jdn == 1.
+
+	  <P><LI>Added a few more constants for months and weekdays.
+
+	  <P><LI><B>Changed</B> the Month attribute in the Locale
+	  instances to a mapping.
+
+	  <P><LI>The packages RangeError is now a subclass of the
+	  packages Error.
+
+	  <P><LI><B>Changed</B> the exception types for range errors
+	  to always use DateTime.RangeError instead of
+	  OverflowError.
+
+	  <P><LI>Fixed a formatting quirk that cause DateTimeDelta
+	  instances to display a negative seconds entry for
+	  -DateTimeDelta(0) in their string repesentation.
+
+	  <P><LI>Added experimental generic constructors
+	  DateTimeFrom(), DateTimeDeltaFrom() and TimeDeltaFrom().
+
+	  <P><LI>Fixed the base classes of the two error objects
+	  Error and RangeError: Error has StandardError as base
+	  class and RangeError is a subclass of Error.
+
+	  <P><LI><B>Changed</B> the now() API to a C function taking
+	  no arguments. Since this is needed quite frequently it
+	  should give better performance. The function uses the
+	  standard Python time module to query the system time. The
+	  documentation for the localtime() function now drops the
+	  default argument previously used -- it still works, but is
+	  depreciated.
+
+	  <P>
+	    Note that the function no longer does rounding of the
+	    seconds part: you get the full precision returned by the
+	    time.time() function (which is system dependent).
+
+	  <P><LI>Fixed a bug in the constructor DateTimeFromAbsDays().
+
+	  <P><LI>Corrected the behaviour of .dst and .tz to also
+	  respect the time of day.
+
+	  <P><LI>Added a hack to <B>work around a missing
+	    timegm()</B> API.  MacOS is one candidate that does not
+	  supply this function. The used workaround should provide
+	  the same functionality at a small performance penalty.
+
+	  <P>
+	    If you have the timegm() API, enable it in Setup -- it's
+	    more accurate and probably faster too.
+
+	  <P><LI><B>Depreciated</B> functions gmticks(), utcticks()
+	  and tz_offset(). Use the corresponding methods .gmticks()
+	  and .gmtoffset() instead.
+
+	  <P><LI>Added .gmtoffset() method.
+
+	  <P><LI>Added calendar support for Gregorian and Julian
+	  calendars.
+
+	  <P><LI>Included precompiled MacOS binaries donated by
+	  Joseph Strout. Thanks, Joseph !
+
+	  <P><LI>Fixed a bug in Timezone.utc_offset().
+
+      </UL>
+
+      <P>Things that changed from 1.0.1 to 1.1.0:
+
+      <P><UL>
+
+	<LI>Fixed the hour range check to not accept 24 as input
+	  anymore. Seconds may only have a value between 60.0 and
+	  61.0 for the minute 23:59. The constructor will now raise
+	  a RangeError if it sees other values. Thanks to Jarkko
+	  Torppa for pointing me at it.
+
+	  <P><LI><B>Changed</B> the keyword order for the
+	  RelativeDateTime constructors. This shouldn't effect any
+	  code, since normal usage is passing the parameters as
+	  keywords anyway.
+
+	  <P><LI>Added weekday and weeks parameters to
+	  RelativeDateTime; made the instances handle
+	  multiplication, negation and division,
+	  e.g. RelativeDateTime(days=4) / 2 is the same as
+	  RelativeDateTime(days=2). Note that comparing
+	  RelativeDateTime instances does not work.
+
+	  <P><LI>Added support for [Modified] Julian Day numbers:
+	  constructors and instance variables are available. This
+	  might be useful when you do astronomical date/time
+	  calculations and makes the types even more compatible to
+	  common date/time representations.
+
+	  <P><LI>RelativeDateTime now allow providing both absolute
+	  and delta values for all entities.  The delta value is
+	  added after the absolute value has been set,
+	  e.g. RelativeDateTime(day=1,days=-1) will adjust to the
+	  last day of the previous month.
+
+	  <P><LI>Reduced the pickle sizes of both types a little
+	  more. DateTime instances now use about 49 bytes and
+	  DateTimeDelta instances around 37 bytes each (43 and 34
+	  bytes if you pickle using the binary option).
+
+	  <P><LI>Made RelativeDateTime instances handle negative day
+	  settings like DateTime constructors:
+	  RelativeDateTime(day=-1) will adjust to the last day of
+	  the month.
+
+      </UL>
+
+      <P>Things that changed from 1.0.0 to 1.0.1:
+
+      <P><UL>
+
+	<LI>Added optional tz keyword parameter to ISO.str and
+	  ARPA.str.
+
+	  <P><LI>Relaxed the ARPA string parsing routines even
+	  further. Additional characters and spaces are now allowed
+	  in several places.
+
+	  <P><LI>Fixed the conversion routines for absolute date ->
+	  broken down values. There were reports of rounding errors
+	  occurring for e.g. Date(2000,12,30)+1 on WinNT which cause
+	  the broken down values to be showing out-of-range values
+	  (2001-00-00 in the example). Thanks to Amos Gingerich for
+	  reporting this.
+
+	  <P><LI>Added a special constructor test to the test script
+	  that will verify the absolute date/time -> broken down and
+	  vice versa conversion routines. The script checks all dates
+	  between 1900-01-01 and 2100-12-31.
+
+      </UL>
+
+      <P>Things that changed from 0.9.2 to 1.0.0:
+
+      <P><UL>
+
+	<LI>Changed the <B>DateTime_AsTmStruct() C API</B>. You
+	  now have to pass a pointer to a struct tm to be filled
+	  instead of receiving a malloc'ed struct as in previous
+	  versions. Your compiler will tell you since the signature
+	  changed.
+
+	  <P><LI>Added gm2local() and local2gm(). Documented some
+	  aliases to the GMT functions with UTC in their name: UTC
+	  and GMT are practically the same. See the <A
+            HREF="http://www.tondering.dk/claus/calendar.html">Calendar
+            FAQ</A> for more infos.
+
+	  <P><LI>Changed the way other extensions import the C API.
+	  They now try to import it through the package rather than
+	  directly through mxDateTime. 
+
+	  <P> This change was needed since there is no way in Python
+	    to make sure that C extensions are really only imported
+	    once: importing mxDateTime directly and indirectly through
+	    the DateTime package lead to two versions of the
+	    extensions being loaded. While this is not too serious at
+	    first sight (it may even be useful in some cases) it turns
+	    out to be a significant problem because the objects
+	    declared by the two versions are seen as being of
+	    different type (type checks in Python are done via
+	    comparing the address of type objects).
+
+	  <P> As a result, you no longer have to run 'make install'
+	    to install the C extension.
+
+      </UL>
+
+      <P>Things that changed from 0.9.1 to 0.9.2:
+
+      <P><UL>
+
+	<LI>Documented (and changed) the tz_offset() helper
+	  function. It used to return an integer value in minutes.
+	  Now it returns a DateTimeDelta instance.
+
+	  <P><LI>Updated the compiled PYD file to 0.9.1. Note:
+	  nothing changed in the C extension from 0.9.1 to 0.9.2.
+	  
+	  <P><LI>Added some more tests to the test script. Be sure
+	  to read the warnings -- there could be problems with
+	  conversions between Unix ticks and the value of DateTime
+	  instances. Some C libs implement non-standard behaviour in
+	  mktime() which can could it to malfunction.
+
+      </UL>
+
+      <P>Things that changed from 0.9.0 to 0.9.1:
+
+      <P><UL>
+
+	<LI>Changed the str()/repr() format of DateTime instances
+	  to always show (at least) 4-digits for years, filled with
+	  zeros if necessary.
+
+	  <P><LI>Relaxed the grammar for ISO dates a little to allow
+	  single digit hours, minutes, seconds, days and months, as
+	  well as years with 3 digits (two digits are not allowed to
+	  prevent ambiguous notations like 98 for 1998).
+
+	  <P><LI>Added some localizations to the functions in
+	  DateTime.py.
+
+	  <P><LI>Added support for comparing DateTimeDelta instances
+	  with numbers: the seconds attribute will be used as basis
+	  for the comparison. Because of the coercion problems
+	  arising out of the current coercion scheme used by Python,
+	  the DateTimeDelta instances must always occur on the
+	  <I>left</I> side of the comparison operator to yield
+	  correct results. The same is true for comparing DateTime
+	  instances and numbers.
+
+	  <P><LI>Added RelativeDateTime objects. These provide a way
+	  to store non-absolute time deltas in a convenient and
+	  intuitive way. As opposed to DateTimeDelta objects which
+	  store absolute deltas, RelativeDateTime objects span
+	  different amounts of time depending on the absolute
+	  DateTime object they are added to, e.g. adding one month
+	  can mean anything from 28 days to 31 days.
+
+	  <P><LI>Reformatted the docstrings a little.
+
+	  <P><LI>Documented submodule Feasts. Hope I got those names
+	  right...
+
+      </UL>
+
+      <P>Older history entries can be found in a <A
+	  HREF="mxDateTime-History.html">seperate list</A>.
+
+      <P>
+
+    </UL><!--CLASS="indent"-->
+
+    <DIV CLASS="footer">
+
+    <HR WIDTH="100%">
+    <CENTER><FONT SIZE=-1>
+        <P>
+          &copy; 1997-2000, Copyright by Marc-Andr&eacute; Lemburg;
+          All Rights Reserved.  mailto: <A
+          HREF="mailto:mal@lemburg.com">mal@lemburg.com</A>
+        <P>
+          &copy; 2000-2001, Copyright by eGenix.com Software GmbH; 
+          All Rights Reserved.  mailto: <A
+          HREF="mailto:info@egenix.com">info@egenix.com</A>
+    </FONT></CENTER>
+
+    </DIV>
+
+  </BODY>
+</HTML>
