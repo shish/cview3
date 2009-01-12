@@ -22,8 +22,6 @@ urls = (
     '/view', 'view',
     '/comment/add', 'comment_add',
     '/comment/get', 'comment_get',
-    '/admin', 'admin',
-    '/admin/hack', 'hack',
     '/user/login', 'login',
     '/user/logout', 'logout',
     '/comic/list', 'browse',
@@ -41,13 +39,21 @@ if not os.path.exists(session_dir):
     os.mkdir(session_dir)
 session = web.session.Session(
     app, web.session.DiskStore(session_dir),
-    initializer={'username': "Anonymous", 'admin': False})
+    initializer={'username': "Anonymous", 'is_user': False, 'is_admin': False})
 
 
 # utility functions
 def if_user_is_admin(func):
     def splitter(*args):
-        if session.admin:
+        if session.is_admin:
+            return func(*args)
+        else:
+            return render.login()
+    return splitter
+
+def if_user_is_user(func):
+    def splitter(*args):
+        if session.is_user:
             return func(*args)
         else:
             return render.login()
@@ -72,28 +78,21 @@ class login:
             user = None
         if user:
             session["username"] = user.name
-            log_info("Logged in")
             session["admin"] = user.comic_admin
-            if user.comic_admin:
-                web.seeother("/admin")
-            else:
-                web.seeother("/comic/list")
+            session["is_admin"] = user.comic_admin
+            session["is_user"] = True
+            log_info("Logged in")
+            web.seeother("/")
         else:
             return "Login failed"
 
 class logout:
     def GET(self):
-        session.kill()
         log_info("Logged out")
-        web.seeother("/comic/list")
+        session.kill()
+        web.seeother("/")
 
 # admin
-class admin:
-    @if_user_is_admin
-    def GET(self):
-        x = web.input(sort="default", way="asc")
-        return render.admin(get_comics(orderBy=x["sort"], way=x["way"]))
-
 class hack:
     def GET(self):
         return "o"
@@ -109,7 +108,6 @@ class hack:
 
 # comic
 class browse:
-    @if_user_is_admin
     def GET(self):
         x = web.input(sort="default", way="asc")
         return render.browse(get_comics(orderBy=x["sort"], way=x["way"]), session)
@@ -130,7 +128,7 @@ class rename:
             return "Error: "+str(e)
 
 class set_tags:
-    @if_user_is_admin
+    @if_user_is_user
     def POST(self):
         try:
             x = web.input(comic_id=None, tags=None)
@@ -171,6 +169,8 @@ class upload:
 
             if not os.path.exists(upload_tmp):
                 os.mkdir(upload_tmp)
+            if len(x['archive'].value) == 0:
+                raise BadComicException("Uploaded file is empty")
             outinfo = tempfile.mkstemp(".zip", dir=upload_tmp)
             outfile = open(outinfo[1], "wb")
             outfile.write(x['archive'].value)

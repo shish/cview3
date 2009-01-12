@@ -45,3 +45,6 @@ BODY {
 #comiclist TD {
 	font-size: 0.8em;
 }
+TABLE INPUT {
+	width: 256px;
+}

@@ -30,30 +30,46 @@ $def with(results, session)
 		<th width="150"><a href="/comic/list?sort=title">Name</a></th>
 		<th><a href="/comic/list?sort=pages">Pg.</a></th>
 		<th>Tags</th>
-		<th><a href="/comic/list?sort=posted&amp;way=desc">Posted</a></th>
+		<th width="75"><a href="/comic/list?sort=posted&amp;way=desc">Posted</a></th>
+		$if session.is_admin:
+			<th>Actions</th>
 	</tr></thead>
 	<tbody>
 $for comic in results:
 	$ disk_title = comic.get_disk_title()
 	$ language = comic.get_language()
 	<tr>
-		<td><a href="/view#$disk_title--0--0">$comic.title</a></td><td>$comic.pages</td>
+	$if session.is_admin:
+		<td>
+			<a href="/view#$disk_title--0--0">$comic.title</a>
+			(<a href="#" onclick="rename($comic.id, &quot;$comic.title&quot); return false;">rename</a>)
+		</td>
+		<td><center>$comic.pages</center></td>
+	$else:
+		<td><a href="/view#$disk_title--0--0">$comic.title</a></td>
+		<td><center>$comic.pages</center></td>
+	$if session.is_user:
+		<td>
+			<span style="float: right;">(<a href="#"
+			onclick="edit_tags($comic.id, &quot;$comic.title&quot;, &quot;$comic.tags&quot;); return false;">edit</a>)</span>
+			<img src="/static/${language}.png" width="20" height="14"> $comic.tags
+		</td>
+		<td><center><span title="by $comic.owner.name">$comic.posted</a></center></td>
+	$else:
 		<td><img src="/static/${language}.png" width="20" height="14"> $comic.tags</td>
-		<td><span title="by $comic.owner.name">$comic.posted</a></td>
+		<td><center><span title="by $comic.owner.name">$comic.posted</a></center></td>
+	$if session.is_admin:
+		<td><center><a href="#" onclick="delete_comic($comic.id, &quot;$comic.title&quot;); return false;">delete</a></center></td>
 	</tr>
 $# end indent
 	</tbody>
 </table>
 
-$if (not session["username"]) or (session["username"] == "Anonymous"):
-	<p><center><small><a href="/user/login">Log In</a></small></center>
+$if session.is_user:
+	<p><center><small>Logged in as $session.username / <a href="/user/logout">Log Out</a></small></center>
 $else:
-	<p><center><small>Logged in as $session["username"]
-	$if session["admin"]:
-		/ <a href="/admin">Admin</a>
-	/ <a href="/user/logout">Log Out</a>
-	</center></center>
-<!-- unindent -->
+	<p><center><small><a href="/user/login">Log In</a></small></center>
+$# end indent
 		</div>
 	</body>
 </html>
