@@ -262,8 +262,12 @@ function initAnnotations() {
 	}
 
 	commentDiv.innerHTML = "Loading Comments...";
-	annotation_data = sjax(root + "/" + selectedValue(bookSelector) + "/" +
-							selectedValue(chapSelector) + "/" + target_annotation)
+//	annotation_data = sjax(root + "/" + selectedValue(bookSelector) + "/" +
+//							selectedValue(chapSelector) + "/" + target_annotation)
+	annotation_data = sjax("/comment/get?page="+
+			selectedValue(bookSelector) + "/" +
+			selectedValue(chapSelector) + "/" +
+			selectedValue(pageSelector));
 	if(annotation_data) {
 		lines = annotation_data.split("\n");
 		commentDiv.innerHTML = "";
@@ -271,9 +275,8 @@ function initAnnotations() {
 			parts = lines[i].split(":", 2);
 			if(parts[0] == "comment") {
 				parts = lines[i].split(":", 4);
-				ip = parts[1];
-				name = parts[2];
-				comment = parts[3];
+				name = parts[1];
+				comment = parts[2];
 
 				p = document.createElement("p");
 				p.innerHTML = escape(name)+": "+comment;

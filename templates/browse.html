@@ -9,11 +9,11 @@ $def with(results, session)
 
 <table width="100%" id="header">
 <tr>
-    <td><center><a href="/comic/list"><img src="/static/rule34_comics_top.png"></a></center></td>
+    <td><center><a href="/"><img src="/static/rule34_comics_top.png"></a></center></td>
     <td width="350">
     <form enctype="multipart/form-data" method="POST" action="/comic/upload">
 		<table align='center'>
-			<tr><td>Archive</td><td><input type="file" name="archive"></td></tr>
+			<tr><td>Zip</td><td><input type="file" name="archive"></td></tr>
 			<tr><td>Title</td><td><input type="text" name="title"></td></tr>
 			<tr><td>Tags</td><td><input type="text" name="tags"></td></tr>
 			<tr><td colspan="2"><input type="submit" style="width: 100%"></td></tr>
@@ -24,9 +24,6 @@ $def with(results, session)
 </table>
 
 		<div class="padded">
-<p>To-do: tag editing, admin controls, rating, comments, make things look nice</p>
-<p>Uploads should be in .zip format, chapters in their own folders within the zip
-if appropriate. Including the language in the tags would be lovely :3</p>
 
 <table id="comiclist" border="1">
     <thead><tr>

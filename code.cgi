@@ -1,5 +1,8 @@
 #!/usr/bin/python2.4
 
+session_dir = "./sessions"
+upload_tmp = "./upload_tmp"
+
 import sys
 sys.path.append("./lib/")
 
@@ -16,8 +19,6 @@ from cview import *
 
 urls = (
     '/?', 'browse',
-    '/browse', 'browse',
-    '/browse.cgi', 'browse',
     '/view', 'view',
     '/comment/add', 'comment_add',
     '/comment/get', 'comment_get',
@@ -30,11 +31,16 @@ urls = (
     '/comic/rename', 'rename',
     '/comic/set_tags', 'set_tags',
     '/comic/delete', 'delete',
+    # deprecated
+    '/browse', 'browse',
+    '/browse.cgi', 'browse',
 )
 render = web.template.render("templates/")
 app = web.application(urls, locals())
+if not os.path.exists(session_dir):
+    os.mkdir(session_dir)
 session = web.session.Session(
-    app, web.session.DiskStore('./sessions'),
+    app, web.session.DiskStore(session_dir),
     initializer={'username': "Anonymous", 'admin': False})
 
 
@@ -49,14 +55,8 @@ def if_user_is_admin(func):
 
 def log_info(text):
     logging.info("%s (%s): %s" % (session.username, web.ctx.ip, text))
-    
 
-class browse:
-    @if_user_is_admin
-    def GET(self):
-        x = web.input(sort="default", way="asc")
-        return render.browse(get_comics(orderBy=x["sort"], way=x["way"]), session)
-
+# user
 class login:
     def GET(self):
         return render.login()
@@ -87,11 +87,32 @@ class logout:
         log_info("Logged out")
         web.seeother("/comic/list")
 
+# admin
 class admin:
     @if_user_is_admin
     def GET(self):
         x = web.input(sort="default", way="asc")
         return render.admin(get_comics(orderBy=x["sort"], way=x["way"]))
+
+class hack:
+    def GET(self):
+        return "o"
+        import time
+        conn = connect()
+        comics = Comic.select()
+        for comic in comics:
+            if os.path.exists("books/"+comic.get_disk_title()):
+                time_secs = os.stat("books/"+comic.get_disk_title())[8]
+                comic.posted = time.strftime("%Y-%m-%d", time.localtime(time_secs))
+        conn.close()
+        return "ok"
+
+# comic
+class browse:
+    @if_user_is_admin
+    def GET(self):
+        x = web.input(sort="default", way="asc")
+        return render.browse(get_comics(orderBy=x["sort"], way=x["way"]), session)
 
 class rename:
     @if_user_is_admin
@@ -148,7 +169,9 @@ class upload:
         try:
             x = web.input(title=None, tags="tagme", archive={})
 
-            outinfo = tempfile.mkstemp(".zip", dir="./upload_tmp/")
+            if not os.path.exists(upload_tmp):
+                os.mkdir(upload_tmp)
+            outinfo = tempfile.mkstemp(".zip", dir=upload_tmp)
             outfile = open(outinfo[1], "wb")
             outfile.write(x['archive'].value)
             outfile.close()
@@ -162,32 +185,22 @@ class upload:
         except BadComicException, e:
             return str(e)
 
-class hack:
-    def GET(self):
-        import time
-        conn = connect()
-        comics = Comic.select()
-        for comic in comics:
-            if os.path.exists("books/"+comic.get_disk_title()):
-                time_secs = os.stat("books/"+comic.get_disk_title())[8]
-                comic.posted = time.strftime("%Y-%m-%d", time.localtime(time_secs))
-        conn.close()
-        return "ok"
-
+# comment
 class comment_add:
     def POST(self):
         x = web.input(target=None, comment=None)
         target = x["target"];
         comment = x["comment"];
-        return self.add(target, comment)
 
-    def GET(self):
-        x = web.input(target=None, comment=None)
-        target = x["target"];
-        comment = x["comment"];
-        return self.add(target, comment)
+        ComicComment(
+            page=str(target),
+            owner=User.byName(str(session["username"])),
+            owner_ip=str(web.ctx.ip),
+            comment=str(comment)
+        )
 
-    def add(self, target, comment):
+        return "ok"
+
         if os.path.exists("books/"+target):
             txt_target = re.sub("(jpg|png|gif)$", "txt", target)
             if txt_target.endswith("txt"):
@@ -199,6 +212,16 @@ class comment_add:
                 return "invalid image"
         else:
             return "image not found"
+
+class comment_get:
+    def GET(self):
+        x = web.input(page=None)
+        page = x["page"]
+        comments = ComicComment.selectBy(page=str(page))
+        buf = ""
+        for comment in comments:
+            buf = buf + "comment:"+comment.owner.name+":"+cgi.escape(comment.comment).replace("\n", "<br>")+"\n"
+        return buf
 
 if __name__ == "__main__":
     logging.basicConfig(

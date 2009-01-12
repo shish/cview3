@@ -29,7 +29,7 @@ class Comic(SQLObject):
     description = StringCol(notNone=True, default="")
     pages = IntCol(notNone=True, default=0)
     rating = DecimalCol(size=5, precision=2, notNone=True, default=0)
-    posted = DateCol(default=func.now())
+    posted = DateCol(notNone=True, default=func.now())
 
     def get_language(self):
         if self.tags.lower().find("english") >= 0:
@@ -50,7 +50,16 @@ class Comic(SQLObject):
         new_disk_title = sanitise(new_title)
         shutil.move("books/"+old_disk_title, "books/"+new_disk_title)
         self.title = new_title
-                
+
+class ComicComment(SQLObject):
+    class sqlmeta:
+        table = "comic_comments"
+    page = StringCol(length=64, notNone=True)
+    owner = ForeignKey("User")
+    owner_ip = Col(sqlType="INET", notNone=True)
+    posted = DateCol(notNone=True, default=func.now())
+    comment = StringCol(notNone=True)
+
 
 def connect():
     username = "rule34"
