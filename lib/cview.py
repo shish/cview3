@@ -40,7 +40,7 @@ def sanitise(name):
     """
     Given a human name, return a filesystem-safe name
     """
-    return re.sub("[^a-zA-Z0-9\-_ ]", "", name).replace(" ", "_")
+    return re.sub("[^a-zA-Z0-9\-_\. ]", "", name).replace(" ", "_")
 
 def comicname(zipname):
     """
