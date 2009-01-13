@@ -1,3 +1,5 @@
+AddHandler fastcgi-script .fcgi
+
 <IfModule mod_rewrite.c>      
 RewriteEngine on
 RewriteBase /
@@ -11,5 +13,6 @@ RewriteRule ^(.*).txt$ static/empty [L]
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_URI} !^/books/
 RewriteCond %{REQUEST_URI} !^(/.*)+code.cgi/
+RewriteCond %{REQUEST_URI} !^(/.*)+dispatch.fcgi/
 RewriteRule ^(.*)$ code.cgi/$1 [PT]
 </IfModule>
