@@ -5,6 +5,9 @@ function rename(comic_id, title) {
 		alert(sjax("/comic/rename", "comic_id="+comic_id+"&title="+replacement));
 	}
 }
+function vote(comic_id, rating) {
+	alert(sjax("/comic/rate", "comic_id="+comic_id+"&rating="+rating));
+}
 function edit_tags(comic_id, title, tags) {
 	new_tags = prompt("New tags for \""+title+"\"", tags);
 	if(new_tags) {
