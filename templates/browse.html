@@ -4,6 +4,8 @@ $def with(results, session)
 	<head>
 		<title>CView Browser</title>
 		<link rel="stylesheet" href="/static/cview.css" type="text/css">
+		<script type="text/javascript" src="/static/cview.js"></script>
+		<script type="text/javascript" src="/static/admin.js"></script>
 	</head>
 	<body>
 
@@ -54,9 +56,11 @@ $for comic in results:
 			onclick="edit_tags($comic.id, &quot;$comic.title&quot;, &quot;$comic.tags&quot;); return false;">edit</a>)</span>
 			<img src="/static/${language}.png" width="20" height="14"> $comic.tags
 		</td>
-		<td><center><span title="by $comic.owner.name">$comic.posted</a></center></td>
 	$else:
 		<td><img src="/static/${language}.png" width="20" height="14"> $comic.tags</td>
+	$if session.is_admin:
+		<td><center><span title="by $comic.owner.name ($comic.owner_ip)">$comic.posted</a></center></td>
+	$else:
 		<td><center><span title="by $comic.owner.name">$comic.posted</a></center></td>
 	$if session.is_admin:
 		<td><center><a href="#" onclick="delete_comic($comic.id, &quot;$comic.title&quot;); return false;">delete</a></center></td>
