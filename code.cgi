@@ -1,11 +1,9 @@
 #!/usr/bin/python2.4
 
-session_dir = "./sessions"
-upload_tmp = "./upload_tmp"
-
 import sys
 sys.path.append("./lib/")
 
+import ConfigParser
 import cgi
 import web
 import re
@@ -13,37 +11,172 @@ import os
 import tempfile
 import md5
 import logging
+import shutil
 
-from shcomdb import *
+from sqlobject import *
 from cview import *
 
-urls = (
-    '/?', 'browse',
-    '/view', 'view',
-    '/comment/add', 'comment_add',
-    '/comment/get', 'comment_get',
-    '/user/login', 'login',
-    '/user/logout', 'logout',
-    '/comic/list', 'browse',
-    '/comic/upload', 'upload',
-    '/comic/rename', 'rename',
-    '/comic/set_tags', 'set_tags',
-    '/comic/delete', 'delete',
-    # deprecated
-    '/browse', 'browse',
-    '/browse.cgi', 'browse',
-)
-render = web.template.render("templates/")
-app = web.application(urls, locals())
-if not os.path.exists(session_dir):
-    os.mkdir(session_dir)
-session = web.session.Session(
-    app, web.session.DiskStore(session_dir),
-    initializer={'username': "Anonymous", 'is_user': False, 'is_admin': False})
+render = None
+session = None
+config = None
+
+
+# startup 
+def main():
+    config_file = "cview.cfg"
+
+    # config
+    try:
+        global config
+        config = ConfigParser.SafeConfigParser()
+        config.read(config_file)
+    except Exception, e:
+        print "Failed to read config file %s: %s" % (config_file, e)
+        return 1
+
+    try:
+        logging.basicConfig(
+            level=logging.DEBUG,
+            format='%(asctime)s %(levelname)-8s %(message)s',
+            filename=config.get("files", "log"))
+    except Exception, e:
+        print "Failed to start logging: "+str(e)
+        return 2
+
+    try:
+        urls = (
+            '/?', 'browse',
+            '/view', 'view',
+            '/comment/add', 'comment_add',
+            '/comment/get', 'comment_get',
+            '/user/login', 'login',
+            '/user/logout', 'logout',
+            '/comic/list', 'browse',
+            '/comic/upload', 'upload',
+            '/comic/rename', 'rename',
+            '/comic/set_tags', 'set_tags',
+            '/comic/delete', 'delete',
+            # deprecated
+            '/browse', 'browse',
+            '/browse.cgi', 'browse',
+            '(.*)', 'go404',
+        )
+        app = web.application(urls, globals())
+    except:
+        logging.exception("Error loading web app")
+        return 3
+
+    try:
+        global render
+        render = web.template.render(config.get("files", "templates"))
+    except:
+        logging.exception("Error loading renderer")
+        return 3
+
+    try:
+        global session
+        session_dir = config.get("files", "session_dir")
+        if not os.path.exists(session_dir):
+            os.mkdir(session_dir)
+        session = web.session.Session(
+            app, web.session.DiskStore(session_dir),
+            initializer={'username': "Anonymous", 'is_user': False, 'is_admin': False})
+    except:
+        logging.exception("Error loading session manager")
+        return 3
+
+    try:
+        #logging.debug("Connecting to database")
+        hostname = config.get("database", "hostname")
+        username = config.get("database", "username")
+        password = config.get("database", "password")
+        database = config.get("database", "database")
+        conn = connectionForURI("postgres://%s:%s@%s/%s" % (
+            username, password, hostname, database))
+        # check that the connection is live. Yes, the connect() call will return
+        # success when the server doesn't even exist, and this is the official
+        # way to deal with that...
+        conn.query("SELECT 1")
+        sqlhub.processConnection = conn
+    except:
+        logging.exception("Error connecting to database")
+        return 3
+
+    try:
+        #logging.info("Running...")
+        app.run()
+        #logging.info("App is over, disconnecting from database")
+        conn.close()
+    except SystemExit:
+        pass
+        #logging.info("Got SystemExit")
+    except Exception, e:
+        logging.exception("App exception:")
+
+
+# SQL objects
+class User(SQLObject):
+    class sqlmeta:
+        table = "users"
+    name = StringCol(alternateID=True, length=32, notNone=True)
+    password = StringCol(dbName="pass", length=32)
+    joindate = DateTimeCol()
+    admin = BoolCol()
+    comic_admin = BoolCol()
+    email = StringCol(length=249)
+    image_count = IntCol()
+    comment_count = IntCol()
+
+class Comic(SQLObject):
+    class sqlmeta:
+        table = "comics"
+    owner = ForeignKey("User")
+    owner_ip = Col(sqlType="INET", notNone=True)
+    title = StringCol(length=64, alternateID=True, notNone=True)
+    tags = StringCol(length=255, notNone=True)
+    description = StringCol(notNone=True, default="")
+    pages = IntCol(notNone=True, default=0)
+    rating = DecimalCol(size=5, precision=2, notNone=True, default=0)
+    posted = DateCol(notNone=True, default=func.now())
+
+    def get_language(self):
+        if self.tags.lower().find("english") >= 0:
+            return "english"
+        if self.tags.lower().find("japanese") >= 0:
+            return "japanese"
+        else:
+            return "unknown"
+
+    def remove_files(self):
+        shutil.rmtree("books/"+self.get_disk_title())
+
+    def get_disk_title(self):
+        return sanitise(self.title)
+
+    def rename(self, new_title):
+        old_disk_title = sanitise(self.title)
+        new_disk_title = sanitise(new_title)
+        shutil.move("books/"+old_disk_title, "books/"+new_disk_title)
+        self.title = new_title
+
+class ComicComment(SQLObject):
+    class sqlmeta:
+        table = "comic_comments"
+    page = StringCol(length=64, notNone=True)
+    owner = ForeignKey("User")
+    owner_ip = Col(sqlType="INET", notNone=True)
+    posted = DateCol(notNone=True, default=func.now())
+    comment = StringCol(notNone=True)
+
+
 
 
 # utility functions
 def if_user_is_admin(func):
+    """
+    decorate a function to only run if the user is an admin,
+    else show a login prompt
+    """
     def splitter(*args):
         if session.is_admin:
             return func(*args)
@@ -52,6 +185,10 @@ def if_user_is_admin(func):
     return splitter
 
 def if_user_is_user(func):
+    """
+    decorate a function to only run if the user is non-anonymous,
+    else show a login prompt
+    """
     def splitter(*args):
         if session.is_user:
             return func(*args)
@@ -60,7 +197,42 @@ def if_user_is_user(func):
     return splitter
 
 def log_info(text):
+    """
+    A simple wrapper for logging.info(), prepends username and IP
+    """
     logging.info("%s (%s): %s" % (session.username, web.ctx.ip, text))
+
+def get_comics(search=None, orderBy="default", way="asc"):
+    """
+    Find comics, optionally filtered with a tag
+    """
+    tag = "%"
+    if search:
+        tag = "%"+search+"%"
+    if orderBy == "default":
+        orderBy = "posted"
+        way = "desc"
+    if orderBy not in [
+                "title", "posted",
+                "rating", "pages",
+                "id"]:
+        orderBy = "title"
+    comics = Comic.select("tags LIKE %s" % Comic.sqlrepr(tag), orderBy=orderBy)
+    if way == "desc":
+        comics = comics.reversed()
+    return comics
+
+def add_to_db(title, tags, pages, owner="Anonymous", owner_ip="0.0.0.0"):
+    """
+    Add some meta-info to the database
+    """
+    if len(title) == 0:
+        raise BadComicException("No title specified")
+    existing = Comic.selectBy(title=str(title))
+    if len(list(existing)) > 0:
+        raise BadComicException("There's already a comic with that title")
+    Comic(owner=User.byName(owner), owner_ip=str(owner_ip), title=str(title), tags=str(tags), pages=int(pages))
+
 
 # user
 class login:
@@ -167,7 +339,8 @@ class upload:
         try:
             x = web.input(title=None, tags="tagme", archive={})
 
-            if not os.path.exists(upload_tmp):
+            upload_tmp = config.get("files", "upload_tmp")
+            if upload_tmp and not os.path.exists(upload_tmp):
                 os.mkdir(upload_tmp)
             if len(x['archive'].value) == 0:
                 raise BadComicException("Uploaded file is empty")
@@ -223,11 +396,12 @@ class comment_get:
             buf = buf + "comment:"+comment.owner.name+":"+cgi.escape(comment.comment).replace("\n", "<br>")+"\n"
         return buf
 
+# misc
+class go404:
+    def GET(self, url):
+        return url
+
+
 if __name__ == "__main__":
-    logging.basicConfig(
-        level=logging.DEBUG,
-        format='%(asctime)s %(levelname)-8s %(message)s',
-        filename="cview.log")
-    conn = connect()
-    app.run()
-    conn.close()
+    main()
+
