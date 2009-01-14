@@ -199,7 +199,7 @@ function initDisplay() {
 	               selectedValue(chapSelector) + "/" + selectedValue(pageSelector);
 	//window.scroll(0, xdisplay.offsetTop);
 	window.scroll(0, 0);
-	initAnnotations();
+	//initAnnotations();
 	initPreload();
 }
 function initPreload() {
