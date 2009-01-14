@@ -1,13 +1,17 @@
 #!/usr/bin/python2.4
 
-import sys
-sys.path.append("./lib/")
+import os
+
+# hack for people to install non-standard
+# libraries locally
+if os.path.exists("./lib/"):
+    import sys
+    sys.path.append("./lib/")
 
 import ConfigParser
 import cgi
 import web
 import re
-import os
 import tempfile
 import md5
 import logging
@@ -56,6 +60,7 @@ def main():
             '/comic/rename', 'rename',
             '/comic/set_tags', 'set_tags',
             '/comic/delete', 'delete',
+            '/comic/rate', 'rate',
             # deprecated
             '/browse', 'browse',
             '/browse.cgi', 'browse',
@@ -356,6 +361,37 @@ class rename:
                 return "Renamed OK"
             else:
                 return "Missing comic_id or title"
+        except Exception, e:
+            return "Error: "+str(e)
+
+class rate:
+    @if_user_is_user
+    def POST(self):
+        try:
+            x = web.input(comic_id=None, rating=None)
+            if x["comic_id"] and x["rating"]:
+                comic_id = int(x["comic_id"])
+                rating = int(x["rating"])
+                if rating < 1 or rating > 5:
+                    return "Ratings can only be 1-5"
+                owner_id = User.byName(session["username"]).id
+                sqlhub.processConnection.query("""
+                    DELETE FROM comic_ratings WHERE comic_id=%d AND owner_id=%d
+                    """ % (comic_id, owner_id))
+                sqlhub.processConnection.query("""
+                    INSERT INTO comic_ratings(comic_id, owner_id, rating) VALUES(%d, %d, %d)
+                    """ % (comic_id, owner_id, rating))
+                sqlhub.processConnection.query("""
+                    UPDATE comics
+                    SET rating=
+                        (SELECT SUM(rating) FROM comic_ratings WHERE comic_id=%d)/
+                        (SELECT COUNT(*) FROM comic_ratings WHERE comic_id=%d)
+                    WHERE id=%d
+                    """ % (comic_id, comic_id, comic_id))
+                log_info("Voted #%d to %d" % (comic_id, rating))
+                return "Rated OK"
+            else:
+                return "Missing comic_id or rating"
         except Exception, e:
             return "Error: "+str(e)
 
