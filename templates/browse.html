@@ -11,9 +11,9 @@ $def with(results, session)
 
 <table width="100%" id="header">
 <tr>
-    <td><center><a href="/"><img src="/static/rule34_comics_top.png"></a></center></td>
-    <td width="350">
-    <form enctype="multipart/form-data" method="POST" action="/comic/upload">
+	<td><center><a href="/"><img src="/static/rule34_comics_top.png"></a></center></td>
+	<td width="350">
+	<form enctype="multipart/form-data" method="POST" action="/comic/upload">
 		<table align='center'>
 			<tr><td>Zip</td><td><input type="file" name="archive"></td></tr>
 			<tr><td>Title</td><td><input type="text" name="title"></td></tr>
@@ -21,17 +21,19 @@ $def with(results, session)
 			<tr><td colspan="2"><input type="submit" style="width: 100%"></td></tr>
 		</table>
 	</form>
-    </td>
+	</td>
 </tr>
 </table>
 
 		<div class="padded">
 
 <table id="comiclist" border="1">
-    <thead><tr>
+	<thead><tr>
 		<th width="150"><a href="/comic/list?sort=title">Name</a></th>
 		<th><a href="/comic/list?sort=pages">Pg.</a></th>
 		<th>Tags</th>
+		$if session.is_admin:
+			<th><a href="/comic/list?sort=rating&amp;way=desc">Rating</a></th>
 		<th width="75"><a href="/comic/list?sort=posted&amp;way=desc">Posted</a></th>
 		$if session.is_admin:
 			<th>Actions</th>
@@ -58,6 +60,14 @@ $for comic in results:
 		</td>
 	$else:
 		<td><img src="/static/${language}.png" width="20" height="14"> $comic.tags</td>
+	$if session.is_user:
+		<td><!--
+		$for n in range(1, 6):
+			$if comic.rating < n:
+				--><a title="Vote $n" onclick="vote($comic.id, $n); return false;"><img alt="Vote $n" src="/static/star_off.gif"></a><!--
+			$else:
+				--><a title="Vote $n" onclick="vote($comic.id, $n); return false;"><img alt="Vote $n" src="/static/star_on.gif"></a><!--
+		--></td>
 	$if session.is_admin:
 		<td><center><span title="by $comic.owner.name ($comic.owner_ip)">$comic.posted</a></center></td>
 	$else:
