@@ -247,6 +247,13 @@ function moveToNextPage() {
 		initPageSelector();
 	}
 }
+function moveToPrevPage() {
+	pageSelector = document.getElementById("page");
+	if(pageSelector.selectedIndex > 0) {
+		pageSelector.selectedIndex--;
+		initDisplay();
+	}
+}
 // }}}
 // {{{ annotations
 function initAnnotations() {
@@ -350,4 +357,36 @@ function setScale(scale) {
 	xdisplay.style.width=scale;
 }
 // }}}
+// keyboard {{{
+document.onkeydown = key_pressed;
+function key_pressed(e) {
+	if(navigator.appName == "Microsoft Internet Explorer") {
+		if(!e) var e = window.event;
+		if(e.keyCode) {
+			keycode = e.keyCode;
+			if((keycode == 39) || (keycode == 37)) {
+				window.event.keyCode = 0;
+			}
+		}
+		else {
+			keycode = e.which;
+		}
+	}
+	else {
+		if(e.which) {
+			keycode = e.which;
+		} else {
+			keycode = e.keyCode;
+		}
+	}
+
+	if(keycode == 39) {
+		moveToNextPage();
+		return false;
+	}
+	else if (keycode == 37) {
+		moveToPrevPage();
+		return false;
+	}
+}
 // }}}
