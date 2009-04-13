@@ -153,7 +153,8 @@ class Comic(SQLObject):
             return "unknown"
 
     def remove_files(self):
-        shutil.rmtree("books/"+self.get_disk_title())
+        if os.path.exists("books/"+self.get_disk_title()):
+            shutil.rmtree("books/"+self.get_disk_title())
 
     def get_disk_title(self):
         return sanitise(self.title)
