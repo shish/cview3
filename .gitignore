@@ -1,0 +1,6 @@
+cview.cfg
+cview.log
+*.pyc
+books
+sessions
+upload_tmp
