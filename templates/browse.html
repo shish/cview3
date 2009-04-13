@@ -31,7 +31,7 @@ $def with(results, session)
 	<thead><tr>
 		<th width="150"><a href="/comic/list?sort=title">Name</a></th>
 		<th><a href="/comic/list?sort=pages">Pg.</a></th>
-		<th>Tags</th>
+		<th><a href="javascript: search_prompt();">Tags</a></th>
 		$if session.is_admin:
 			<th><a href="/comic/list?sort=rating&amp;way=desc">Rating</a></th>
 		<th width="75"><a href="/comic/list?sort=posted&amp;way=desc">Posted</a></th>

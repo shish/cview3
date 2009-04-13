@@ -274,7 +274,7 @@ def get_comics(search=None, orderBy="default", way="asc"):
     """
     tag = "%"
     if search:
-        tag = "%"+search+"%"
+        tag = str("%"+search+"%")
     if orderBy == "default":
         orderBy = "posted"
         way = "desc"
@@ -283,7 +283,7 @@ def get_comics(search=None, orderBy="default", way="asc"):
                 "rating", "pages",
                 "id"]:
         orderBy = "title"
-    comics = Comic.select("tags LIKE %s" % Comic.sqlrepr(tag), orderBy=orderBy)
+    comics = Comic.select("tags ILIKE %s" % Comic.sqlrepr(tag), orderBy=orderBy)
     if way == "desc":
         comics = comics.reversed()
     return comics
@@ -347,8 +347,8 @@ class hack:
 # comic
 class browse:
     def GET(self):
-        x = web.input(sort="default", way="asc")
-        return render.browse(get_comics(orderBy=x["sort"], way=x["way"]), session)
+        x = web.input(search=None, sort="default", way="asc")
+        return render.browse(get_comics(x["search"], orderBy=x["sort"], way=x["way"]), session)
 
 class rename:
     @if_user_is_admin

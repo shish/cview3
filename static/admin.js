@@ -8,6 +8,10 @@ function rename(comic_id, title) {
 function vote(comic_id, rating) {
 	alert(sjax("/comic/rate", "comic_id="+comic_id+"&rating="+rating));
 }
+function search_prompt() {
+	text = prompt("Enter a tag to search for");
+	window.location = "/comic/list?search="+text;
+}
 function edit_tags(comic_id, title, tags) {
 	new_tags = prompt("New tags for \""+title+"\"", tags);
 	if(new_tags) {
