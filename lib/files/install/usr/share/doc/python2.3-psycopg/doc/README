@@ -1,9 +1,0 @@
-The files in this directory are the skeleton of two guides: a generic
-DBAPI 2.0 programming guide and the psycopg guide. They are both work
-in progress, but the exmaples in the examples/ directory are up to
-date and perfectly working.
-
-The guides have been moved to their own archive. Look for 
-dbapi20programming in the same place where you found this archive.
-
-

@@ -1,116 +1,0 @@
-8
-
-dir
-3768
-http://svn.colorstudy.com/FormEncode/trunk/formencode/i18n
-http://svn.colorstudy.com
-
-
-
-2008-12-20T01:02:12.329920Z
-3745
-pjenvey
-
-
-svn:special svn:externals svn:needs-lock
-
-
-
-
-
-
-
-
-
-
-
-95a46c32-92d2-0310-94a5-8d71aeb3d4b3
-
-lt
-dir
-
-FormEncode.pot
-file
-
-
-
-
-2009-01-10T20:34:46.000000Z
-db58372e870341c9d11831d3d47af346
-2008-12-20T00:35:00.921633Z
-3743
-pjenvey
-
-msgfmt.py
-file
-
-
-
-
-2009-01-10T20:34:46.000000Z
-4c91238c6c3f61dc5edfa63417c836ef
-2008-03-19T21:58:11.077906Z
-3356
-ianb
-has-props
-
-tr
-dir
-
-ru
-dir
-
-pt_PT
-dir
-
-de
-dir
-
-ja
-dir
-
-zh_TW
-dir
-
-nb_NO
-dir
-
-fi
-dir
-
-el
-dir
-
-zh_CN
-dir
-
-cs
-dir
-
-pt_BR
-dir
-
-es
-dir
-
-fr
-dir
-
-et
-dir
-
-nl
-dir
-
-pl
-dir
-
-it
-dir
-
-sk
-dir
-
-sl
-dir
-

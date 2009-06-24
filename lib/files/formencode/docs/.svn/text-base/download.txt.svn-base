@@ -1,9 +1,0 @@
-Downloads
-+++++++++
-
-The most current downloads are always available on the `FormEncode
-Cheese Shop Page <http://cheeseshop.python.org/pypi/FormEncode>`_.
-
-The repository can be checked out with::
-
-    svn co http://svn.colorstudy.com/FormEncode/trunk FormEncode

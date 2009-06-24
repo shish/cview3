@@ -81,7 +81,7 @@ else if(interface == "apache") {
 		for(i=0; i<books_lines.length; i++) {
 			var re = RegExp("<A HREF=\"([^/\"]+)/\">", "i");
 			var m = re.exec(books_lines[i]);
-			if(m != null) {
+			if(m != null && m != "..") {
 				books.push(m[1]);
 			}
 		}
@@ -94,7 +94,7 @@ else if(interface == "apache") {
 		for(i=0; i<chaps_lines.length; i++) {
 			var re = RegExp("<A HREF=\"([^/\"]+)/\">", "i");
 			var m = re.exec(chaps_lines[i]);
-			if(m != null) {
+			if(m != null && m != "..") {
 				chaps.push(m[1]);
 			}
 		}
@@ -195,7 +195,7 @@ function initDisplay() {
 	chapSelector = document.getElementById("chap");
 	pageSelector = document.getElementById("page");
 	xdisplay = document.getElementById("display");
-	xdisplay.src = root + "/" + selectedValue(bookSelector) + "/" +
+	xdisplay.src = "http://rule34c-images.paheal.net" + root + "/" + selectedValue(bookSelector) + "/" +
 	               selectedValue(chapSelector) + "/" + selectedValue(pageSelector);
 	//window.scroll(0, xdisplay.offsetTop);
 	window.scroll(0, 0);
@@ -213,7 +213,7 @@ function initPreload() {
 	if(pageSelector.selectedIndex+1 < pages) {
 		nextPage = pageSelector.options[pageSelector.selectedIndex+1].value;
 		img = Image(0, 0);
-		img.src = root + "/" + selectedValue(bookSelector) + "/" +
+		img.src = "http://rule34c-images.paheal.net" + root + "/" + selectedValue(bookSelector) + "/" +
 		          selectedValue(chapSelector) + "/" + nextPage;
 	}
 	else if(chapSelector.selectedIndex+1 < chaps) {

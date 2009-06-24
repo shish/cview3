@@ -1,89 +1,0 @@
-8
-
-dir
-3768
-http://svn.colorstudy.com/FormEncode/trunk
-http://svn.colorstudy.com
-
-
-
-2008-12-20T22:02:40.509056Z
-3749
-ianb
-has-props
-
-svn:special svn:externals svn:needs-lock
-
-
-
-
-
-
-
-
-
-
-
-95a46c32-92d2-0310-94a5-8d71aeb3d4b3
-
-formencode
-dir
-
-tests
-dir
-
-regen-docs
-file
-
-
-
-
-2009-01-10T20:34:50.000000Z
-cd5c38d40d9ee069cae4883c3cb1ab6e
-2008-10-27T21:38:29.726071Z
-3635
-ianb
-has-props
-
-setup.py
-file
-
-
-
-
-2009-01-10T20:34:50.000000Z
-fafa3d6c5b0462da8e0a4e8e3b6b649c
-2008-12-20T22:02:40.509056Z
-3749
-ianb
-
-docs
-dir
-
-MANIFEST.in
-file
-
-
-
-
-2009-01-10T20:34:50.000000Z
-4818be732f759daa777c4a161cc4b568
-2006-09-25T17:54:07.882019Z
-1944
-ianb
-
-examples
-dir
-
-setup.cfg
-file
-
-
-
-
-2009-01-10T20:34:50.000000Z
-f5618d15ccdcf5de95ee4f20a77b8ea3
-2008-11-17T23:01:24.641315Z
-3675
-pjenvey
-

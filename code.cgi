@@ -4,9 +4,9 @@ import os
 
 # hack for people to install non-standard
 # libraries locally
-if os.path.exists("./lib/"):
-    import sys
-    sys.path.append("./lib/")
+#if os.path.exists("./lib/"):
+#    import sys
+#    sys.path.append("./lib/")
 
 import ConfigParser
 import cgi
