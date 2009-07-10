@@ -37,10 +37,20 @@ function selectedValue(selector) {
 	return selector.options[selector.selectedIndex].value;
 }
 
-function sjax(url) {
+function sjax(url, postdata) {
 	http_request = getHTTPObject();
-	http_request.open('GET', url, false);
-	http_request.send(null);
+
+	if(postdata) {
+		http_request.open('POST', url, false);
+		http_request.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+		http_request.setRequestHeader("Content-length", postdata.length);
+		http_request.setRequestHeader("Connection", "close");
+		http_request.send(postdata);
+	}
+	else {
+		http_request.open('GET', url, false);
+		http_request.send(postdata);
+	}
 
 	if(http_request.status == 200) {
 		return http_request.responseText;
