@@ -9,6 +9,13 @@
 	background: #ACE4A3;
 	border-bottom: 1px solid #7EB977;
 }
+#footer {
+	font-size: 0.75em;
+	background: #ACE4A3;
+	border-top: 1px solid #7EB977;
+	margin-top: 8px;
+	padding: 8px;
+}
 #comments {
 	width: 512px;
 	margin: auto;
@@ -26,9 +33,7 @@ BODY {
     background-image: url(bg.png);
     font-family: "Arial", sans-serif;
     font-size: 14px;
-    margin-left: 0px;
-    margin-top: 0px;
-    margin-right: 0px;
+    margin: 0px;
 }
 .padded {
 	margin: 16px;
