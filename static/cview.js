@@ -1,7 +1,16 @@
-// config
-// interface: the method used to get lists of files
+// config:
+// ~~~~~~~
+// interface:
+//  the method used to get lists of files
 //   ajax.py: a python script
 //   apache : use the apache file listing (requires indexes to be enabled)
+//
+// root:
+//  where the books are stored
+//
+// comment_add_url:
+//  where to post comments, null to disable
+//
 interface = "apache";
 root = "./books";
 
