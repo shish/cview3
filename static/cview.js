@@ -80,7 +80,7 @@ else if(interface == "apache") {
 		for(i=0; i<books_lines.length; i++) {
 			var re = RegExp("<A HREF=\"([^/\"]+)/\">", "i");
 			var m = re.exec(books_lines[i]);
-			if(m != null) {
+			if(m != null && m[1] != "..") {
 				books.push(m[1]);
 			}
 		}
@@ -93,7 +93,7 @@ else if(interface == "apache") {
 		for(i=0; i<chaps_lines.length; i++) {
 			var re = RegExp("<A HREF=\"([^/\"]+)/\">", "i");
 			var m = re.exec(chaps_lines[i]);
-			if(m != null) {
+			if(m != null && m[1] != "..") {
 				chaps.push(m[1]);
 			}
 		}
