@@ -195,7 +195,7 @@ function initDisplay() {
 	chapSelector = document.getElementById("chap");
 	pageSelector = document.getElementById("page");
 	xdisplay = document.getElementById("display");
-	xdisplay.src = "http://rule34c-images.paheal.net" + root + "/" + selectedValue(bookSelector) + "/" +
+	xdisplay.src = root + "/" + selectedValue(bookSelector) + "/" +
 	               selectedValue(chapSelector) + "/" + selectedValue(pageSelector);
 	//window.scroll(0, xdisplay.offsetTop);
 	window.scroll(0, 0);
@@ -213,7 +213,7 @@ function initPreload() {
 	if(pageSelector.selectedIndex+1 < pages) {
 		nextPage = pageSelector.options[pageSelector.selectedIndex+1].value;
 		img = Image(0, 0);
-		img.src = "http://rule34c-images.paheal.net" + root + "/" + selectedValue(bookSelector) + "/" +
+		img.src = root + "/" + selectedValue(bookSelector) + "/" +
 		          selectedValue(chapSelector) + "/" + nextPage;
 	}
 	else if(chapSelector.selectedIndex+1 < chaps) {
