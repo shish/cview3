@@ -55,6 +55,7 @@ def main():
             '/comment/get', 'comment_get',
             '/user/login', 'login',
             '/user/logout', 'logout',
+            '/comic/list/(\d+)', 'browse',
             '/comic/list', 'browse',
             '/comic/upload', 'upload',
             '/comic/rename', 'rename',
@@ -268,7 +269,7 @@ def log_info(text):
     """
     logging.info("%s (%s): %s" % (session.username, web.ctx.ip, text))
 
-def get_comics(search=None, orderBy="default", way="asc"):
+def get_comics(search=None, orderBy="default", way="asc", page=1):
     """
     Find comics, optionally filtered with a tag
     """
@@ -286,6 +287,7 @@ def get_comics(search=None, orderBy="default", way="asc"):
     comics = Comic.select("tags ILIKE %s" % Comic.sqlrepr(tag), orderBy=orderBy)
     if way == "desc":
         comics = comics.reversed()
+    comics = comics[(page-1)*100:page*100]
     return comics
 
 def add_to_db(title, tags, pages, owner="Anonymous", owner_ip="0.0.0.0"):
@@ -346,9 +348,9 @@ class hack:
 
 # comic
 class browse:
-    def GET(self):
+    def GET(self, pagen=1):
         x = web.input(search=None, sort="default", way="asc")
-        return render.browse(get_comics(x["search"], orderBy=x["sort"], way=x["way"]), session)
+        return render.browse(int(pagen), get_comics(x["search"], orderBy=x["sort"], way=x["way"], page=int(pagen)), session)
 
 class rename:
     @if_user_is_admin
