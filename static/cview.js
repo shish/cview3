@@ -162,7 +162,7 @@ function initBookSelector() {
 	bookSelector = document.getElementById("book");
 	books = getBooks();
 	bookSelector.options.length = 0;
-	for(i=0; books[i]; i++) {bookSelector.options[i] = new Option(books[i], books[i]);}
+	for(i=0; books[i]; i++) {bookSelector.options[i] = new Option(books[i].replace("_"," "), books[i]);}
 	for(i=0; i<bookSelector.options.length; i++) {if(bookSelector.options[i].value == loadBook) loadBookIndex=i;};
 	bookSelector.selectedIndex = loadBookIndex;
 	loadBook = "";
@@ -173,7 +173,7 @@ function initChapSelector() {
 	chapSelector = document.getElementById("chap");
 	chaps = getChapters(selectedValue(bookSelector));
 	chapSelector.options.length = 0;
-	for(i=0; chaps[i]; i++) {chapSelector.options[i] = new Option(chaps[i], chaps[i]);}
+	for(i=0; chaps[i]; i++) {chapSelector.options[i] = new Option(chaps[i].replace("_"," "), chaps[i]);}
 	chapSelector.selectedIndex = loadChap;
 	loadChap = 0;
 	initPageSelector();
