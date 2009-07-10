@@ -3,8 +3,8 @@ $def with()
 <html>
 	<head>
 		<title>Rule34c</title>
-		<link rel="stylesheet" href="/static/cview.css" type="text/css">
-		<script type="text/javascript" src="/static/cview.js"></script>
+		<link rel="stylesheet" href="./static/cview.css" type="text/css">
+		<script type="text/javascript" src="./static/cview.js"></script>
     </head>
     <body onload="init();">
 		<center>
@@ -19,15 +19,14 @@ $def with()
 					<option value="50%">Half Page</option>
 				</select>
 				<a href="#" onclick="alert('Arrow keys scroll up/down and move next/prev page'); return false;">Help</a>
-				<!--
-				<span id="buffering">
-					Buffering 
-					<img valign="center" src="/static/minispinner.gif">
-				</span>
-				-->
 			</form>
-			<a href="#" onclick="moveToNextPage(); return false;"><img id="display" src="/static/spinner.gif"></a>
+			<a href="#" onclick="moveToNextPage(); return false;"><img id="display" src="./static/spinner.gif"></a>
+			<div id="comments"></div>
+			<div id="footer">
+				Images &copy; their respective owners
+				<br><a href="http://code.shishnet.org/cview3/">CView3</a> &copy;
+				<a href="http://www.shishnet.org/">Shish</a> 2009
+			</div>
 		</center>
-		<div id="comments"></div>
     </body>
 </html>
