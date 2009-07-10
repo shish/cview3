@@ -1,8 +1,8 @@
 <html>
     <head>
         <title>CView3: Javascript Comic Viewer</title>
-		<link rel='stylesheet' href='cview.css' type='text/css'>
-		<script type="text/javascript" src="cview.js"></script>
+		<link rel="stylesheet" href="/static/cview.css" type="text/css">
+		<script type="text/javascript" src="/static/cview.js"></script>
     </head>
     <body onload="init();">
 		<center>
@@ -15,8 +15,9 @@
 					<option value="100%">Page Width</option>
 					<option value="50%">Half Page</option>
 				</select>
+				<a href="#" onclick="alert('Arrow up/down: scroll\nArrow left/right: prev/next page'); return false;">Help</a>
 			</form>
-			<p><a href="#" onclick="moveToNextPage(); return false;"><img id="display" src="spinner.gif"></a></td>
+			<a href="#" onclick="moveToNextPage(); return false;"><img id="display" src="/static/spinner.gif"></a>
 		</center>
     </body>
 </html>
