@@ -63,9 +63,6 @@ def main():
             '/comic/set_tags', 'set_tags',
             '/comic/delete', 'delete',
             '/comic/rate', 'rate',
-            # deprecated
-            '/browse', 'browse',
-            '/browse.cgi', 'browse',
             '(.*)', 'go404',
         )
         app = web.application(urls, globals())
@@ -110,7 +107,7 @@ def main():
         return 3
 
     try:
-        #logging.info("Running...")
+        logging.info("Running...")
         app.run()
         #logging.info("App is over, disconnecting from database")
         conn.close()
@@ -310,6 +307,7 @@ class login:
 
     def POST(self):
         x = web.input(username=None, password=None)
+        log_info("Logging in: "+str(x["username"]))
         try:
             passhash = md5.md5(x["username"].lower() + x["password"]).hexdigest()
             user = User.select("name LIKE %s AND pass=%s" % (
@@ -432,6 +430,7 @@ class delete:
 
 class view:
     def GET(self):
+        web.http.expires(86400)
         return render.view()
 
 class upload:
@@ -454,7 +453,7 @@ class upload:
             add_to_db(x['title'], x['tags'], pages, session["username"], web.ctx.ip)
             extract_archive(archive_name, x['title'])
             log_info("Uploaded %s (%s)" % (x['title'], x['tags']))
-            return "Comic uploaded without error"
+            return "Comic uploaded without error, you may need to hit refresh to see it in the list"
         except BadComicException, e:
             return str(e)
 
@@ -512,7 +511,10 @@ class comment_get:
 # misc
 class go404:
     def GET(self, url):
-        return url
+        return "404: 'GET "+str(url)+"' not found"
+
+    def POST(self, url):
+        return "404: 'POST "+str(url)+"' not found"+str(web.ctx.env)
 
 
 if __name__ == "__main__":
