@@ -45,8 +45,7 @@ $def with(page, results, session)
 		$if session.is_admin:
 			<th><a href="/comic/list?sort=rating&amp;way=desc">Rating</a></th>
 		<th width="75"><a href="/comic/list?sort=posted&amp;way=desc">Posted</a></th>
-		$if session.is_admin:
-			<th>Actions</th>
+		<th>Actions</th>
 	</tr></thead>
 	<tbody>
 $for comic in results:
@@ -82,8 +81,12 @@ $for comic in results:
 		<td><center><span title="by $comic.owner.name ($comic.owner_ip)">$comic.posted</a></center></td>
 	$else:
 		<td><center><span title="by $comic.owner.name">$comic.posted</a></center></td>
-	$if session.is_admin:
-		<td><center><a href="#" onclick="delete_comic($comic.id, &quot;$comic.title&quot;); return false;">delete</a></center></td>
+	$# outdent
+		<td><center>
+			<a href="/comic/download/$comic.id/${disk_title}.cbz">download</a>
+		$if session.is_admin:
+			/ <a href="#" onclick="delete_comic($comic.id, &quot;$comic.title&quot;); return false;">delete</a>
+		</center></td>
 	</tr>
 $# end indent
 	</tbody>

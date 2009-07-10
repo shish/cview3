@@ -58,6 +58,7 @@ def main():
             '/comic/list/(\d+)', 'browse',
             '/comic/list', 'browse',
             '/comic/upload', 'upload',
+            '/comic/download/(\d+).*', 'download',
             '/comic/rename', 'rename',
             '/comic/set_tags', 'set_tags',
             '/comic/delete', 'delete',
@@ -456,6 +457,19 @@ class upload:
             return "Comic uploaded without error"
         except BadComicException, e:
             return str(e)
+
+class download:
+    def GET(self, cid):
+        from zipstream import ZipStream
+        web.http.expires(86400 * 30)
+        comic = Comic.get(int(cid))
+        path = "books/"+comic.get_disk_title()
+        zip_filename = comic.get_disk_title()+'.cbz'
+        web.header('Content-type' , 'application/octet-stream')
+        web.header('Content-Disposition', 'attachment; filename="%s"' % (zip_filename,))
+        for data in ZipStream(path):
+            yield data
+
 
 # comment
 class comment_add:
