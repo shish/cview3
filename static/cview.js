@@ -13,6 +13,7 @@
 //
 interface = "apache";
 root = "./books";
+comment_add_url = "/comment/add";
 
 // {{{ fix javascript deficiencies
 function getHTTPObject() { 
@@ -112,15 +113,33 @@ else if(interface == "apache") {
 		}
 		return pages.sortInPlace();
 	}
+	/*
+	function getAnnotations(book, chap) {
+		annotations = Array();
+		annotations_html = sjax(root+"/"+book+"/"+chap+"/");
+		annotations_lines = annotations_html.split("\n");
+		for(i=0; i<annotations_lines.length; i++) {
+			var re = new RegExp("<A HREF=\"([^/\"]+(txt))\">", "i");
+			var m = re.exec(annotations_lines[i]);
+			if(m != null) {
+				annotations[m[1]] = m[1];
+			}
+		}
+		return annotations.sortInPlace();
+	}
+	*/
 }
 // }}}
 // {{{ interactive stuff
+// current state
 loadBook = "";
 loadBookIndex = 0;
 loadChap = 0;
 loadPage = 0;
 loadedHash = "";
+//knownAnnotations = Array();
 
+// {{{ main waterfall
 function init() {
 	hash = document.location.hash;
 	if(hash.length > 0) {
@@ -168,6 +187,7 @@ function initPageSelector() {
 	for(i=0; pages[i]; i++) {pageSelector.options[i] = new Option(i+1, pages[i]);}
 	pageSelector.selectedIndex = loadPage;
 	loadPage = 0;
+	//knownAnnotations = getAnnotations(selectedValue(bookSelector), selectedValue(chapSelector));
 	initDisplay();
 }
 function initDisplay() {
@@ -175,8 +195,11 @@ function initDisplay() {
 	chapSelector = document.getElementById("chap");
 	pageSelector = document.getElementById("page");
 	xdisplay = document.getElementById("display");
-	xdisplay.src = root + "/" + selectedValue(bookSelector) + "/" + selectedValue(chapSelector) + "/" + selectedValue(pageSelector);
+	xdisplay.src = root + "/" + selectedValue(bookSelector) + "/" +
+	               selectedValue(chapSelector) + "/" + selectedValue(pageSelector);
+	//window.scroll(0, xdisplay.offsetTop);
 	window.scroll(0, 0);
+	//initAnnotations();
 	initPreload();
 }
 function initPreload() {
@@ -185,19 +208,28 @@ function initPreload() {
 	chapSelector = document.getElementById("chap");
 	pages = pageSelector.options.length;
 	chaps = chapSelector.options.length;
+//	buffering_div = document.getElementById("buffering");
+//	buffering_div.style.visibility = "visible";
 	if(pageSelector.selectedIndex+1 < pages) {
 		nextPage = pageSelector.options[pageSelector.selectedIndex+1].value;
 		img = Image(0, 0);
-		img.src = root + "/" + selectedValue(bookSelector) + "/" + selectedValue(chapSelector) + "/" + nextPage;
+		img.src = root + "/" + selectedValue(bookSelector) + "/" +
+		          selectedValue(chapSelector) + "/" + nextPage;
 	}
 	else if(chapSelector.selectedIndex+1 < chaps) {
 		nextChap = chapSelector.options[chapSelector.selectedIndex+1].value;
 		nextChapPages = getPages(selectedValue(bookSelector), nextChap);
 		nextPage = nextChapPages[0];
 		img = Image(0, 0);
-		img.src = root + "/" + selectedValue(bookSelector) + "/" + nextChap + "/" + nextPage;
+		img.src = root + "/" + selectedValue(bookSelector) + "/" +
+		          nextChap + "/" + nextPage;
 	}
-	document.location.hash = selectedValue(bookSelector) + "--" + chapSelector.selectedIndex + "--" + pageSelector.selectedIndex;
+//	img.onload = function() {
+//		buffering_div.style.visibility = "hidden";
+//	}
+	document.location.hash = selectedValue(bookSelector) + "--" +
+	                         chapSelector.selectedIndex + "--" +
+	                         pageSelector.selectedIndex;
 	loadedHash = document.location.hash;
 }
 
@@ -215,14 +247,146 @@ function moveToNextPage() {
 		initPageSelector();
 	}
 }
+function moveToPrevPage() {
+	pageSelector = document.getElementById("page");
+	if(pageSelector.selectedIndex > 0) {
+		pageSelector.selectedIndex--;
+		initDisplay();
+	}
+}
+// }}}
+// {{{ annotations
+function initAnnotations() {
+	bookSelector = document.getElementById("book");
+	chapSelector = document.getElementById("chap");
+	pageSelector = document.getElementById("page");
+	target_annotation = selectedValue(pageSelector).replace(/(jpg|png|gif)$/, "txt");;
 
+	commentDiv = document.getElementById("comments");
+
+	while(commentDiv.childNodes[0]) {
+		commentDiv.removeChild(commentDiv.childNodes[0]);
+	}
+
+	commentDiv.innerHTML = "Loading Comments...";
+//	annotation_data = sjax(root + "/" + selectedValue(bookSelector) + "/" +
+//							selectedValue(chapSelector) + "/" + target_annotation)
+	annotation_data = sjax("/comment/get?page="+
+			selectedValue(bookSelector) + "/" +
+			selectedValue(chapSelector) + "/" +
+			selectedValue(pageSelector));
+	if(annotation_data) {
+		lines = annotation_data.split("\n");
+		commentDiv.innerHTML = "";
+		for(i=0; lines[i]; i++) {
+			parts = lines[i].split(":", 2);
+			if(parts[0] == "comment") {
+				parts = lines[i].split(":", 4);
+				name = parts[1];
+				comment = parts[2];
+
+				p = document.createElement("p");
+				p.innerHTML = escape(name)+": "+comment;
+				commentDiv.appendChild(p);
+			}
+			else if(parts[0] == "note") {
+				parts = lines[i].split(":", 8);
+				ip = parts[1];
+				name = parts[2];
+				comment = parts[6];
+
+				xdisplay = document.getElementById("display");
+
+				div = document.createElement("div");
+				div.style.position = "absolute";
+				div.style.left    = xdisplay.offsetLeft + parseInt(parts[3]);
+				div.style.top     = xdisplay.offsetTop + parseInt(parts[4]);
+				div.style.width   = parts[5];
+				div.setAttribute("class", "note");
+				div.appendChild(document.createTextNode(comment));
+
+				commentDiv.appendChild(div);
+			}
+			else if(parts[0] == "x") {
+				// ignore
+			}
+			else {
+				commentDiv.innerHTML += lines[i];
+			}
+		}
+	}
+	else {
+		commentDiv.innerHTML = "No Comments";
+	}
+	if(comment_add_url) {
+		div = document.createElement("div");
+		div.innerHTML = "<center><textarea id='comment_text'></textarea>"+
+		"<br><input type='button' onclick='submitComment();' value='Comments are WIP'></center>";
+		commentDiv.appendChild(div);
+	}
+//	commentDiv.innerHTML += ""+
+//	"<p><a href='javascript: refreshAnnotations();'>Refresh Comments</a>";
+}
+
+function submitComment() {
+	bookSelector = document.getElementById("book");
+	chapSelector = document.getElementById("chap");
+	pageSelector = document.getElementById("page");
+	target = selectedValue(bookSelector) + "/" + selectedValue(chapSelector) +
+	         "/" + selectedValue(pageSelector);
+	comment = document.getElementById("comment_text").value;
+	addComment(target, comment);
+	refreshAnnotations();
+}
+function addComment(target, comment) {
+	sjax(comment_add_url, "target="+encodeURI(target)+"&comment="+encodeURI(comment));
+}
+function refreshAnnotations() {
+	// knownAnnotations = getAnnotations(selectedValue(bookSelector), selectedValue(chapSelector));
+	initAnnotations();
+}
+// }}}
+// {{{ scaling
 function setScaled(scaled) {
-	display = document.getElementById("display");
-	if(scaled) display.style.width="100%";
-	else display.style.width="";
+	xdisplay = document.getElementById("display");
+	if(scaled) xdisplay.style.width="100%";
+	else xdisplay.style.width="";
 }
 function setScale(scale) {
-	display = document.getElementById("display");
-	display.style.width=scale;
+	xdisplay = document.getElementById("display");
+	xdisplay.style.width=scale;
+}
+// }}}
+// keyboard {{{
+document.onkeydown = key_pressed;
+function key_pressed(e) {
+	if(navigator.appName == "Microsoft Internet Explorer") {
+		if(!e) var e = window.event;
+		if(e.keyCode) {
+			keycode = e.keyCode;
+			if((keycode == 39) || (keycode == 37)) {
+				window.event.keyCode = 0;
+			}
+		}
+		else {
+			keycode = e.which;
+		}
+	}
+	else {
+		if(e.which) {
+			keycode = e.which;
+		} else {
+			keycode = e.keyCode;
+		}
+	}
+
+	if(keycode == 39) {
+		moveToNextPage();
+		return false;
+	}
+	else if (keycode == 37) {
+		moveToPrevPage();
+		return false;
+	}
 }
 // }}}
