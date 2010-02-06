@@ -8,8 +8,8 @@
 
  * Create a folder on your server with these files in it
  * Create a "books" folder
- * Within "books", a folder for each book (eg "books/My Story")
- * Within that, a folder for each chapter (eg "books/My Story/001")
+ * Within "books", a folder for each book (eg "books/My_Story")
+ * Within that, a folder for each chapter (eg "books/My_Story/001")
  * In that folder, put each page of the chapter
 
 The end result should be
@@ -19,7 +19,7 @@ The end result should be
   |- static
   |   \- ...
   \- books
-      |- My Book
+      |- My_Book
       |   |- 01
       |   |   |- page001.jpg
       |   |   |- page002.jpg
@@ -30,7 +30,7 @@ The end result should be
       |       |- page006.jpg
       |       |- page007.jpg
       |       \- page008.jpg
-      \- Another Book
+      \- Another_Book
           |- 01
           |   |- 001.jpg
           |   |- 002.jpg
