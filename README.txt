@@ -15,7 +15,7 @@
 The end result should be
 
  cview3
-  |- index.html
+  |- cview.html
   |- static
   |   \- ...
   \- books
