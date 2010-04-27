@@ -146,8 +146,10 @@ class Comic(SQLObject):
     def get_language(self):
         if self.tags.lower().find("english") >= 0:
             return "english"
-        if self.tags.lower().find("japanese") >= 0:
+        elif self.tags.lower().find("japanese") >= 0:
             return "japanese"
+        elif self.tags.lower().find("spanish") >= 0:
+            return "spanish"
         else:
             return "unknown"
 
@@ -360,7 +362,7 @@ class rename:
                 comic = Comic.get(int(x["comic_id"]))
                 log_info("Renamed %s (%d) to %s" % (comic.title, comic.id, x["title"]))
                 comic.rename(x["title"])
-                return "Renamed OK"
+                return "Renamed comic #%d to %s" % (comic.id, cgi.escape(comic.title))
             else:
                 return "Missing comic_id or title"
         except Exception, e:
@@ -373,6 +375,7 @@ class rate:
             x = web.input(comic_id=None, rating=None)
             if x["comic_id"] and x["rating"]:
                 comic_id = int(x["comic_id"])
+                comic = Comic.get(int(x["comic_id"]))
                 rating = int(x["rating"])
                 if rating < 1 or rating > 5:
                     return "Ratings can only be 1-5"
@@ -391,7 +394,7 @@ class rate:
                     WHERE id=%d
                     """ % (comic_id, comic_id, comic_id))
                 log_info("Voted #%d to %d" % (comic_id, rating))
-                return "Rated OK"
+                return "Rated %s as %d-star" % (cgi.escape(comic.title), rating)
             else:
                 return "Missing comic_id or rating"
         except Exception, e:
@@ -406,7 +409,7 @@ class set_tags:
                 comic = Comic.get(int(x["comic_id"]))
                 comic.tags = x["tags"]
                 log_info("Set tags for %s (%d) to %s" % (comic.title, comic.id, comic.tags))
-                return "Tags set OK"
+                return "Tags for %s set to: %s" % (cgi.escape(comic.title), cgi.escape(comic.tags))
             else:
                 return "Missing comic_id or tags"
         except Exception, e:
@@ -422,7 +425,7 @@ class delete:
                 comic.remove_files()
                 comic.destroySelf()
                 log_info("Deleted %s (%d)" % (comic.title, comic.id))
-                return "Deleted OK"
+                return "Deleted \"%s\"" % (cgi.escape(comic.title), )
             else:
                 return "Missing comic_id"
         except Exception, e:

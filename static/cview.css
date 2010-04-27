@@ -44,12 +44,33 @@ BODY {
 	font-size: 0.8em;
 	padding: 2px;
 }
+TABLE INPUT {
+	width: 256px;
+}
 #comiclist {
 	background: #ACE4A3;
+	border-collapse: collapse;
+	border: 1px solid #7EB977;
 }
 #comiclist TD {
 	font-size: 0.8em;
+	margin: 0px;
+	border-top: 1px solid #7EB977;
+	padding: 2px;
 }
-TABLE INPUT {
+#comiclist .a {
+	background: #9CD493;
+}
+#comiclist .b {
+	background: #ACE4A3;
+}
+#alertbox {
+	display: none;
+	position: fixed;
+	right: 10px;
+	bottom: 0px;
 	width: 256px;
+	border: 1px solid #7EB977;
+	background: #ACE4A3;
+	padding: 2px;
 }

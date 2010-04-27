@@ -4,6 +4,7 @@ $def with(page, results, session)
 	<head>
 		<title>CView Browser</title>
 		<link rel="stylesheet" href="/static/cview.css" type="text/css">
+		<script type="text/javascript" src="/static/jquery-1.4.2.min.js"></script>
 		<script type="text/javascript" src="/static/cview.js"></script>
 		<script type="text/javascript" src="/static/admin.js"></script>
 	</head>
@@ -37,7 +38,7 @@ $def with(page, results, session)
 
 		<div class="padded">
 
-<table id="comiclist" border="1">
+<table id="comiclist" border="0">
 	<thead><tr>
 		<th width="150"><a href="/comic/list?sort=title">Name</a></th>
 		<th><a href="/comic/list?sort=pages">Pg.</a></th>
@@ -48,10 +49,13 @@ $def with(page, results, session)
 		<th>Actions</th>
 	</tr></thead>
 	<tbody>
-$for comic in results:
+$for n, comic in enumerate(results):
 	$ disk_title = comic.get_disk_title()
 	$ language = comic.get_language()
-	<tr>
+	$if n % 2 == 0:
+		<tr class='a'>
+	$else:
+		<tr class='b'>
 	$if session.is_admin:
 		<td>
 			<a href="/view#$disk_title--0--0">$comic.title</a>
@@ -78,9 +82,9 @@ $for comic in results:
 				--><a title="Vote $n" onclick="vote($comic.id, $n); return false;"><img alt="Vote $n" src="/static/star_on.gif"></a><!--
 		--></td>
 	$if session.is_admin:
-		<td><center><span title="by $comic.owner.name ($comic.owner_ip)">$comic.posted</a></center></td>
+		<td><center><span title="by $comic.owner.name ($comic.owner_ip)">$comic.posted</span></center></td>
 	$else:
-		<td><center><span title="by $comic.owner.name">$comic.posted</a></center></td>
+		<td><center><span title="by $comic.owner.name">$comic.posted</span></center></td>
 	$# outdent
 		<td><center>
 			<a href="/comic/download/$comic.id/${disk_title}.cbz">download</a>
@@ -97,6 +101,10 @@ $if session.is_user:
 $else:
 	<p><center><small><a href="/user/login">Log In</a></small></center>
 $# end indent
+		</div>
+		<div id="alertbox" class="alertbox">
+			<center><a href="javascript: clear_alerts();">Close</a></center>
+			<div id="alerts" class="alerts"></div>
 		</div>
 	</body>
 </html>

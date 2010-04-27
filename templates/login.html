@@ -5,7 +5,7 @@ $def with()
 		<title>CView Login</title>
 		<link rel="stylesheet" href="/static/cview.css" type="text/css">
 	</head>
-	<body>
+	<body onload="document.getElementById('username').focus()">
 
 <table width="100%" id="header">
 <tr>
@@ -19,7 +19,7 @@ $def with()
 	<table align="center">
 		<tr>
 			<td>Username</td>
-			<td><input type="text" name="username"></td>
+			<td><input type="text" name="username" id="username"></td>
 		</tr>
 		<tr>
 			<td>Password</td>
