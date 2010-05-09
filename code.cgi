@@ -146,14 +146,10 @@ class Comic(SQLObject):
     posted = DateCol(notNone=True, default=func.now())
 
     def get_language(self):
-        if self.tags.lower().find("english") >= 0:
-            return "english"
-        elif self.tags.lower().find("japanese") >= 0:
-            return "japanese"
-        elif self.tags.lower().find("spanish") >= 0:
-            return "spanish"
-        else:
-            return "unknown"
+        for lang in ["english", "japanese", "spanish", "dutch"]:
+            if self.tags.lower().find(lang) >= 0:
+                return lang
+        return "unknown"
 
     def remove_files(self):
         if os.path.exists("books/"+self.get_disk_title()):
