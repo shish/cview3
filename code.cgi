@@ -17,6 +17,7 @@ import md5
 import logging
 import shutil
 import zipfile
+import json
 
 from sqlobject import *
 
@@ -63,6 +64,7 @@ def main():
             '/comic/set_tags', 'set_tags',
             '/comic/delete', 'delete',
             '/comic/rate', 'rate',
+            '/api/(.*)', 'api',
             '(.*)', 'go404',
         )
         app = web.application(urls, globals())
@@ -346,6 +348,25 @@ class hack:
                 comic.posted = time.strftime("%Y-%m-%d", time.localtime(time_secs))
         conn.close()
         return "ok"
+
+class api:
+    def GET(self, call):
+        if call == "all_comics":
+            return json.write([{
+                "id": int(c.id),
+                "title": str(c.title),
+                "disk_title": str(c.get_disk_title()),
+                "pages": int(c.pages),
+                "tags": str(c.tags),
+                "posted": str(c.posted),
+                "language": str(c.get_language())
+            } for c in Comic.select()])
+        elif call == "all_tags":
+            tags = set()
+            for c in Comic.select():
+                for tag in c.tags.lower().split():
+                    tags.add(tag)
+            return json.write(list(tags))
 
 # comic
 class browse:
