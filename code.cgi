@@ -474,10 +474,11 @@ class upload:
             archive_name = outinfo[1]
 
             pages = count_pages(archive_name)
-            add_to_db(x['title'], x['tags'], pages, session["username"], web.ctx.ip)
-            extract_archive(archive_name, x['title'])
+            title = x['title'].strip()
+            add_to_db(title, x['tags'], pages, session["username"], web.ctx.ip)
+            extract_archive(archive_name, title)
             os.remove(outinfo[1])
-            log_info("Uploaded %s (%s)" % (x['title'], x['tags']))
+            log_info("Uploaded %s (%s)" % (title, x['tags']))
             return "Comic uploaded without error, you may need to hit refresh to see it in the list"
         except BadComicException, e:
             return str(e)
