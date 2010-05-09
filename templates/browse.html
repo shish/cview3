@@ -4,7 +4,11 @@ $def with(page, results, session)
 	<head>
 		<title>CView Browser</title>
 		<link rel="stylesheet" href="/static/cview.css" type="text/css">
+		<link rel="stylesheet" href="/static/jquery.autocomplete.css" type="text/css">
 		<script type="text/javascript" src="/static/jquery-1.4.2.min.js"></script>
+		<script type="text/javascript" src="/static/jquery.autocomplete.js"></script>
+		<script type="text/javascript" src="/static/jquery.tablesorter.js"></script>
+		<script type="text/javascript" src="/static/json2.js"></script>
 		<script type="text/javascript" src="/static/cview.js"></script>
 		<script type="text/javascript" src="/static/admin.js"></script>
 	</head>
@@ -13,7 +17,7 @@ $def with(page, results, session)
 <table width="100%" id="header">
 <tr>
 	<td><center><a href="/"><img src="/static/rule34_comics_top.png"></a></center></td>
-	<td width="350">
+	<td width="350" id="uploader">
 	<form enctype="multipart/form-data" method="POST" action="/comic/upload">
 		<table align='center'>
 			<tr><td>Zip</td><td><input type="file" name="archive"></td></tr>
@@ -22,7 +26,7 @@ $def with(page, results, session)
 			<tr><td colspan="2"><input type="submit" style="width: 100%"></td></tr>
 			$ ppage = page-1
 			$ npage = page+1
-			<tr><td colspan="2"><center><small>
+			<tr id="paginator"><td colspan="2"><center><small>
 			$if ppage != 0:
 				<a href="/comic/list/$ppage">Prev Page</a> |
 			$else:
@@ -38,17 +42,32 @@ $def with(page, results, session)
 
 		<div class="padded">
 
-<table id="comiclist" border="0">
+<table id="livelist" class="comiclist" border="0">
+	<thead><tr>
+		<th width="150">Name</th>
+		<th>Pg.</th>
+		<th>Tags <input type="text" id="tag_search" onkeyup="live_search(this.value);"></th>
+		<th width="75">Posted</th>
+		<th>Actions</th>
+	</tr></thead>
+	<tbody id="livelistbody">
+		<tr><td colspan='5'><center>Enter at least 2 letters to search for</center></td></tr>
+	</tbody>
+</table>
+
+<table id="comiclist" class="comiclist" border="0">
 	<thead><tr>
 		<th width="150"><a href="/comic/list?sort=title">Name</a></th>
 		<th><a href="/comic/list?sort=pages">Pg.</a></th>
-		<th><a href="javascript: search_prompt();">Tags</a></th>
+		<th>
+			<a href="javascript: search_prompt();">Tags</a>
+		</th>
 		$if session.is_admin:
 			<th><a href="/comic/list?sort=rating&amp;way=desc">Rating</a></th>
 		<th width="75"><a href="/comic/list?sort=posted&amp;way=desc">Posted</a></th>
 		<th>Actions</th>
 	</tr></thead>
-	<tbody>
+	<tbody id="comiclistbody">
 $for n, comic in enumerate(results):
 	$ disk_title = comic.get_disk_title()
 	$ language = comic.get_language()
@@ -96,15 +115,47 @@ $# end indent
 	</tbody>
 </table>
 
+<p><center><small>
 $if session.is_user:
-	<p><center><small>Logged in as $session.username / <a href="/user/logout">Log Out</a></small></center>
+	Logged in as $session.username /
+	<a href="/user/logout">Log Out</a>
 $else:
-	<p><center><small><a href="/user/login">Log In</a></small></center>
+	<a href="/user/login">Log In</a> /
+	<a href="javascript: activate_local();">Local Mode</a> <!-- /
+	<a href="javascript: deactivate_local();">Normal Mode</a> -->
 $# end indent
+</small></center>
 		</div>
+
 		<div id="alertbox" class="alertbox">
 			<center><a href="javascript: clear_alerts();">Close</a></center>
 			<div id="alerts" class="alerts"></div>
 		</div>
+
+		<div id="comicshade">
+		</div>
+
+		<div id="comicbox">
+			<form id="selector">
+				<a href="javascript: close_comicbox();">Back</a>
+				<select id="book" onchange="initChapSelector();"></select>
+				<select id="chap" onchange="initPageSelector();"></select>
+				<select id="page" onchange="initDisplay();"></select>
+				<select id="scale" onchange="setScale(this.options[this.selectedIndex].value);">
+					<option value="">Original Width</option>
+					<option value="100%">Page Width</option>
+					<option value="50%">Half Page</option>
+				</select>
+				<a href="#" onclick="alert('Arrow up/down: scroll\nArrow right/left: next/prev page'); return false;">Help</a>
+			</form>
+			<a href="#" onclick="moveToNextPage(); return false;"><img id="display" src="./static/spinner.gif"></a>
+			<!--<div id="comments"></div>-->
+			<div id="footer">
+				Images &copy; their respective owners
+				<br><a href="http://code.shishnet.org/cview3/">CView3</a> &copy;
+				<a href="http://www.shishnet.org/">Shish</a> 2009
+			</div>
+		</div>
+
 	</body>
 </html>
