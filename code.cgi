@@ -321,7 +321,7 @@ class login:
             session["is_admin"] = user.comic_admin
             session["is_user"] = True
             log_info("Logged in")
-            web.seeother("/")
+            web.seeother("http://rule34c.paheal.net/")
         else:
             return "Login failed"
 
@@ -329,7 +329,7 @@ class logout:
     def GET(self):
         log_info("Logged out")
         session.kill()
-        web.seeother("/")
+        web.seeother("http://rule34c.paheal.net/")
 
 # admin
 class hack:

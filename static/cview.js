@@ -11,6 +11,7 @@
 // comment_add_url:
 //  where to post comments, null to disable
 //
+image_domain = "http://rule34c-images.paheal.net"
 list_interface = "apache";
 root = "/books";
 comment_add_url = "/comment/add";
@@ -195,7 +196,7 @@ function initDisplay() {
 	chapSelector = document.getElementById("chap");
 	pageSelector = document.getElementById("page");
 	xdisplay = document.getElementById("display");
-	xdisplay.src = root + "/" + selectedValue(bookSelector) + "/" +
+	xdisplay.src = image_domain + root + "/" + selectedValue(bookSelector) + "/" +
 	               selectedValue(chapSelector) + "/" + selectedValue(pageSelector);
 	//window.scroll(0, xdisplay.offsetTop);
 	window.scroll(0, 0);
@@ -213,7 +214,7 @@ function initPreload() {
 	if(pageSelector.selectedIndex+1 < pages) {
 		nextPage = pageSelector.options[pageSelector.selectedIndex+1].value;
 		img = document.createElement("img");
-		img.setAttribute("src", root + "/" + selectedValue(bookSelector) + "/" +
+		img.setAttribute("src", image_domain + root + "/" + selectedValue(bookSelector) + "/" +
 		          selectedValue(chapSelector) + "/" + nextPage);
 	}
 	else if(chapSelector.selectedIndex+1 < chaps) {
@@ -221,7 +222,7 @@ function initPreload() {
 		nextChapPages = getPages(selectedValue(bookSelector), nextChap);
 		nextPage = nextChapPages[0];
 		img = document.createElement("img");
-		img.setAttribute("src", root + "/" + selectedValue(bookSelector) + "/" + nextChap + "/" + nextPage);
+		img.setAttribute("src", image_domain + root + "/" + selectedValue(bookSelector) + "/" + nextChap + "/" + nextPage);
 	}
 //	img.onload = function() {
 //		buffering_div.style.visibility = "hidden";
