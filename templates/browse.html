@@ -4,12 +4,7 @@ $def with(page, results, session)
 	<head>
 		<title>CView Browser</title>
 		<link rel="stylesheet" href="/static/_combined.css" type="text/css">
-		<script type="text/javascript" src="/static/jquery-1.4.2.min.js"></script>
-		<script type="text/javascript" src="/static/jquery.autocomplete.js"></script>
-		<script type="text/javascript" src="/static/jquery.tablesorter.js"></script>
-		<script type="text/javascript" src="/static/json2.js"></script>
-		<script type="text/javascript" src="/static/cview.js"></script>
-		<script type="text/javascript" src="/static/admin.js"></script>
+		<script type="text/javascript" src="/static/_combined.js"></script>
 	</head>
 	<body>
 
@@ -147,7 +142,7 @@ $# end indent
 				</select>
 				<a href="#" onclick="alert('Arrow up/down: scroll\nArrow right/left: next/prev page'); return false;">Help</a>
 			</form>
-			<a href="#" onclick="moveToNextPage(); return false;"><img id="display" src="./static/spinner.gif"></a>
+			<a href="#" onclick="moveToNextPage(); return false;"><img id="display" src="/static/spinner.gif"></a>
 			<!--<div id="comments"></div>-->
 			<div id="footer">
 				Images &copy; their respective owners
