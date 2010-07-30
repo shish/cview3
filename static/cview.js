@@ -1,6 +1,6 @@
 // config:
 // ~~~~~~~
-// interface:
+// list_interface:
 //  the method used to get lists of files
 //   ajax.py: a python script
 //   apache : use the apache file listing (requires indexes to be enabled)
@@ -11,7 +11,7 @@
 // comment_add_url:
 //  where to post comments, null to disable
 //
-interface = "apache";
+list_interface = "apache";
 root = "/books";
 comment_add_url = "/comment/add";
 
@@ -61,8 +61,8 @@ function sjax(url, postdata) {
 	}
 }
 // }}}
-// {{{ interfaces
-if(interface == "ajax.py") {
+// {{{ list_interfaces
+if(list_interface == "ajax.py") {
 	function getBooks() {
 		return sjax("ajax.py?func=get_books").trim().split("\n").sortInPlace();
 	}
@@ -73,7 +73,7 @@ if(interface == "ajax.py") {
 		return sjax("ajax.py?func=get_pages&book="+book+"&chap="+chap).trim().split("\n").sortInPlace();
 	}
 }
-else if(interface == "apache") {
+else if(list_interface == "apache") {
 	function getBooks() {
 		books = Array();
 		books_html = sjax(root+"/");
