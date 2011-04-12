@@ -227,7 +227,7 @@ function initPreload() {
 //	buffering_div.style.visibility = "visible";
 	if(pageSelector.selectedIndex+1 < pages) {
 		nextPage = pageSelector.options[pageSelector.selectedIndex+1].value;
-		img = Image(0, 0);
+		img = new Image(0, 0);
 		img.src = root + "/" + selectedValue(bookSelector) + "/" +
 		          selectedValue(chapSelector) + "/" + nextPage;
 	}
@@ -235,7 +235,7 @@ function initPreload() {
 		var nextChap = chapSelector.options[chapSelector.selectedIndex+1].value;
 		var nextChapPages = getPages(selectedValue(bookSelector), nextChap);
 		nextPage = nextChapPages[0];
-		img = Image(0, 0);
+		img = new Image(0, 0);
 		img.src = root + "/" + selectedValue(bookSelector) + "/" +
 		          nextChap + "/" + nextPage;
 	}
