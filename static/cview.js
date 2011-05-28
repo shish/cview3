@@ -106,7 +106,7 @@ else if(list_interface == "apache") {
 		pages_html = sjax(root+"/"+book+"/"+chap+"/");
 		pages_lines = pages_html.split("\n");
 		for(i=0; i<pages_lines.length; i++) {
-			var re = new RegExp("<A HREF=\"([^/\"]+(jpg|png|gif))\">", "i");
+			var re = new RegExp("<A HREF=\"([^/\"]+(jpg|jpeg|png|gif))\">", "i");
 			var m = re.exec(pages_lines[i]);
 			if(m != null) {
 				pages.push(m[1]);
@@ -260,7 +260,7 @@ function initAnnotations() {
 	bookSelector = document.getElementById("book");
 	chapSelector = document.getElementById("chap");
 	pageSelector = document.getElementById("page");
-	target_annotation = selectedValue(pageSelector).replace(/(jpg|png|gif)$/, "txt");;
+	target_annotation = selectedValue(pageSelector).replace(/(jpg|jpeg|png|gif)$/, "txt");;
 
 	commentDiv = document.getElementById("comments");
 
