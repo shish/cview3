@@ -140,13 +140,18 @@ class Comic(SQLObject):
     owner_ip = Col(sqlType="INET", notNone=True)
     title = StringCol(length=64, alternateID=True, notNone=True)
     tags = StringCol(length=255, notNone=True)
+    creator = StringCol(length=64, notNone=True)
+    language = StringCol(length=64, notNone=False)
     description = StringCol(notNone=True, default="")
     pages = IntCol(notNone=True, default=0)
     rating = DecimalCol(size=5, precision=2, notNone=True, default=0)
     posted = DateCol(notNone=True, default=func.now())
 
     def get_language(self):
-        for lang in ["english", "japanese", "spanish", "dutch", "finnish", "french", "german"]:
+        known = ["english", "japanese", "spanish", "dutch", "finnish", "french", "german"]:
+        if self.language in known:
+            return self.language:
+        for lang in known:
             if self.tags.lower().find(lang) >= 0:
                 return lang
         return "unknown"
