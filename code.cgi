@@ -160,6 +160,17 @@ class Comic(SQLObject):
         if os.path.exists("books/"+self.get_disk_title()):
             shutil.rmtree("books/"+self.get_disk_title())
 
+    def write_meta(self):
+        cp = ConfigParser.SafeConfigParser()
+        cp.addsection("meta")
+        cp.set("meta", "title", self.title)
+        cp.set("meta", "creator", self.creator)
+        cp.set("meta", "language", self.language)
+        cp.set("meta", "pages", self.pages)
+        cp.set("meta", "tags", self.tags)
+        cp.set("meta", "description", self.description)
+        cp.write(file("books/"+self.get_disk_title()+"/meta.txt", "w"))
+
     def get_disk_title(self):
         return sanitise(self.title)
 
