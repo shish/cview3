@@ -142,7 +142,7 @@ class Comic(SQLObject):
     title = StringCol(length=64, alternateID=True, notNone=True)
     tags = StringCol(length=255, notNone=True)
     creator = StringCol(length=64, notNone=True)
-    language = StringCol(length=64, notNone=False)
+    language = StringCol(length=64, notNone=True, default="unknown")
     description = StringCol(notNone=True, default="")
     pages = IntCol(notNone=True, default=0)
     rating = DecimalCol(size=5, precision=2, notNone=True, default=0)
