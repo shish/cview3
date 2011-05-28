@@ -148,6 +148,15 @@ function edit_tags(comic_id, title, tags) {
 		);
 	}
 }
+function edit_language(comic_id, title, language) {
+	new_language = prompt("New language for \""+title+"\"", language);
+	if(new_language) {
+		$.post(
+			"/comic/set_language", {"comic_id": comic_id, "language": new_language},
+			function(data) {add_alert(data);}
+		);
+	}
+}
 function vote(comic_id, rating) {
 	$.post(
 		"/comic/rate", {"comic_id": comic_id, "rating": rating},

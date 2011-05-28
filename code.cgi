@@ -62,6 +62,7 @@ def main():
             '/comic/download/(\d+).*', 'download',
             '/comic/rename', 'rename',
             '/comic/set_tags', 'set_tags',
+            '/comic/set_language', 'set_language',
             '/comic/delete', 'delete',
             '/comic/rate', 'rate',
             '/api/(.*)', 'api',
@@ -148,9 +149,9 @@ class Comic(SQLObject):
     posted = DateCol(notNone=True, default=func.now())
 
     def get_language(self):
-        known = ["english", "japanese", "spanish", "dutch", "finnish", "french", "german"]:
+        known = ["english", "japanese", "spanish", "dutch", "finnish", "french", "german"]
         if self.language in known:
-            return self.language:
+            return self.language
         for lang in known:
             if self.tags.lower().find(lang) >= 0:
                 return lang
@@ -445,6 +446,21 @@ class set_tags:
                 return "Tags for %s set to: %s" % (cgi.escape(comic.title), cgi.escape(comic.tags))
             else:
                 return "Missing comic_id or tags"
+        except Exception, e:
+            return "Error: "+str(e)
+
+class set_language:
+    @if_user_is_user
+    def POST(self):
+        try:
+            x = web.input(comic_id=None, language=None)
+            if x["comic_id"] and x["language"]:
+                comic = Comic.get(int(x["comic_id"]))
+                comic.language = x["language"]
+                log_info("Set language for %s (%d) to %s" % (comic.title, comic.id, comic.language))
+                return "Language for %s set to: %s" % (cgi.escape(comic.title), cgi.escape(comic.language))
+            else:
+                return "Missing comic_id or language"
         except Exception, e:
             return "Error: "+str(e)
 

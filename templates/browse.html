@@ -82,10 +82,15 @@ $for n, comic in enumerate(results):
 		<td>
 			<span style="float: right;">(<a href="#"
 			onclick="edit_tags($comic.id, &quot;$comic.title&quot;, &quot;$comic.tags&quot;); return false;">edit</a>)</span>
-			<img src="/static/${language}.png" width="20" height="14"> $comic.tags
+			<img src="/static/${language}.png" width="20" height="14"
+			onclick="edit_language($comic.id, &quot;$comic.title&quot;, &quot;$language&quot;); return false;">
+			$comic.tags
 		</td>
 	$else:
-		<td><img src="/static/${language}.png" width="20" height="14"> $comic.tags</td>
+		<td>
+			<img src="/static/${language}.png" width="20" height="14">
+			$comic.tags
+		</td>
 	$if session.is_user:
 		<td><!--
 		$for n in range(1, 6):
