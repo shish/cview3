@@ -314,7 +314,7 @@ def add_to_db(title, tags, pages, owner="Anonymous", owner_ip="0.0.0.0"):
     existing = Comic.selectBy(title=str(title))
     if len(list(existing)) > 0:
         raise BadComicException("There's already a comic with that title")
-    Comic(owner=User.byName(owner), owner_ip=str(owner_ip), title=str(title), tags=str(tags), pages=int(pages))
+    Comic(owner=User.byName(owner), creator='', owner_ip=str(owner_ip), title=str(title), tags=str(tags), pages=int(pages))
 
 
 # user
@@ -365,7 +365,7 @@ class hack:
 class api:
     def GET(self, call):
         if call == "all_comics":
-            return json.write([{
+            return json.dumps([{
                 "id": int(c.id),
                 "title": str(c.title),
                 "disk_title": str(c.get_disk_title()),
@@ -379,7 +379,7 @@ class api:
             for c in Comic.select():
                 for tag in c.tags.lower().split():
                     tags.add(tag)
-            return json.write(list(tags))
+            return json.dumps(list(tags))
 
 # comic
 class browse:
@@ -493,7 +493,7 @@ class upload:
             upload_tmp = config.get("files", "upload_tmp")
             if upload_tmp and not os.path.exists(upload_tmp):
                 os.mkdir(upload_tmp)
-            if len(x['archive'].value) == 0:
+            if type(x['archive']) == dict or len(x['archive'].value) == 0:
                 raise BadComicException("Uploaded file is empty")
             outinfo = tempfile.mkstemp(".zip", dir=upload_tmp)
             outfile = open(outinfo[1], "wb")
