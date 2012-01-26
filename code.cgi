@@ -493,7 +493,7 @@ class upload:
             upload_tmp = config.get("files", "upload_tmp")
             if upload_tmp and not os.path.exists(upload_tmp):
                 os.mkdir(upload_tmp)
-            if type(x['archive']) == dict or len(x['archive'].value) == 0:
+            if type(x['archive']) == dict or type(x['archive']) == str or len(x['archive'].value) == 0:
                 raise BadComicException("Uploaded file is empty")
             outinfo = tempfile.mkstemp(".zip", dir=upload_tmp)
             outfile = open(outinfo[1], "wb")
@@ -508,20 +508,23 @@ class upload:
             os.remove(outinfo[1])
             log_info("Uploaded %s (%s)" % (title, x['tags']))
             return "Comic uploaded without error, you may need to hit refresh to see it in the list"
-        except BadComicException, e:
+        except BadComicException as e:
             return str(e)
 
 class download:
     def GET(self, cid):
-        from zipstream import ZipStream
-        web.http.expires(86400 * 30)
-        comic = Comic.get(int(cid))
-        path = "books/"+comic.get_disk_title()
-        zip_filename = comic.get_disk_title()+'.cbz'
-        web.header('Content-type' , 'application/octet-stream')
-        web.header('Content-Disposition', 'attachment; filename="%s"' % (zip_filename,))
-        for data in ZipStream(path):
-            yield data
+        try:
+            from zipstream import ZipStream
+            web.http.expires(86400 * 30)
+            comic = Comic.get(int(cid))
+            path = "books/"+comic.get_disk_title()
+            zip_filename = comic.get_disk_title()+'.cbz'
+            web.header('Content-type' , 'application/octet-stream')
+            web.header('Content-Disposition', 'attachment; filename="%s"' % (zip_filename,))
+            for data in ZipStream(path):
+                yield data
+        except Exception as e:
+            return str(e)
 
 
 # comment
