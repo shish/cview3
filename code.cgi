@@ -524,7 +524,8 @@ class download:
             for data in ZipStream(path):
                 yield data
         except Exception as e:
-            return str(e)
+            logging.exception("Error creating zip archive")
+            pass
 
 
 # comment
