@@ -1,14 +1,18 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN">
 <html>
     <head>
-        <title>CView3: Javascript Comic Viewer</title>
-		<link rel="stylesheet" href="./static/cview.css" type="text/css">
-		<script type="text/javascript" src="./static/cview.js"></script>
-		<link href="./contrib/bootstrap/css/bootstrap.css" rel="stylesheet" type="text/css" />  
-		<link href="./contrib/bootstrap/css/bootstrap.min.css" rel="stylesheet" type="text/css" /> 
-		<link href="./contrib/bootstrap/css/bootstrap-responsive.css" rel="stylesheet" type="text/css" /> 
+      <title>CView3: Javascript Comic Viewer</title>
+
+  		<link rel="stylesheet" href="./static/cview.css" type="text/css">
+      <script type="text/javascript" src="./static/cview.js"></script>
+      <script type="text/javascript" src="./contrib/touchSwipe/jquery-1.4.4.min.js"></script>
+      <script type="text/javascript" src="./contrib/touchSwipe/jquery.touchSwipe-1.2.5.js"></script>
+  		<link href="./contrib/bootstrap/css/bootstrap.css" rel="stylesheet" type="text/css" />  
+  		<link href="./contrib/bootstrap/css/bootstrap.min.css" rel="stylesheet" type="text/css" /> 
+  		<link href="./contrib/bootstrap/css/bootstrap-responsive.css" rel="stylesheet" type="text/css" /> 
     </head>
-    <body onload="init();setScaled('100%')">
+    <body onload="init();setScaled('100%')" id="body">
+  <div id="wrapper">
     <div class="navbar navbar-fixed-top">
       <div class="navbar-inner">
         <div class="container">
@@ -22,9 +26,9 @@
                 <select id="chap" onchange="initPageSelector();"></select>
                 <select id="page" onchange="initDisplay();"></select>
                 <select id="scale" onchange="setScale(this.options[this.selectedIndex].value);">
-                  <option value="100%" selected>Page Width</option>
-                  <option value="50%">Half Page</option>
-                  <option value="">Original Width</option>
+                  <option value="w;100%" selected>Page Width</option>
+                  <option value="w;50%">Half Page</option>
+                  <option value="w;">Original Width</option>
                 </select>
                 <a href="#" onclick="alert('Arrow up/down: scroll\nArrow left/right: prev/next page'); return false;">Help</a>
               </form>
@@ -35,7 +39,7 @@
       </div>
   	</div>
   <div class="container">
-  <h1>CView3</h1>
+  <h1>CSview3</h1>
   <div class="pagination">
     <ul class="pager">
       <li class="previous"><a href="#" onclick="moveToPrevPage(); return false;">Previous</a></li>
@@ -49,5 +53,6 @@
 		<br><a href="http://http://github.org/shish/cview3">CView3</a> &copy;
 		<a href="http://www.shishnet.org/">Shish</a> 2010
 	</div>
+  </div>
 </body>
 </html>
