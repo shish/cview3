@@ -8,11 +8,12 @@ BODY {
 	padding: 8px;
 }
 #footer {
-	font-size: 0.75em;
-	background: #AAA;
-	border-top: 1px solid black;
-	margin-top: 8px;
-	padding: 8px;
+  position: relative;
+  margin-top: -40px; /* negative value of footer height */
+  height: 40px;
+  clear:both;
+  border: none;
+  padding: 0px;
 }
 
 #chap {

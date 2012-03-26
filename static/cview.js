@@ -375,7 +375,25 @@ function setScaled(scaled) {
 }
 function setScale(scale) {
 	var xdisplay = document.getElementById("display");
-	xdisplay.style.width = scale;
+  currW = xdisplay.style.width;
+  currH = xdisplay.style.height
+  maxW = document.documentElement.clientWidth;
+  maxH = document.documentElement.clientHeight;
+  ratio = currH / currW;
+  if(currW >= maxW){
+    currW = maxW;
+    currH = currW * ratio;
+  } else if(currH >= maxH){
+    currH = maxH;
+    currW = currH / ratio;
+  }
+  setscale = scale.split(";");
+  if (setscale[0] == "w") {
+  	xdisplay.style.width = setscale[1];
+  }
+  if (setscale[0] == "h") {
+  	xdisplay.style.width = currW;
+  }
 }
 // }}}
 // keyboard {{{
