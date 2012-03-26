@@ -4,26 +4,50 @@
         <title>CView3: Javascript Comic Viewer</title>
 		<link rel="stylesheet" href="./static/cview.css" type="text/css">
 		<script type="text/javascript" src="./static/cview.js"></script>
+		<link href="./contrib/bootstrap/css/bootstrap.css" rel="stylesheet" type="text/css" />  
+		<link href="./contrib/bootstrap/css/bootstrap.min.css" rel="stylesheet" type="text/css" /> 
+		<link href="./contrib/bootstrap/css/bootstrap-responsive.css" rel="stylesheet" type="text/css" /> 
     </head>
-    <body onload="init();">
-		<center>
-			<form id="selector">
-				<select id="book" onchange="initChapSelector();"></select>
-				<select id="chap" onchange="initPageSelector();"></select>
-				<select id="page" onchange="initDisplay();"></select>
-				<select id="scale" onchange="setScale(this.options[this.selectedIndex].value);">
-					<option value="">Original Width</option>
-					<option value="100%">Page Width</option>
-					<option value="50%">Half Page</option>
-				</select>
-				<a href="#" onclick="alert('Arrow up/down: scroll\nArrow left/right: prev/next page'); return false;">Help</a>
-			</form>
-			<a href="#" onclick="moveToNextPage(); return false;"><img id="display" src="./static/spinner.gif"></a>
-			<div id="footer">
-				Images &copy; their respective owners
-				<br><a href="http://http://github.org/shish/cview3">CView3</a> &copy;
-				<a href="http://www.shishnet.org/">Shish</a> 2010
-			</div>
-		</center>
-    </body>
+    <body onload="init();setScaled('100%')">
+    <div class="navbar navbar-fixed-top">
+      <div class="navbar-inner">
+        <div class="container">
+          <a class="brand" href="https://github.com/shish/cview3">CView3</a>
+          <div class="nav-collapse">
+            <ul class="nav">
+            <li class="active">
+              <div class="input-append">
+              <form class="navbar-form pull-left">
+                <select id="book" onchange="initChapSelector();" ></select>
+                <select id="chap" onchange="initPageSelector();"></select>
+                <select id="page" onchange="initDisplay();"></select>
+                <select id="scale" onchange="setScale(this.options[this.selectedIndex].value);">
+                  <option value="100%" selected>Page Width</option>
+                  <option value="50%">Half Page</option>
+                  <option value="">Original Width</option>
+                </select>
+                <a href="#" onclick="alert('Arrow up/down: scroll\nArrow left/right: prev/next page'); return false;">Help</a>
+              </form>
+              </div>
+            </ul>
+          </div>
+        </div>
+      </div>
+  	</div>
+  <div class="container">
+  <h1>CView3</h1>
+  <div class="pagination">
+    <ul class="pager">
+      <li class="previous"><a href="#" onclick="moveToPreviousPage(); return false;">Previous</a></li>
+      <li class="next"><a href="#" onclick="moveToNextPage(); return false;">Next</a></li>
+    </ul>
+  </div>
+		<a href="#" onclick="moveToNextPage(); return false;" ><img id="display" src="./static/spinner.gif"></a>
+  </div>
+	<div id="footer">
+		Images &copy; their respective owners
+		<br><a href="http://http://github.org/shish/cview3">CView3</a> &copy;
+		<a href="http://www.shishnet.org/">Shish</a> 2010
+	</div>
+</body>
 </html>
