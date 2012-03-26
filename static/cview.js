@@ -14,15 +14,6 @@
 var list_interface = "apache";
 var root = "./books";
 var comment_add_url = "/comment/add";
-var swipeOptions={swipe:swipe,threshold:1}
-
-$(function() {
-  $("#wrapper").swipe( swipeOptions );
-});
-function swipe(event, direction){
-  if (direction == "left") { moveToPrevPage(); }
-  if (direction == "right") { moveToNextPage(); }
-}
 
 // {{{ fix javascript deficiencies
 function getHTTPObject() { 
