@@ -290,7 +290,10 @@ def get_comics(search=None, orderBy="default", way="asc", page=1):
     """
     tag = "%"
     if search:
-        tag = str("%"+search+"%")
+        try:
+            tag = str("%"+search+"%")
+        except UnicodeEncodeError as e:
+            tag = "invalid tag"
     if orderBy == "default":
         orderBy = "posted"
         way = "desc"
