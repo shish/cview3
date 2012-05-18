@@ -36,19 +36,6 @@ $def with(page, results, session)
 
 		<div class="padded">
 
-<table id="livelist" class="comiclist" border="0">
-	<thead><tr>
-		<th width="150">Name</th>
-		<th>Pg.</th>
-		<th>Tags <input type="text" id="tag_search" onkeyup="live_search(this.value);"></th>
-		<th width="75">Posted</th>
-		<th>Actions</th>
-	</tr></thead>
-	<tbody id="livelistbody">
-		<tr><td colspan='5'><center>Enter at least 2 letters to search for</center></td></tr>
-	</tbody>
-</table>
-
 <table id="comiclist" class="comiclist" border="0">
 	<thead><tr>
 		<th width="150"><a href="/comic/list?sort=title">Name</a></th>
@@ -119,9 +106,7 @@ $if session.is_user:
 	Logged in as $session.username /
 	<a href="/user/logout">Log Out</a>
 $else:
-	<a href="/user/login">Log In</a> /
-	<a href="javascript: activate_local();">Local Mode</a> <!-- /
-	<a href="javascript: deactivate_local();">Normal Mode</a> -->
+	<a href="/user/login">Log In</a>
 $# end indent
 </small></center>
 		</div>

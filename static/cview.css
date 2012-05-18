@@ -67,8 +67,6 @@ TABLE INPUT {
 	background: #ACE4A3;
 }
 
-#livelist {display: none;}
-
 #alertbox {
 	display: none;
 	position: fixed;
