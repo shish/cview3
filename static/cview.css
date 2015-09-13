@@ -47,70 +47,8 @@ BODY {
 TABLE INPUT {
 	width: 100%;
 }
-.comiclist {
-	background: #ACE4A3;
-	border-collapse: collapse;
-	border: 1px solid #7EB977;
-	margin-left: auto;
-	margin-right: auto;
-}
-.comiclist TD {
-	font-size: 0.8em;
-	margin: 0px;
-	border-top: 1px solid #7EB977;
-	padding: 2px;
-}
-.comiclist .a {
-	background: #9CD493;
-}
-.comiclist .b {
-	background: #ACE4A3;
-}
 
-#alertbox {
-	display: none;
-	position: fixed;
-	right: 10px;
-	bottom: 0px;
-	width: 256px;
-	border: 1px solid #7EB977;
-	background: #ACE4A3;
-	padding: 2px;
-	border-radius: 12px; /* standard, webkit, opera */
-	-moz-border-radius: 12px; /* mozilla haven't committed yet */
-}
-.alert {
-	border: 1px solid #7EB977;
-	margin: 2px;
-	padding: 2px;
-	border-radius: 4px; /* standard, webkit, opera */
-	-moz-border-radius: 4px; /* mozilla haven't committed yet */
-}
-
+/* rule34 hack */
 #book {
 	display: none;
-}
-#comicbox, #alertbox {
-	box-shadow:         0px 0px 8px rgba(0,0,0,0.8); /* standard, opera */
-	-webkit-box-shadow: 0px 0px 8px rgba(0,0,0,0.8); /* webkit haven't committed yet */
-	-moz-box-shadow:    0px 0px 8px rgba(0,0,0,0.8); /* mozilla haven't committed yet */
-}
-#comicbox {
-    background-image: url(bg.png);
-	display: none;
-	position: absolute;
-	top: 64px;
-	left: 64px;
-	right: 64px;
-	margin-bottom: 64px;
-	text-align: center;
-}
-#comicshade {
-	display: none;
-	position: fixed;
-	top: 0px;
-	left: 0px;
-	right: 0px;
-	bottom: 0px;
-	background: rgba(0, 0, 0, 0.5);
 }

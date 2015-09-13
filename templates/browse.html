@@ -51,13 +51,10 @@ $def with(page, results, session)
 		<th width="75"><a href="/comic/list?sort=posted&amp;way=desc">Posted</a></th>
 		<th>Actions</th>
 	</tr></thead>
-	<tbody id="comiclistbody">
+	<tbody>
 $for n, comic in enumerate(results):
 	$ language = comic.get_language()
-	$if n % 2 == 0:
-		<tr class='a'>
-	$else:
-		<tr class='b'>
+	<tr>
 	$# endif
 		<td class='title'>
 			<a href="/view#$comic.disk_title--0--0">$comic.title</a>
@@ -67,26 +64,26 @@ $for n, comic in enumerate(results):
 				<img class="cover" src="/$comic.cover" />
 		</td>
 		<td><center>$comic.pages</center></td>
-	$if session.is_user:
 		<td>
+		$if session.is_user:
 			<span style="float: right;">(<a href="#"
 			onclick="edit_tags($comic.id, &quot;$comic.title&quot;, &quot;$comic.tags&quot;); return false;">edit</a>)</span>
-			<img src="/static/flags/${language}.png" width="20" height="14"
+			<img src="/static/flags/${language}.svg" class="flag"
 			onclick="edit_language($comic.id, &quot;$comic.title&quot;, &quot;$language&quot;); return false;">
-			$comic.tags
-		</td>
-	$else:
-		<td>
-			<img src="/static/${language}.png" width="20" height="14">
-			$comic.tags
+		$else:
+			<img src="/static/flags/${language}.svg" class="flag">
+		$# endif
+		$for tag in comic.tags.split():
+			<a href="?search=$tag">$tag.replace("_", " ")</a>
+		$# endfor
 		</td>
 	$if session.is_user:
-		<td><!--
+		<td class="stars"><!--
 		$for n in range(1, 6):
 			$if comic.rating < n:
-				--><a title="Vote $n" onclick="vote($comic.id, $n); return false;"><img alt="Vote $n" src="/static/star_off.gif"></a><!--
+				--><a title="Vote $n" onclick="vote($comic.id, $n); return false;"><span alt="Vote $n" class="star star_off"></span></a><!--
 			$else:
-				--><a title="Vote $n" onclick="vote($comic.id, $n); return false;"><img alt="Vote $n" src="/static/star_on.gif"></a><!--
+				--><a title="Vote $n" onclick="vote($comic.id, $n); return false;"><span alt="Vote $n" class="star star_on"></span></a><!--
 		--></td>
 	$if session.is_admin:
 		<td><center><span title="by $comic.owner.name ($comic.owner_ip)">$comic.posted</span></center></td>
@@ -116,38 +113,6 @@ $# end indent
 		<div id="alertbox" class="alertbox">
 			<center><a href="javascript: clear_alerts();">Close</a></center>
 			<div id="alerts" class="alerts"></div>
-		</div>
-
-		<div id="comicshade">
-		</div>
-
-		<div id="comicbox">
-			<form id="selector">
-				<a href="javascript: close_comicbox();">Back</a>
-				<select id="book" onchange="initChapSelector();"></select>
-				<select id="chap" onchange="initPageSelector();"></select>
-				<select id="page" onchange="initDisplay();"></select>
-				<select id="scale" onchange="setScale(this.options[this.selectedIndex].value);">
-					<option value="">Original Width</option>
-					<option value="100%">Page Width</option>
-					<option value="50%">Half Page</option>
-				</select>
-				<a href="#" onclick="alert('Arrow up/down: scroll\nArrow right/left: next/prev page'); return false;">Help</a>
-			</form>
-			<a href="#" onclick="moveToNextPage(); return false;"><img id="display" src="/static/spinner.gif"></a>
-			<!--<div id="comments"></div>-->
-			<div id="footer">
-				Images &copy; their respective owners
-				<br><a href="http://code.shishnet.org/cview3/">CView3</a> &copy;
-				<a href="http://www.shishnet.org/">Shish</a> 2009
-				<!--
-                <br><script id="_waubry">var _wau = _wau || []; _wau.push(["classic", "46z2m0ync436", "bry"]);
-(function() {var s=document.createElement("script"); s.async=true;
-s.src="http://widgets.amung.us/classic.js";
-document.getElementsByTagName("head")[0].appendChild(s);
-})();</script>
--->
-			</div>
 		</div>
 
 	</body>

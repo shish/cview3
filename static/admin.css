@@ -1,3 +1,23 @@
+.comiclist {
+	background: #ACE4A3;
+	border-collapse: collapse;
+	border: 1px solid #7EB977;
+	margin-left: auto;
+	margin-right: auto;
+}
+.comiclist TD {
+	font-size: 0.8em;
+	margin: 0px;
+	border-top: 1px solid #7EB977;
+	padding: 2px;
+}
+.comiclist TBODY TR:nth-child(odd) {
+	background: #9CD493;
+}
+.comiclist TBODY TR:nth-child(even) {
+	background: #ACE4A3;
+}
+
 .title {
 	position: relative;
 }
@@ -8,7 +28,54 @@
 	z-index: 100;
 	top: -50px;
 	right: -128px;
+	border: 1px solid black;
+	border-radius: 4px;
 }
 .title:hover .cover {
 	display: block;
+}
+
+.flag {
+	width: 20px;
+	height: 14px;
+}
+
+.stars {
+	white-space: nowrap;
+}
+.star {
+	display: inline-block;
+	width: 20px;
+	height: 20px;
+}
+.star_on {
+	background-image: url(/static/star_on.gif);
+}
+.star_off {
+	background-image: url(/static/star_off.gif);
+}
+.stars:hover .star {
+	background-image: url(/static/star_off.gif);
+}
+.stars:hover .star:hover {
+	background-image: url(/static/star_on.gif);
+}
+
+#alertbox {
+	display: none;
+	position: fixed;
+	right: 10px;
+	bottom: 0px;
+	width: 256px;
+	border: 1px solid #7EB977;
+	background: #ACE4A3;
+	padding: 2px;
+	border-radius: 12px;
+	box-shadow: 0px 0px 8px rgba(0,0,0,0.8);
+}
+.alert {
+	border: 1px solid #7EB977;
+	margin: 2px;
+	padding: 2px;
+	border-radius: 4px;
 }

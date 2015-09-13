@@ -1,4 +1,16 @@
 /*
+ * Alert Box
+ */
+function clear_alerts() {
+	$("#alerts")[0].innerHTML = "";
+	$("#alertbox")[0].style.display = "none";
+}
+function add_alert(text) {
+	$("#alertbox")[0].style.display = "block";
+	$("#alerts")[0].innerHTML += "<div class='alert'>"+text+"</div>";
+}
+
+/*
  * AJAX
  */
 function rename(comic_id, title) {

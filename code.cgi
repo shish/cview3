@@ -70,6 +70,7 @@ def main():
             '/comic/rate', 'rate',
             '/api/(.*)', 'api',
             '/(books/.*)', 'static',
+            '/(static/.*)', 'static',
             '(.*)', 'go404',
         )
         app = web.application(urls, globals())
