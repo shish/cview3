@@ -3,8 +3,11 @@ $def with(page, results, session)
 <html>
 	<head>
 		<title>CView Browser</title>
-		<link rel="stylesheet" href="/static/_combined.css" type="text/css">
-		<script type="text/javascript" src="/static/_combined.js"></script>
+		<link rel="stylesheet" href="/static/cview.css" type="text/css">
+		<link rel="stylesheet" href="/static/admin.css" type="text/css">
+		<script type="text/javascript" src="/static/cview.js"></script>
+		<script type="text/javascript" src="/static/jquery-1.11.3.min.js"></script>
+		<script type="text/javascript" src="/static/admin.js"></script>
 	</head>
 	<body>
 
@@ -50,26 +53,25 @@ $def with(page, results, session)
 	</tr></thead>
 	<tbody id="comiclistbody">
 $for n, comic in enumerate(results):
-	$ disk_title = comic.get_disk_title()
 	$ language = comic.get_language()
 	$if n % 2 == 0:
 		<tr class='a'>
 	$else:
 		<tr class='b'>
-	$if session.is_admin:
-		<td>
-			<a href="/view#$disk_title--0--0">$comic.title</a>
-			(<a href="#" onclick="rename($comic.id, &quot;$comic.title&quot); return false;">rename</a>)
+	$# endif
+		<td class='title'>
+			<a href="/view#$comic.disk_title--0--0">$comic.title</a>
+			$if session.is_admin:
+				(<a href="#" onclick="rename($comic.id, &quot;$comic.title&quot); return false;">rename</a>)
+			$if comic.cover:
+				<img class="cover" src="/$comic.cover" />
 		</td>
-		<td><center>$comic.pages</center></td>
-	$else:
-		<td><a href="/view#$disk_title--0--0">$comic.title</a></td>
 		<td><center>$comic.pages</center></td>
 	$if session.is_user:
 		<td>
 			<span style="float: right;">(<a href="#"
 			onclick="edit_tags($comic.id, &quot;$comic.title&quot;, &quot;$comic.tags&quot;); return false;">edit</a>)</span>
-			<img src="/static/${language}.png" width="20" height="14"
+			<img src="/static/flags/${language}.png" width="20" height="14"
 			onclick="edit_language($comic.id, &quot;$comic.title&quot;, &quot;$language&quot;); return false;">
 			$comic.tags
 		</td>
@@ -92,7 +94,7 @@ $for n, comic in enumerate(results):
 		<td><center><span title="by $comic.owner.name">$comic.posted</span></center></td>
 	$# outdent
 		<td><center>
-			<a href="/comic/download/$comic.id/${disk_title}.cbz">download</a>
+			<a href="/comic/download/$comic.id/${comic.disk_title}.cbz">download</a>
 		$if session.is_admin:
 			/ <a href="#" onclick="delete_comic($comic.id, &quot;$comic.title&quot;); return false;">delete</a>
 		</center></td>
@@ -138,6 +140,13 @@ $# end indent
 				Images &copy; their respective owners
 				<br><a href="http://code.shishnet.org/cview3/">CView3</a> &copy;
 				<a href="http://www.shishnet.org/">Shish</a> 2009
+				<!--
+                <br><script id="_waubry">var _wau = _wau || []; _wau.push(["classic", "46z2m0ync436", "bry"]);
+(function() {var s=document.createElement("script"); s.async=true;
+s.src="http://widgets.amung.us/classic.js";
+document.getElementsByTagName("head")[0].appendChild(s);
+})();</script>
+-->
 			</div>
 		</div>
 

@@ -45,7 +45,7 @@ BODY {
 	padding: 2px;
 }
 TABLE INPUT {
-	width: 256px;
+	width: 100%;
 }
 .comiclist {
 	background: #ACE4A3;

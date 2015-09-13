@@ -1,0 +1,6 @@
+sqlobject
+formencode
+psycopg2
+web.py
+flup
+py-bcrypt

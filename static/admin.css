@@ -1,0 +1,14 @@
+.title {
+	position: relative;
+}
+.cover {
+	position: absolute;
+	display: none;
+	width: 128px;
+	z-index: 100;
+	top: -50px;
+	right: -128px;
+}
+.title:hover .cover {
+	display: block;
+}

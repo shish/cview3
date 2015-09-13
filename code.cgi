@@ -13,13 +13,15 @@ import cgi
 import web
 import re
 import tempfile
-import md5
+import hashlib
 import logging
 import shutil
 import zipfile
 import json
+from glob import glob
 
 from sqlobject import *
+import bcrypt
 
 render = None
 session = None
@@ -49,6 +51,7 @@ def main():
         return 2
 
     try:
+        logging.info("Configuring app")
         urls = (
             '/?', 'browse',
             '/view', 'view',
@@ -66,6 +69,7 @@ def main():
             '/comic/delete', 'delete',
             '/comic/rate', 'rate',
             '/api/(.*)', 'api',
+            '/(books/.*)', 'static',
             '(.*)', 'go404',
         )
         app = web.application(urls, globals())
@@ -98,8 +102,9 @@ def main():
         username = config.get("database", "username")
         password = config.get("database", "password")
         database = config.get("database", "database")
-        conn = connectionForURI("postgres://%s:%s@%s/%s" % (
-            username, password, hostname, database))
+        port = config.get("database", "port")
+        conn = connectionForURI("postgres://%s:%s@%s:%s/%s" % (
+            username, password, hostname, port, database))
         # check that the connection is live. Yes, the connect() call will return
         # success when the server doesn't even exist, and this is the official
         # way to deal with that...
@@ -112,7 +117,7 @@ def main():
     try:
         logging.info("Running...")
         app.run()
-        #logging.info("App is over, disconnecting from database")
+        logging.info("App is over, disconnecting from database")
         conn.close()
     except SystemExit:
         pass
@@ -125,10 +130,10 @@ def main():
 class User(SQLObject):
     class sqlmeta:
         table = "users"
-    name = StringCol(alternateID=True, length=32, notNone=True)
+    name = StringCol(dbName="name", alternateID=True, length=32, notNone=True)
     password = StringCol(dbName="pass", length=32)
     joindate = DateTimeCol()
-    admin = BoolCol()
+    admin = StringCol()
     comic_admin = BoolCol()
     email = StringCol(length=249)
     image_count = IntCol()
@@ -158,8 +163,8 @@ class Comic(SQLObject):
         return "unknown"
 
     def remove_files(self):
-        if os.path.exists("books/"+self.get_disk_title()):
-            shutil.rmtree("books/"+self.get_disk_title())
+        if os.path.exists("books/"+self.disk_title):
+            shutil.rmtree("books/"+self.disk_title)
 
     def write_meta(self):
         cp = ConfigParser.SafeConfigParser()
@@ -170,10 +175,19 @@ class Comic(SQLObject):
         cp.set("meta", "pages", self.pages)
         cp.set("meta", "tags", self.tags)
         cp.set("meta", "description", self.description)
-        cp.write(file("books/"+self.get_disk_title()+"/meta.txt", "w"))
+        cp.write(file("books/"+self.disk_title+"/meta.txt", "w"))
 
-    def get_disk_title(self):
+    @property
+    def disk_title(self):
         return sanitise(self.title)
+
+    @property
+    def cover(self):
+        c = os.path.join("books", self.disk_title, "cover.jpg")
+        if os.path.exists(c):
+            return c
+        else:
+            return None
 
     def rename(self, new_title):
         old_disk_title = sanitise(self.title)
@@ -213,7 +227,7 @@ def count_pages(archive):
 
     if pages == 0:
         raise BadComicException("No pages found")
-    
+
     return pages
 
 def valid_comicfile(name):
@@ -317,7 +331,8 @@ def add_to_db(title, tags, pages, owner="Anonymous", owner_ip="0.0.0.0"):
     existing = Comic.selectBy(title=str(title))
     if len(list(existing)) > 0:
         raise BadComicException("There's already a comic with that title")
-    Comic(owner=User.byName(owner), creator='', owner_ip=str(owner_ip), title=str(title), tags=str(tags), pages=int(pages))
+    user = User.byName(owner)
+    Comic(owner=user, creator='', owner_ip=str(owner_ip), title=str(title), tags=str(tags), pages=int(pages))
 
 
 # user
@@ -329,11 +344,23 @@ class login:
         x = web.input(username=None, password=None)
         log_info("Logging in: "+str(x["username"]))
         try:
-            passhash = md5.md5(x["username"].lower() + x["password"]).hexdigest()
-            user = User.select("name LIKE %s AND pass=%s" % (
-                User.sqlrepr(str(x["username"])), User.sqlrepr(str(passhash))
-            ))[0]
+            maybe_user = User.select("name ILIKE %s" % User.sqlrepr(str(x["username"])))
+            if maybe_user:
+                maybe_user = maybe_user[0]
+                log_info("Potential user: "+maybe_user.name)
+            else:
+                raise Exception("No matching user")
+            passhash_md5 = hashlib.md5(x["username"].lower() + x["password"]).hexdigest()
+            passhash_bcr = maybe_user.password.replace('$2y$', '$2a$')
+
+            if maybe_user.password == passhash_md5:
+                log_info("MD5 match")
+                user = maybe_user
+            elif bcrypt.hashpw(x["password"], passhash_bcr) == passhash_bcr:
+                log_info("BCrypt match")
+                user = maybe_user
         except Exception, e:
+            log_info("Error: %s" % e)
             user = None
         if user:
             session["username"] = user.name
@@ -359,8 +386,8 @@ class hack:
         conn = connect()
         comics = Comic.select()
         for comic in comics:
-            if os.path.exists("books/"+comic.get_disk_title()):
-                time_secs = os.stat("books/"+comic.get_disk_title())[8]
+            if os.path.exists("books/"+comic.disk_title):
+                time_secs = os.stat("books/"+comic.disk_title)[8]
                 comic.posted = time.strftime("%Y-%m-%d", time.localtime(time_secs))
         conn.close()
         return "ok"
@@ -371,7 +398,7 @@ class api:
             return json.dumps([{
                 "id": int(c.id),
                 "title": str(c.title),
-                "disk_title": str(c.get_disk_title()),
+                "disk_title": str(c.disk_title),
                 "pages": int(c.pages),
                 "tags": str(c.tags),
                 "posted": str(c.posted),
@@ -384,11 +411,15 @@ class api:
                     tags.add(tag)
             return json.dumps(list(tags))
 
+class static:
+    def GET(self, fn):
+        return file(fn).read()
 # comic
 class browse:
     def GET(self, pagen=1):
         x = web.input(search=None, sort="default", way="asc")
-        return render.browse(int(pagen), get_comics(x["search"], orderBy=x["sort"], way=x["way"], page=int(pagen)), session)
+        comics = get_comics(x["search"], orderBy=x["sort"], way=x["way"], page=int(pagen))
+        return render.browse(int(pagen), comics, session)
 
 class rename:
     @if_user_is_admin
@@ -520,8 +551,8 @@ class download:
             from zipstream import ZipStream
             web.http.expires(86400 * 30)
             comic = Comic.get(int(cid))
-            path = "books/"+comic.get_disk_title()
-            zip_filename = comic.get_disk_title()+'.cbz'
+            path = "books/"+comic.disk_title
+            zip_filename = comic.disk_title+'.cbz'
             web.header('Content-type' , 'application/octet-stream')
             web.header('Content-Disposition', 'attachment; filename="%s"' % (zip_filename,))
             for data in ZipStream(path):
