@@ -1,4 +1,4 @@
-$def with(page, results, session)
+$def with(page, results, session, urlmod)
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
 <html>
 	<head>
@@ -25,11 +25,11 @@ $def with(page, results, session)
 			$ npage = page+1
 			<tr id="paginator"><td colspan="2"><center><small>
 			$if ppage != 0:
-				<a href="/comic/list/$ppage">Prev Page</a> |
+				<a href="$urlmod({'page': ppage})">Prev Page</a> |
 			$else:
 				Prev Page |
 			$# end indent
-				<a href="/comic/list/$npage">Next Page</a>
+				<a href="$urlmod({'page': npage})">Next Page</a>
 			</small></center></td></tr>
 		</table>
 	</form>
@@ -41,14 +41,14 @@ $def with(page, results, session)
 
 <table id="comiclist" class="comiclist" border="0">
 	<thead><tr>
-		<th width="150"><a href="/comic/list?sort=title">Name</a></th>
-		<th><a href="/comic/list?sort=pages">Pg.</a></th>
+		<th width="150"><a href="$urlmod({'sort': 'title'})">Name</a></th>
+		<th><a href="$urlmod({'sort': 'pages'})">Pg.</a></th>
 		<th>
 			<a href="javascript: search_prompt();">Tags</a>
 		</th>
 		$if session.is_admin:
-			<th><a href="/comic/list?sort=rating&amp;way=desc">Rating</a></th>
-		<th width="75"><a href="/comic/list?sort=posted&amp;way=desc">Posted</a></th>
+			<th><a href="$urlmod({'sort': 'rating', 'way': 'desc'})">Rating</a></th>
+		<th width="75"><a href="$urlmod({'sort': 'posted', 'way': 'desc'})">Posted</a></th>
 		<th>Actions</th>
 	</tr></thead>
 	<tbody>
@@ -74,7 +74,7 @@ $for n, comic in enumerate(results):
 			<img src="/static/flags/${language}.svg" class="flag">
 		$# endif
 		$for tag in comic.tags.split():
-			<a href="?search=$tag">$tag.replace("_", " ")</a>
+			<a href="$urlmod({'search': tag})">$tag.replace("_", " ")</a>
 		$# endfor
 		</td>
 	$if session.is_user:
@@ -114,6 +114,12 @@ $# end indent
 			<center><a href="javascript: clear_alerts();">Close</a></center>
 			<div id="alerts" class="alerts"></div>
 		</div>
+
+        <br><script id="_waubry">var _wau = _wau || []; _wau.push(["classic", "46z2m0ync436", "bry"]);
+(function() {var s=document.createElement("script"); s.async=true;
+s.src="http://widgets.amung.us/classic.js";
+document.getElementsByTagName("head")[0].appendChild(s);
+})();</script>
 
 	</body>
 </html>

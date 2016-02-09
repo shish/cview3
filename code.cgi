@@ -18,6 +18,7 @@ import logging
 import shutil
 import zipfile
 import json
+import urllib
 from glob import glob
 
 from sqlobject import *
@@ -317,7 +318,11 @@ def get_comics(search=None, orderBy="default", way="asc", page=1):
                 "rating", "pages",
                 "id"]:
         orderBy = "title"
-    comics = Comic.select("tags ILIKE %s" % Comic.sqlrepr(tag), orderBy=orderBy)
+    comics = Comic.select(
+        "tags ILIKE %s OR title ILIKE %s" %
+        (Comic.sqlrepr(tag), Comic.sqlrepr(tag)),
+        orderBy=orderBy
+    )
     if way == "desc":
         comics = comics.reversed()
     comics = comics[(page-1)*100:page*100]
@@ -369,7 +374,7 @@ class login:
             session["is_admin"] = user.comic_admin
             session["is_user"] = True
             log_info("Logged in")
-            web.seeother("http://rule34c.paheal.net/")
+            web.seeother(web.ctx.homedomain)
         else:
             return "Login failed"
 
@@ -377,7 +382,7 @@ class logout:
     def GET(self):
         log_info("Logged out")
         session.kill()
-        web.seeother("http://rule34c.paheal.net/")
+        web.seeother(web.ctx.homedomain)
 
 # admin
 class hack:
@@ -415,12 +420,21 @@ class api:
 class static:
     def GET(self, fn):
         return file(fn).read()
+
 # comic
 class browse:
     def GET(self, pagen=1):
-        x = web.input(search=None, sort="default", way="asc")
-        comics = get_comics(x["search"], orderBy=x["sort"], way=x["way"], page=int(pagen))
-        return render.browse(int(pagen), comics, session)
+        x = web.input(search=None, sort="default", way="asc", page=pagen)
+        def urlmod(new):
+            if 'page' not in new:
+                new['page'] = 1
+            x2 = dict(x)
+            x2.update(new)
+            if not x2['search']:
+                del x2['search']
+            return "/?" + urllib.urlencode(x2)
+        comics = get_comics(x["search"], orderBy=x["sort"], way=x["way"], page=int(x['page']))
+        return render.browse(int(x['page']), comics, session, urlmod)
 
 class rename:
     @if_user_is_admin

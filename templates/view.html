@@ -10,17 +10,17 @@ $def with()
 		<center>
 			<form id="selector">
 				<a href="/comic/list">Browse</a>
-				<select id="book" onChange="initChapSelector();"></select>
-				<select id="chap" onChange="initPageSelector();"></select>
-				<select id="page" onChange="initDisplay();"></select>
-				<select id="scale" onChange="setScale(this.options[this.selectedIndex].value);">
+				<select id="book" onchange="initChapSelector();"></select>
+				<select id="chap" onchange="initPageSelector();"></select>
+				<select id="page" onchange="initDisplay();"></select>
+				<select id="scale" onchange="setScale(this.options[this.selectedIndex].value);">
 					<option value="">Original Width</option>
 					<option value="100%">Page Width</option>
 					<option value="50%">Half Page</option>
 				</select>
-				<a href="#" onClick="alert('Arrow keys scroll up/down and move next/prev page'); return false;">Help</a>
+				<a href="#" onclick="alert('Arrow keys scroll up/down and move next/prev page'); return false;">Help</a>
 			</form>
-			<a href="#" onClick="moveToNextPage(); return false;"><img id="display" src="/static/spinner.gif"></a>
+			<a href="#" onclick="moveToNextPage(); return false;"><img id="display" src="/static/spinner.gif"></a>
 			<div id="comments"></div>
 			<div id="footer">
 				Images &copy; their respective owners

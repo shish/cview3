@@ -11,10 +11,10 @@
 // comment_add_url:
 //  where to post comments, null to disable
 //
-image_domain = "http://rule34c-images.paheal.net"
-list_interface = "apache";
-root = "/books";
-comment_add_url = "/comment/add";
+var image_domain = "//rule34c-images.paheal.net";
+var list_interface = "apache";
+var root = "/books";
+var comment_add_url = "/comment/add";
 
 // {{{ fix javascript deficiencies
 function getHTTPObject() { 
@@ -28,19 +28,19 @@ function getHTTPObject() {
 
 String.prototype.trim = function() {
 	return this.replace(/^\s+|\s+$/g,"");
-}
+};
 
 Array.prototype.sortInPlace = function() {
 	this.sort();
 	return this;
-}
+};
 
 function selectedValue(selector) {
 	return selector.options[selector.selectedIndex].value;
 }
 
 function sjax(url, postdata) {
-	http_request = getHTTPObject();
+	var http_request = getHTTPObject();
 
 	if(postdata) {
 		http_request.open('POST', url, false);
@@ -76,10 +76,10 @@ if(list_interface == "ajax.py") {
 }
 else if(list_interface == "apache") {
 	function getBooks() {
-		books = Array();
-		books_html = sjax(root+"/");
-		books_lines = books_html.split("\n");
-		for(i=0; i<books_lines.length; i++) {
+		var books = Array();
+		var books_html = sjax(root+"/");
+		var books_lines = books_html.split("\n");
+		for(var i=0; i<books_lines.length; i++) {
 			var re = RegExp("<A HREF=\"([^/\"]+)/\">", "i");
 			var m = re.exec(books_lines[i]);
 			if(m != null && m[1] != "..") {
@@ -89,10 +89,10 @@ else if(list_interface == "apache") {
 		return books.sortInPlace();
 	}
 	function getChapters(book) {
-		chaps = Array();
-		chaps_html = sjax(root+"/"+book+"/");
-		chaps_lines = chaps_html.split("\n");
-		for(i=0; i<chaps_lines.length; i++) {
+		var chaps = Array();
+		var chaps_html = sjax(root+"/"+book+"/");
+		var chaps_lines = chaps_html.split("\n");
+		for(var i=0; i<chaps_lines.length; i++) {
 			var re = RegExp("<A HREF=\"([^/\"]+)/\">", "i");
 			var m = re.exec(chaps_lines[i]);
 			if(m != null && m[1] != "..") {
@@ -102,10 +102,10 @@ else if(list_interface == "apache") {
 		return chaps.sortInPlace();
 	}
 	function getPages(book, chap) {
-		pages = Array();
-		pages_html = sjax(root+"/"+book+"/"+chap+"/");
-		pages_lines = pages_html.split("\n");
-		for(i=0; i<pages_lines.length; i++) {
+		var pages = Array();
+		var pages_html = sjax(root+"/"+book+"/"+chap+"/");
+		var pages_lines = pages_html.split("\n");
+		for(var i=0; i<pages_lines.length; i++) {
 			var re = new RegExp("<A HREF=\"([^/\"]+(jpg|jpeg|png|gif))\">", "i");
 			var m = re.exec(pages_lines[i]);
 			if(m != null) {
@@ -116,10 +116,10 @@ else if(list_interface == "apache") {
 	}
 	/*
 	function getAnnotations(book, chap) {
-		annotations = Array();
-		annotations_html = sjax(root+"/"+book+"/"+chap+"/");
-		annotations_lines = annotations_html.split("\n");
-		for(i=0; i<annotations_lines.length; i++) {
+		var annotations = Array();
+		var annotations_html = sjax(root+"/"+book+"/"+chap+"/");
+		var annotations_lines = annotations_html.split("\n");
+		for(var i=0; i<annotations_lines.length; i++) {
 			var re = new RegExp("<A HREF=\"([^/\"]+(txt))\">", "i");
 			var m = re.exec(annotations_lines[i]);
 			if(m != null) {
@@ -133,18 +133,18 @@ else if(list_interface == "apache") {
 // }}}
 // {{{ interactive stuff
 // current state
-loadBook = "";
-loadBookIndex = 0;
-loadChap = 0;
-loadPage = 0;
-loadedHash = "";
+var loadBook = "";
+var loadBookIndex = 0;
+var loadChap = 0;
+var loadPage = 0;
+var loadedHash = "";
 //knownAnnotations = Array();
 
 // {{{ main waterfall
 function init() {
-	hash = document.location.hash;
+	var hash = document.location.hash;
 	if(hash.length > 0) {
-		parts = hash.split("--");
+		var parts = hash.split("--");
 		if(parts.length == 3) {
 			loadBook = parts[0].substring(1);
 			loadChap = parts[1];
@@ -152,77 +152,91 @@ function init() {
 		}
 	}
 	initBookSelector();
-	setInterval("checkHash();", 500);
-}
-function checkHash() {
-	if(document.location.hash != loadedHash) {
-		init();
-	}
+	setInterval(function() {
+		if(document.location.hash != loadedHash) {
+			init();
+		}
+	}, 500);
 }
 function initBookSelector() {
-	bookSelector = document.getElementById("book");
-	books = getBooks();
+	var bookSelector = document.getElementById("book");
+	var books = getBooks();
 	bookSelector.options.length = 0;
-	for(i=0; books[i]; i++) {bookSelector.options[i] = new Option(books[i].replace(/_/g," "), books[i]);}
-	for(i=0; i<bookSelector.options.length; i++) {if(bookSelector.options[i].value == loadBook) loadBookIndex=i;};
+	for(var i=0; books[i]; i++) {bookSelector.options[i] = new Option(books[i].replace(/_/g," "), books[i]);}
+	for(var i=0; i<bookSelector.options.length; i++) {if(bookSelector.options[i].value == loadBook) loadBookIndex=i;}
 	bookSelector.selectedIndex = loadBookIndex;
 	loadBook = "";
 	initChapSelector();
 }
 function initChapSelector() {
-	bookSelector = document.getElementById("book");
-	chapSelector = document.getElementById("chap");
-	chaps = getChapters(selectedValue(bookSelector));
+	var bookSelector = document.getElementById("book");
+	var chapSelector = document.getElementById("chap");
+	var chaps = getChapters(selectedValue(bookSelector));
 	chapSelector.options.length = 0;
-	for(i=0; chaps[i]; i++) {chapSelector.options[i] = new Option(chaps[i].replace(/_/g," "), chaps[i]);}
+	for(var i=0; chaps[i]; i++) {chapSelector.options[i] = new Option(chaps[i].replace(/_/g," "), chaps[i]);}
 	chapSelector.selectedIndex = loadChap;
 	loadChap = 0;
 	initPageSelector();
 }
 function initPageSelector() {
-	bookSelector = document.getElementById("book");
-	chapSelector = document.getElementById("chap");
-	pageSelector = document.getElementById("page");
-	pages = getPages(selectedValue(bookSelector), selectedValue(chapSelector));
+	var bookSelector = document.getElementById("book");
+	var chapSelector = document.getElementById("chap");
+	var pageSelector = document.getElementById("page");
+	var pages = getPages(selectedValue(bookSelector), selectedValue(chapSelector));
 	pageSelector.options.length = 0;
-	for(i=0; pages[i]; i++) {pageSelector.options[i] = new Option(i+1, pages[i]);}
+	for(var i=0; pages[i]; i++) {pageSelector.options[i] = new Option(i+1, pages[i]);}
 	pageSelector.selectedIndex = loadPage;
 	loadPage = 0;
 	//knownAnnotations = getAnnotations(selectedValue(bookSelector), selectedValue(chapSelector));
 	initDisplay();
 }
 function initDisplay() {
-	bookSelector = document.getElementById("book");
-	chapSelector = document.getElementById("chap");
-	pageSelector = document.getElementById("page");
-	xdisplay = document.getElementById("display");
-	xdisplay.src = image_domain + root + "/" + selectedValue(bookSelector) + "/" +
-	               selectedValue(chapSelector) + "/" + selectedValue(pageSelector);
+	var bookSelector = document.getElementById("book");
+	var chapSelector = document.getElementById("chap");
+	var pageSelector = document.getElementById("page");
+	var xdisplay = document.getElementById("display");
+	xdisplay.src = pagePath(
+		selectedValue(bookSelector),
+	    selectedValue(chapSelector),
+		selectedValue(pageSelector)
+	);
 	//window.scroll(0, xdisplay.offsetTop);
-	window.scroll(0, 0);
+	window.scrollTo(0, 0);
 	//initAnnotations();
 	initPreload();
 }
+function pagePath(book, chap, page) {
+	return image_domain + root + "/" + book + "/" + chap + "/" + page;
+}
 function initPreload() {
-	bookSelector = document.getElementById("book");
-	pageSelector = document.getElementById("page");
-	chapSelector = document.getElementById("chap");
-	pages = pageSelector.options.length;
-	chaps = chapSelector.options.length;
-//	buffering_div = document.getElementById("buffering");
+	function preload(book, chap, page) {
+		var img = document.createElement("img");
+		img.setAttribute("src", pagePath(book, chap, page));
+	}
+
+	var bookSelector = document.getElementById("book");
+	var pageSelector = document.getElementById("page");
+	var chapSelector = document.getElementById("chap");
+	var pages = pageSelector.options.length;
+	var chaps = chapSelector.options.length;
+//	var buffering_div = document.getElementById("buffering");
 //	buffering_div.style.visibility = "visible";
 	if(pageSelector.selectedIndex+1 < pages) {
-		nextPage = pageSelector.options[pageSelector.selectedIndex+1].value;
-		img = document.createElement("img");
-		img.setAttribute("src", image_domain + root + "/" + selectedValue(bookSelector) + "/" +
-		          selectedValue(chapSelector) + "/" + nextPage);
+		var nextPage = pageSelector.options[pageSelector.selectedIndex+1].value;
+		preload(
+			selectedValue(bookSelector),
+			selectedValue(chapSelector),
+			nextPage
+		);
 	}
 	else if(chapSelector.selectedIndex+1 < chaps) {
-		nextChap = chapSelector.options[chapSelector.selectedIndex+1].value;
-		nextChapPages = getPages(selectedValue(bookSelector), nextChap);
-		nextPage = nextChapPages[0];
-		img = document.createElement("img");
-		img.setAttribute("src", image_domain + root + "/" + selectedValue(bookSelector) + "/" + nextChap + "/" + nextPage);
+		var nextChap = chapSelector.options[chapSelector.selectedIndex+1].value;
+		var nextPage = getPages(selectedValue(bookSelector), nextChap)[0];
+		preload(
+			selectedValue(bookSelector),
+			nextChap,
+			nextPage
+		);
 	}
 //	img.onload = function() {
 //		buffering_div.style.visibility = "hidden";
@@ -234,10 +248,10 @@ function initPreload() {
 }
 
 function moveToNextPage() {
-	pageSelector = document.getElementById("page");
-	chapSelector = document.getElementById("chap");
-	pages = pageSelector.options.length;
-	chaps = chapSelector.options.length;
+	var pageSelector = document.getElementById("page");
+	var chapSelector = document.getElementById("chap");
+	var pages = pageSelector.options.length;
+	var chaps = chapSelector.options.length;
 	if(pageSelector.selectedIndex+1 < pages) {
 		pageSelector.selectedIndex++;
 		initDisplay();
@@ -248,7 +262,7 @@ function moveToNextPage() {
 	}
 }
 function moveToPrevPage() {
-	pageSelector = document.getElementById("page");
+	var pageSelector = document.getElementById("page");
 	if(pageSelector.selectedIndex > 0) {
 		pageSelector.selectedIndex--;
 		initDisplay();
@@ -257,12 +271,12 @@ function moveToPrevPage() {
 // }}}
 // {{{ annotations
 function initAnnotations() {
-	bookSelector = document.getElementById("book");
-	chapSelector = document.getElementById("chap");
-	pageSelector = document.getElementById("page");
-	target_annotation = selectedValue(pageSelector).replace(/(jpg|jpeg|png|gif)$/, "txt");;
+	var bookSelector = document.getElementById("book");
+	var chapSelector = document.getElementById("chap");
+	var pageSelector = document.getElementById("page");
+	var target_annotation = selectedValue(pageSelector).replace(/(jpg|jpeg|png|gif)$/, "txt");;
 
-	commentDiv = document.getElementById("comments");
+	var commentDiv = document.getElementById("comments");
 
 	while(commentDiv.childNodes[0]) {
 		commentDiv.removeChild(commentDiv.childNodes[0]);
@@ -271,19 +285,19 @@ function initAnnotations() {
 	commentDiv.innerHTML = "Loading Comments...";
 //	annotation_data = sjax(root + "/" + selectedValue(bookSelector) + "/" +
 //							selectedValue(chapSelector) + "/" + target_annotation)
-	annotation_data = sjax("/comment/get?page="+
+	var annotation_data = sjax("/comment/get?page="+
 			selectedValue(bookSelector) + "/" +
 			selectedValue(chapSelector) + "/" +
 			selectedValue(pageSelector));
 	if(annotation_data) {
-		lines = annotation_data.split("\n");
+		var lines = annotation_data.split("\n");
 		commentDiv.innerHTML = "";
-		for(i=0; lines[i]; i++) {
-			parts = lines[i].split(":", 2);
+		for(var i=0; lines[i]; i++) {
+			var parts = lines[i].split(":", 2);
 			if(parts[0] == "comment") {
 				parts = lines[i].split(":", 4);
-				name = parts[1];
-				comment = parts[2];
+				var name = parts[1];
+				var comment = parts[2];
 
 				p = document.createElement("p");
 				p.innerHTML = escape(name)+": "+comment;
@@ -291,13 +305,13 @@ function initAnnotations() {
 			}
 			else if(parts[0] == "note") {
 				parts = lines[i].split(":", 8);
-				ip = parts[1];
-				name = parts[2];
-				comment = parts[6];
+				var ip = parts[1];
+				var name = parts[2];
+				var comment = parts[6];
 
-				xdisplay = document.getElementById("display");
+				var xdisplay = document.getElementById("display");
 
-				div = document.createElement("div");
+				var div = document.createElement("newDiv");
 				div.style.position = "absolute";
 				div.style.left    = xdisplay.offsetLeft + parseInt(parts[3]);
 				div.style.top     = xdisplay.offsetTop + parseInt(parts[4]);
@@ -319,22 +333,25 @@ function initAnnotations() {
 		commentDiv.innerHTML = "No Comments";
 	}
 	if(comment_add_url) {
-		div = document.createElement("div");
-		div.innerHTML = "<center><textarea id='comment_text'></textarea>"+
-		"<br><input type='button' onclick='submitComment();' value='Comments are WIP'></center>";
-		commentDiv.appendChild(div);
+		var newDiv = document.createElement("div");
+		newDiv.innerHTML = "<center>"+
+			"<textarea id='comment_text'></textarea>"+
+			"<br><input type='button' onclick='submitComment();' value='Comments are WIP'>"+
+			"</center>";
+		commentDiv.appendChild(newDiv);
 	}
 //	commentDiv.innerHTML += ""+
 //	"<p><a href='javascript: refreshAnnotations();'>Refresh Comments</a>";
 }
 
 function submitComment() {
-	bookSelector = document.getElementById("book");
-	chapSelector = document.getElementById("chap");
-	pageSelector = document.getElementById("page");
-	target = selectedValue(bookSelector) + "/" + selectedValue(chapSelector) +
-	         "/" + selectedValue(pageSelector);
-	comment = document.getElementById("comment_text").value;
+	var bookSelector = document.getElementById("book");
+	var chapSelector = document.getElementById("chap");
+	var pageSelector = document.getElementById("page");
+	var target = selectedValue(bookSelector) + "/" +
+		         selectedValue(chapSelector) + "/" +
+		         selectedValue(pageSelector);
+	var comment = document.getElementById("comment_text").value;
 	addComment(target, comment);
 	refreshAnnotations();
 }
@@ -347,21 +364,16 @@ function refreshAnnotations() {
 }
 // }}}
 // {{{ scaling
-function setScaled(scaled) {
-	xdisplay = document.getElementById("display");
-	if(scaled) xdisplay.style.width="100%";
-	else xdisplay.style.width="";
-}
 function setScale(scale) {
-	xdisplay = document.getElementById("display");
+	var xdisplay = document.getElementById("display");
 	xdisplay.style.width=scale;
 }
 // }}}
 // keyboard {{{
-document.onkeydown = key_pressed;
-function key_pressed(e) {
+document.onkeydown = function(e) {
+	var keycode = null;
 	if(navigator.appName == "Microsoft Internet Explorer") {
-		if(!e) var e = window.event;
+		if(!e) e = window.event;
 		if(e.keyCode) {
 			keycode = e.keyCode;
 			if((keycode == 39) || (keycode == 37)) {
@@ -388,5 +400,5 @@ function key_pressed(e) {
 		moveToPrevPage();
 		return false;
 	}
-}
+};
 // }}}
