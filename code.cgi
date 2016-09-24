@@ -156,7 +156,7 @@ class Comic(SQLObject):
     posted = DateCol(notNone=True, default=func.now())
 
     def get_language(self):
-        known = ["english", "japanese", "spanish", "dutch", "finnish", "french", "german"]
+        known = ["english", "japanese", "spanish", "dutch", "finnish", "french", "german", "russian"]
         if self.language in known:
             return self.language
         for lang in known:
