@@ -91,6 +91,7 @@ def main():
         session_dir = config.get("files", "session_dir")
         if not os.path.exists(session_dir):
             os.mkdir(session_dir)
+        web.config.session_parameters['cookie_path'] = '/'
         session = web.session.Session(
             app, web.session.DiskStore(session_dir),
             initializer={'username': "Anonymous", 'is_user': False, 'is_admin': False})
